@@ -75,6 +75,14 @@ entries:
   name: latest
   package: rhacs-operator
   schema: olm.channel
+- schema: olm.deprecations
+  package: rhacs-operator
+  entries:
+  - reference:
+      schema: olm.channel
+      name: latest
+    message: |
+      Channel "latest" is no longer supported.  Please switch to channel "stable".
 - entries:
   - name: rhacs-operator.v3.62.0
     skipRange: '>= 3.61.0 < 3.62.0'
