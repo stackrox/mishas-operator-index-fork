@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/stackrox/operator-index?rev={{revision}}
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/max-keep-runs: "500"
+    # The on-push filter includes konflux/* branches which are created by Mintmaker so that CI runs for commits pushed
+    # onto these branches even without PRs and so that Mintmaker/Renovate can automerge its updates without PRs.
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      (event == "push" && target_branch.matches("^(master|konflux/references/master|konflux/mintmaker/.*)$")) ||
+      (event == "pull_request")
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-19
+    appstudio.openshift.io/component: operator-index-ocp-v4-19
+    pipelines.appstudio.openshift.io/type: build
+  name: operator-index-ocp-v4-19-on-push
+  namespace: rh-acs-tenant
+
+spec:
+
+  params:
+  - name: git-url
+    value: '{{source_url}}'
+  - name: revision
+    value: '{{revision}}'
+  - name: base-image
+    value: brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.19
+  - name: output-image-tag
+    value: ocp-v4-19-{{revision}}-fast
+  - name: catalog-dir
+    value: catalog-csv-metadata
+
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-operator-index-ocp-v4-19
+
+  workspaces:
+  - name: git-auth
+    secret:
+      secretName: '{{ git_auth_secret }}'
+
+  pipelineRef:
+    name: operator-index-pipeline
