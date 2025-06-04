@@ -707,6 +707,28 @@ entries:
     - rhacs-operator.v4.1.0
 
 - schema: olm.channel
+  name: rhacs-4.8
+  package: rhacs-operator
+  entries:
+  - *bundle-4-0-0
+  - *bundle-4-1-0
+  - *bundle-4-1-1
+  - *bundle-4-1-2
+  - *bundle-4-1-3
+  - *bundle-4-2-0
+  - *bundle-4-3-0
+  - *bundle-4-4-0
+  - *bundle-4-5-0
+  - *bundle-4-6-0
+  - *bundle-4-7-0
+  - &bundle-4-8-0
+    name: rhacs-operator.v4.8.0
+    replaces: rhacs-operator.v4.7.0
+    skipRange: '>= 4.7.0 < 4.8.0'
+    skips:
+    - rhacs-operator.v4.1.0
+
+- schema: olm.channel
   name: stable
   package: rhacs-operator
   entries:
@@ -721,9 +743,7 @@ entries:
   - *bundle-4-5-0
   - *bundle-4-6-0
   - *bundle-4-7-0
-  - *bundle-4-7-1
-  - *bundle-4-7-2
-  - *bundle-4-7-3
+  - *bundle-4-8-0
 
 - schema: olm.deprecations
   package: rhacs-operator
@@ -941,4 +961,6 @@ entries:
 - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:567535d4a629980952e42537221a232e24399462c8ffda467c38195ea7afa3e2
   schema: olm.bundle
 - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b24edee77ea1320adb9c5ae3fd5ae538059e2b9475abf8f338ecce136c331e07
+  schema: olm.bundle
+- image: <INSERT_4.8.0_BUNDLE_IMAGE_AND_RUN_MAKE>
   schema: olm.bundle
