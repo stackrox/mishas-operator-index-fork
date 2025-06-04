@@ -687,20 +687,17 @@ entries:
     skipRange: '>= 4.6.0 < 4.7.0'
     skips:
     - rhacs-operator.v4.1.0
-  - &bundle-4-7-1
-    name: rhacs-operator.v4.7.1
+  - name: rhacs-operator.v4.7.1
     replaces: rhacs-operator.v4.7.0
     skipRange: '>= 4.6.0 < 4.7.1'
     skips:
     - rhacs-operator.v4.1.0
-  - &bundle-4-7-2
-    name: rhacs-operator.v4.7.2
+  - name: rhacs-operator.v4.7.2
     replaces: rhacs-operator.v4.7.1
     skipRange: '>= 4.6.0 < 4.7.2'
     skips:
     - rhacs-operator.v4.1.0
-  - &bundle-4-7-3
-    name: rhacs-operator.v4.7.3
+  - name: rhacs-operator.v4.7.3
     replaces: rhacs-operator.v4.7.2
     skipRange: '>= 4.6.0 < 4.7.3'
     skips:
