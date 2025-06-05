@@ -27,7 +27,7 @@ spec:
     - use
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
   - name: check-generated-files-up-to-date
-    image: registry.access.redhat.com/ubi8:latest
+    image: registry.access.redhat.com/ubi9:latest@sha256:304b50df1ea4db9706d8a30f4bbf26f582936ebc80c7e075c72ff2af99292a54
     workingDir: /var/workdir/source
     script: |
       #!/usr/bin/env bash
@@ -36,7 +36,7 @@ spec:
 
       time dnf -y upgrade --nobest
       # TODO: find an image with these preinstalled to reduce flakiness
-      time dnf -y install git make jq curl
+      time dnf -y install git make jq
 
       time make clean
       cmd="make valid-catalogs"
