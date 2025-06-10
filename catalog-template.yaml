@@ -705,6 +705,11 @@ entries:
     skipRange: '>= 4.6.0 < 4.7.3'
     skips:
     - rhacs-operator.v4.1.0
+  - name: rhacs-operator.v4.Y.Z
+    replaces: rhacs-operator.v4.Y.Z+1
+    skipRange: '>= 4.Y-1.0 < 4.Y.Z+1'
+    skips:
+    - rhacs-operator.v4.1.0
 
 - schema: olm.channel
   name: stable
@@ -724,6 +729,7 @@ entries:
   - *bundle-4-7-1
   - *bundle-4-7-2
   - *bundle-4-7-3
+  - *bundle-4-Y-Z
 
 - schema: olm.deprecations
   package: rhacs-operator
@@ -941,4 +947,6 @@ entries:
 - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:567535d4a629980952e42537221a232e24399462c8ffda467c38195ea7afa3e2
   schema: olm.bundle
 - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b24edee77ea1320adb9c5ae3fd5ae538059e2b9475abf8f338ecce136c331e07
+  schema: olm.bundle
+- image: brew.registry.redhat.io/rh-osbs/rhacs-operator-bundle@sha256:<DIGEST_FROM_BREWWEB_BUILD>
   schema: olm.bundle
