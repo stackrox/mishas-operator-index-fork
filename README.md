@@ -2,6 +2,16 @@
 
 This repository is for building the ACS (downstream) operator indexes on Konflux.
 
+
+## Restarting Konflux job
+Comment in the PR `/test <job_name>` (e.g. `/test operator-index-ocp-v4-16-on-push`)
+
+## Adding Z-stream
+Make similar changes as in #111 and run `make`
+
+## Adding Y-stream
+Make similar changes as in #112 and run `make`
+
 ## Initialization
 
 Followed [this](https://gitlab.cee.redhat.com/konflux/docs/users/-/blob/main/topics/getting-started/building-olm-products.md)
