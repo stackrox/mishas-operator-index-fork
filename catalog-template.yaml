@@ -733,6 +733,79 @@ entries:
       name: latest
     message: |
       Channel "latest" is no longer supported.  Please switch to channel "stable".
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.62
+    message: &deprecated-minor-channel |
+      This version is no longer supported. Please switch to the "stable" channel or a channel for a version still in support.
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.64
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.65
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.66
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.67
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.68
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.69
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.70
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.71
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.72
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.73
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-3.74
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.0
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.1
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.2
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.3
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.4
+    message: *deprecated-minor-channel
+  - reference:
+      schema: olm.channel
+      name: rhacs-4.5
+    message: *deprecated-minor-channel
 
 - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6cdcf20771f9c46640b466f804190d00eaf2e59caee6d420436e78b283d177bf
   schema: olm.bundle
