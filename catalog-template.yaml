@@ -732,12 +732,12 @@ entries:
       schema: olm.channel
       name: latest
     message: |
-      Channel "latest" is no longer supported.  Please switch to channel "stable".
+      The `latest` channel is no longer supported.  Please switch to the `stable` channel.
   - reference:
       schema: olm.channel
       name: rhacs-3.62
     message: &deprecated-minor-channel |
-      This version is no longer supported. Please switch to the "stable" channel or a channel for a version still in support.
+      This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.
   - reference:
       schema: olm.channel
       name: rhacs-3.64
