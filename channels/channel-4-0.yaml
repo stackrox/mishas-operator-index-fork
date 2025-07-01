@@ -1,0 +1,27 @@
+name: rhacs-4.0
+entries:
+- &bundle-4-0-0
+  name: rhacs-operator.v4.0.0
+  skipRange: '>= 3.74.0 < 4.0.0'
+- name: rhacs-operator.v4.0.1
+  replaces: rhacs-operator.v4.0.0
+  skipRange: '>= 3.74.0 < 4.0.1'
+- name: rhacs-operator.v4.0.2
+  replaces: rhacs-operator.v4.0.1
+  skipRange: '>= 3.74.0 < 4.0.2'
+- name: rhacs-operator.v4.0.3
+  replaces: rhacs-operator.v4.0.2
+  skipRange: '>= 3.74.0 < 4.0.3'
+- name: rhacs-operator.v4.0.4
+  replaces: rhacs-operator.v4.0.3
+  skipRange: '>= 3.74.0 < 4.0.4'
+- name: rhacs-operator.v4.0.5
+  replaces: rhacs-operator.v4.0.4
+  skipRange: '>= 3.74.0 < 4.0.5'
+images:
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:54e95a79b10a119472b6ef0351ff878e6a384b8e3100d25e943678bb120ed322
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:aafaa944201871ec15cead3aa77bbdd1da76f972f3a241b894e2254a6ec09595
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b26133843687cc50e2c52d6067d8b3369b5cb28dfbfd15dd4b6062096673195a
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:de3b2e28150c6428864fe8dd7ef325b806bc9e9881d883ba3335e00b6593618c
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ff1860a69cb72220a536e3d51510fe88169f75e73918a4935c99fd0704dbdd91
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:75148e16a364e4f67ecb8e914fc16b7ca4112c4e844b0d361a3feb88468f1215

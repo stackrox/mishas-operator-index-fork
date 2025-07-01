@@ -1,0 +1,12 @@
+name: rhacs-3.62
+entries:
+- &bundle-3-62-0
+  name: rhacs-operator.v3.62.0
+  skipRange: '>= 3.61.0 < 3.62.0'
+- name: rhacs-operator.v3.62.1
+  replaces: rhacs-operator.v3.62.0
+  skipRange: '>= 3.61.0 < 3.62.1'
+images:
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6cdcf20771f9c46640b466f804190d00eaf2e59caee6d420436e78b283d177bf
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:7fd7595e6a61352088f9a3a345be03a6c0b9caa0bbc5ddd8c61ba1d38b2c3b8e
+

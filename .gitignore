@@ -1,3 +1,6 @@
 .idea/
 /.bin/
 /catalog-migrate/
+
+# Ignore golang vendor
+vendor

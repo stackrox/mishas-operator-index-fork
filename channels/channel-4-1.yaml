@@ -1,0 +1,49 @@
+name: rhacs-4.1
+entries:
+- *bundle-4-0-0
+- &bundle-4-1-0
+  name: rhacs-operator.v4.1.0
+  replaces: rhacs-operator.v4.0.0
+  skipRange: '>= 4.0.0 < 4.1.0'
+- &bundle-4-1-1
+  name: rhacs-operator.v4.1.1
+  replaces: rhacs-operator.v4.1.0
+  skipRange: '>= 4.0.0 < 4.1.1'
+  skips:
+  - rhacs-operator.v4.1.0
+- &bundle-4-1-2
+  name: rhacs-operator.v4.1.2
+  replaces: rhacs-operator.v4.1.1
+  skipRange: '>= 4.0.0 < 4.1.2'
+  skips:
+  - rhacs-operator.v4.1.0
+- &bundle-4-1-3
+  name: rhacs-operator.v4.1.3
+  replaces: rhacs-operator.v4.1.2
+  skipRange: '>= 4.0.0 < 4.1.3'
+  skips:
+  - rhacs-operator.v4.1.0
+- name: rhacs-operator.v4.1.4
+  replaces: rhacs-operator.v4.1.3
+  skipRange: '>= 4.0.0 < 4.1.4'
+  skips:
+  - rhacs-operator.v4.1.0
+- name: rhacs-operator.v4.1.5
+  replaces: rhacs-operator.v4.1.4
+  skipRange: '>= 4.0.0 < 4.1.5'
+  skips:
+  - rhacs-operator.v4.1.0
+- name: rhacs-operator.v4.1.6
+  replaces: rhacs-operator.v4.1.5
+  skipRange: '>= 4.0.0 < 4.1.6'
+  skips:
+  - rhacs-operator.v4.1.0
+images:
+
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:978d9f800d70144021cc5fd318def9f4d82ddbbbe520e432a9a9e0cf445bf854
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:d12dd40975045afad1cd5575ced8ce5c443fd0f872bceca5a759233828a051e6
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:08aebe6e8275d3314b6756d522ec568ccdfb9c52df98c9822f187f6c5a3af19c
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ff41517cf745183c940b587be2d25f606ef0d3a5048f9455188d518655dbd85c
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:90bdfd8fba74a36a81c52c2fe7abbd79158d1482699bda52af7e2caf0803b3fc
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6604d204de27b02e379579d9182e68f4bd3150825462d471a0cf20963fe6fe2e
+- image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:22a1e067ff9e0e0b5f2f819ffc863e7a877030b4c18fbab0abfa75af46307d15
