@@ -11,40 +11,203 @@ images:
     tag: 3.64.1
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:5187b04f8010a274d6bc017fc82f1b00d886124e520c1b7de8b4da8cd2f37bc0
     tag: 3.64.2
-  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b262749b36483ac23f7e9311a410b4e1bfb3455074e189d2cd4e88570c953803
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:0baed09effdbfc973515d7bdce444dbf97a72c913a0ae1d7403106439b6cba62
+    tag: 3.65.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:d3bf33899ca8b199ca8782978618ca343164e43fd0ae2ac6a0cfbf697efa6428
+    tag: 3.65.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:3a70c9cd571ffaa93f51fae3973eb4c8749e17d909a2929e89aa62b1db4df646
+    tag: 3.66.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6536ee795e8aaeab9321ee4820e55933195983a768ba24fab40508d03e50a6e4
+    tag: 3.66.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9629a16f4009d48e580bc389d632a43c698ffd53c74364293fcf035a4c944382
+    tag: 3.67.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:2156aa8c7e0a7405b6cb640daa23f2142077516959921f249cd6e4b59557fb18
+    tag: 3.67.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ad88773ab141f45fe24c61e83ec736aab27f652fb82ca2a85fee6f885568c5b9
+    tag: 3.67.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:1178a22943998e0a740d7f89d15244d4b1500376493fb84b652fe1ba998bf1d3
+    tag: 3.68.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:16fc17b7079ea1d1aefbba589ed638bc632612ce59dddd58e719aade0a64e1e9
+    tag: 3.68.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6a10a4859527946f61f497ff84b80f973cb7be5982d428423836b5aca81a1f5d
+    tag: 3.68.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:09dd8f0e7cead1064f5d33b4b9637ea4b49122e4e6fed3bf7c601390366e5e02
+    tag: 3.69.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6aefab47365d8640d95083211a7ace577b1df17d9bec021f18887a0efac0656d
+    tag: 3.69.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:297e7f863106c6b41f882bbd5b691a12c797c24d832473a04e604d4639e4a68e
+    tag: 3.69.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:105c401ebff454bda17a6c5385ded057f09443766d9f87eae7f11ee9a62a08c1
+    tag: 3.70.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9b35ae6df2c19935783735d213483f3fcecead2f49f873a4f7844ef9fb5c7f1a
+    tag: 3.70.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:e84cda106657d350068a5632fba8c2d858a19de109da9795a1d0b77e26c3b338
+    tag: 3.71.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:39cbfcde349670101c5f33f86da4bdbd33ec363b5171022579fec4a71edbae55
+    tag: 3.71.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ee93d7f7d470c651b88b3797c53c827a17bf2bbaf0f43464e894ccbf6245928a
+    tag: 3.71.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:e001b9f844a6c298dd74f1ab683f3dbbf0ad66044cec419c373ef4f97d47be73
+    tag: 3.71.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9ec13da5353f1031edc8b84ee17f00fd42c59253b2f402eec0dc5744fac1cbf5
+    tag: 3.72.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:5f91fe442301ba58e96260b133d347f48d7869ec4def8a395274af6291470609
+    tag: 3.72.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b3a541fa8146c211896590b75c2f8a7b861a8d48a741d84b8f2a2072f451d2da
+    tag: 3.72.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:94d3d8bb0eff0f91acc07c6114448ab24d8b93cd43dac2697f487a698752f2fa
+    tag: 3.72.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:878ed77d07d3f40f049a594af44376797305786a2a264dae3d0c50401643bfa5
+    tag: 3.72.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:d496a827f223e5464a1b6c87168102df632643e1f8348a8abb1a5e9e226f00d2
+    tag: 3.73.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ddb656822614d0cdb62e3bf8eb13640e589225555c8a9a713005c9b824f5f4a1
+    tag: 3.73.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:cabaaad93f55dd91ae06719151623f02226472b4d14200abede1e62eff3270f7
+    tag: 3.73.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:234f5d3c6ca2e388fdeaf3b763cb9a156daaf4fae3b62378fe73d1b307dbcae6
+    tag: 3.73.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:f72523acacbf60c2b41cb3e28366094465cc38f93c125b77de0f616297468c9c
+    tag: 3.73.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:459a8d91beff91638872d377a8b82c279ad2905ce3f4ad4bfc00f6822418ac57
+    tag: 3.73.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9dbdc706f35926bb913ff9951d2b14d4a7f1211bcbbd22740ad72b1d442523f8
+    tag: 3.74.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:33156ed6400fb97102b01d0e60a12e87adb495d27a131f0d1fd8544e43c73c30
+    tag: 3.74.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b6d9f60296184dcf109eef795870fd093c5a4a5954e254de435d93c744496c7f
+    tag: 3.74.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:a5e10c6d4b24e0812de0934a44b74ed6dddba8c3c857ca32c6a818c238b9c82f
+    tag: 3.74.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:aca9396a41f339d8968dd4db09dde380d3a9c218dedeae9d99c33e28254224ce
+    tag: 3.74.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:052e6be8458b1e4a5b66323868fe58771cdee48ac416dc54b75418460ce23739
+    tag: 3.74.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b14d179437f394a09b59cee5eb72ec8b9da74c4b5eb9e44c5c5614b341e357a9
+    tag: 3.74.6
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:55bea5ed24d5fda12c5a6ac34a908da2c471937fb2c934df1188b806ab56d96e
+    tag: 3.74.7
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9ba3858a639c3e8e50a2445e54eea49ad4555a02de8597708bb17128b1778780
+    tag: 3.74.8
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:e714fea6deb82225c54de32cf7ff3e91e1966470c58d04a221c7d90a501fdb8a
+    tag: 3.74.9
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:0e7e55c46aa3a9926b184d031ff0adf0e4d208819a98a78aede2a7152d52bc30
     tag: 4.0.0
-  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:56772b736bb1aec1b10d38d4c2b18bcde17b450b55f8c260ac38b23bd6c85b5c
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:04ae0c9b37d47a85651f7bbfccb79cd9fd42876aa5c511933e9565efc5764b2e
     tag: 4.0.1
-  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:04b8413db1c7b315643c2c420e7d2b71d805956c93db779f363beef09339041f
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:7e08088dc72f668b36f67b18c2ec2cbdb621d547f00699b3fb8d6de0ccbaec57
+    tag: 4.0.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:066aa4712f9a104e3bba2137e7cef432052d7f14a6bcd50b5f5d6a954b33ba84
+    tag: 4.0.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:512b52a8ec8f582e9e2d04d02aa9180d89b965d0efcacb5f9eb2f43aa5474f59
+    tag: 4.0.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:a0d9cd31d953aaf7e84f5a39f405c5aa2ea62e68d6c728a936ca1ffc4dc1b93e
+    tag: 4.0.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:eebfa0e319e1d78c403da776182bb00bf0f7367f4454749d414ff5ad75c4469c
     tag: 4.1.0
-  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:1e4c21f9a8098205cfd520627dcfdfca84c40c66e93698398a350647dc5fa1a1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:397d7ab548e3d889c144fbc9b5360167938dace01d112cd8f9e7c655675c2f5d
     tag: 4.1.1
-  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:41351e88688d23a443ad4f141caf0433b2c2789e6a1a85b4f5b36abeb5656bb1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:fddeb8070857a592a19c49a52abed8329b3a23051411ab6eb5b18d5d985266e4
+    tag: 4.1.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:84c36595c82097fb75de135c97e8eb41930fb99b4e63a835ec6b6ae75fdea22d
+    tag: 4.1.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:54e95a79b10a119472b6ef0351ff878e6a384b8e3100d25e943678bb120ed322
+    tag: 4.1.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:aafaa944201871ec15cead3aa77bbdd1da76f972f3a241b894e2254a6ec09595
+    tag: 4.1.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b26133843687cc50e2c52d6067d8b3369b5cb28dfbfd15dd4b6062096673195a
+    tag: 4.1.6
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:de3b2e28150c6428864fe8dd7ef325b806bc9e9881d883ba3335e00b6593618c
     tag: 4.2.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ff1860a69cb72220a536e3d51510fe88169f75e73918a4935c99fd0704dbdd91
+    tag: 4.2.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:75148e16a364e4f67ecb8e914fc16b7ca4112c4e844b0d361a3feb88468f1215
+    tag: 4.2.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:978d9f800d70144021cc5fd318def9f4d82ddbbbe520e432a9a9e0cf445bf854
+    tag: 4.2.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:d12dd40975045afad1cd5575ced8ce5c443fd0f872bceca5a759233828a051e6
+    tag: 4.2.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:08aebe6e8275d3314b6756d522ec568ccdfb9c52df98c9822f187f6c5a3af19c
+    tag: 4.2.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:ff41517cf745183c940b587be2d25f606ef0d3a5048f9455188d518655dbd85c
+    tag: 4.3.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:90bdfd8fba74a36a81c52c2fe7abbd79158d1482699bda52af7e2caf0803b3fc
+    tag: 4.3.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6604d204de27b02e379579d9182e68f4bd3150825462d471a0cf20963fe6fe2e
+    tag: 4.3.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:22a1e067ff9e0e0b5f2f819ffc863e7a877030b4c18fbab0abfa75af46307d15
+    tag: 4.3.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:c87ee25e0a7d9b4359d38af6fcd6551b038728cf9c701dac3687cd441faa7810
+    tag: 4.3.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:c1e7a5e80831c5f078e1aa26e57870aec1949c148f02c255e76a7a98c01099d7
+    tag: 4.3.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:355567de35493ef1122e8a60385828c98ba62272aaf60d4ab6336466418ec6c9
+    tag: 4.3.6
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:1e8115bdc0ed2d01d7576524e9796606244963a1447eae55872674c0113fb9c4
+    tag : 4.3.7
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:30f9384244819da013358325cec364bb210b3b33b4cf9680698531fe50562aac
+    tag : 4.3.8
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:94fcee9ac22671bd18be77381214665d9289151703a9ed78c29cee02b92612f4
+    tag : 4.4.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:7612cd4a854c01f27df8c36d74413bd52f85f5e7c73b6a7bd565e0d531a35862
+    tag : 4.4.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b800c559f4e93d6a8d7422128e26688b8872c589c92944cb46815ec2b7c68371
+    tag : 4.4.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:39e7f184f83bdf38407c7d6a783ac9490e81cb1a8ca1af15a6f419be993361f9
+    tag : 4.4.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:9f84b5e8757bb2b1a7fb7b57cbf5c1e989cd3bbca33566eea94f07af23ae725f
+    tag : 4.4.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:176837c3041894c294b64da0181b8ad3bc53b3538d5ba70868979c57c7ec1644
+    tag : 4.4.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b481c31ea787bb4817304023ab223996b5deaf01f0c80557d652ca2e76a3dfc5
+    tag : 4.4.6
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:0584255cd3289c421454544b7eaa7d13be85c0572ddba1731cb86137195232d6
+    tag : 4.4.7
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:123c0108bd7a190dd2accfd21786600f787147f040e57fb5f840861e2caa441d
+    tag : 4.4.8
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:afe3518921c5f14f11f7543f384c6cfc32eaae86d2a38bb6e36b783aeec53f79
+    tag : 4.5.0
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:25680f4d265895dac28686e234f026c10c015b3f94434e00f5c8b680e1c7e834
+    tag : 4.5.1
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:d8021e8768281376c5b64be666fef3e2a398928d35e2e4a9b64f22ab3ac6b168
+    tag : 4.5.2
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:8bca9a8388de978872eb2834ea7563baacf3a851e1bbaf11acd507d5acce9999
+    tag : 4.5.3
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:8cc0088423509c0fe8413cdf1b85f66269a6e62f3a59708a25fa91acac94a44c
+    tag : 4.5.4
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b262749b36483ac23f7e9311a410b4e1bfb3455074e189d2cd4e88570c953803
+    tag : 4.5.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:56772b736bb1aec1b10d38d4c2b18bcde17b450b55f8c260ac38b23bd6c85b5c
+    tag : 4.5.6
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:04b8413db1c7b315643c2c420e7d2b71d805956c93db779f363beef09339041f
+    tag : 4.5.7
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:1e4c21f9a8098205cfd520627dcfdfca84c40c66e93698398a350647dc5fa1a1
+    tag : 4.5.8
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:41351e88688d23a443ad4f141caf0433b2c2789e6a1a85b4f5b36abeb5656bb1
+    tag : 4.5.9
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:c803494bdb0418d27931a15c79f8cf142ae10ccd0a50d76a10c48219d34c59f4
-    tag: 4.6.0
+    tag : 4.6.0
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:3df6a9cfda7b1e236bd152e4eb84bb4c39057fd82bb928e3d00307ed64052d6c
-    tag: 4.6.1
+    tag : 4.6.1
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:324eafac9e2a9000c6032f152867defb4f4402ae8772677d7a1b45eb6df1b9be
-    tag: 4.6.2
+    tag : 4.6.2
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:588e9a7db449055473470e0c2102ed551a6d67d26bb6c45415d297f87701c1e2
-    tag: 4.6.3
+    tag : 4.6.3
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:40422d266354c240237d66bb621660ed235af7c8620de8432912854cc11c084b
-    tag: 4.6.4
+    tag : 4.6.4
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:f61189397263f05214c2d36b4dc0a71a924c2481a1e365b7fb3c71d8dfce6b27
-    tag: 4.6.5
+    tag : 4.6.5
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b0590a2248d948f82e8a116e37a2be42f49a3edeb4a92d41416420ea604d5b34
-    tag: 4.6.6
+    tag : 4.6.6
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:a2e9af0568ae9b6401655f3662a7a914c34c29a5616d590da7ef19248e2d1068
-    tag: 4.6.7
+    tag : 4.6.7
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6937beffd348474d4d9b06f14fabfeb74efb69cf7bc60e6e12eb5b45b03014d5
-    tag: 4.7.0
+    tag : 4.7.0
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:e23398e5f761b4a2fb94ec91b7f009e4e6abf09ec511dbf30468142e742d311d
-    tag: 4.7.1
+    tag : 4.7.1
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:567535d4a629980952e42537221a232e24399462c8ffda467c38195ea7afa3e2
-    tag: 4.7.2
+    tag : 4.7.2
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:b24edee77ea1320adb9c5ae3fd5ae538059e2b9475abf8f338ecce136c331e07
-    tag: 4.7.3
+    tag : 4.7.3
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:8c3fd7e6809ecdbf54c4d29af25f8d9dca013fff31abefafba9908a86ef6c4d8
-    tag: 4.7.4
-  
+    tag : 4.7.4

@@ -87,7 +87,7 @@ func versionLess(a, b Version) bool {
 	return a.Patch < b.Patch
 }
 
-func buildCatalogChannelEntry(version Version, previousVersion Version, previousMinor string) CatalogChannelEntry {
+func buildCatalogChannelEntry(version Version, previousEntryVersion Version, previousChannelVersion string) CatalogChannelEntry {
 	// skip setting "replaces" key for specific versions
 	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
 
@@ -95,19 +95,54 @@ func buildCatalogChannelEntry(version Version, previousVersion Version, previous
 		Name: "rhacs-operator.v" + version.Tag,
 	}
 	if !slices.Contains(versionsWithoutReplaces, version.Tag) {
-		entry.Replaces = "rhacs-operator.v" + previousVersion.Tag
+		entry.Replaces = "rhacs-operator.v" + previousEntryVersion.Tag
 	}
-	entry.SkipRange = fmt.Sprintf("'>= %s < %s'", previousMinor, version.Tag)
+	entry.SkipRange = fmt.Sprintf(">= %s < %s", previousChannelVersion, version.Tag)
 	return entry
 }
 
-func newChannelEntry(version Version) *ChannelEntry {
+func newChannelEntry(version Version, entries []CatalogChannelEntry) *ChannelEntry {
 	return &ChannelEntry{
 		Schema:  "olm.channel",
 		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major, version.Minor),
 		Package: "rhacs-operator",
-		Entries: []CatalogChannelEntry{},
+		Entries: entries,
 	}
+}
+
+func newBundleEntry(image string) *BundleEntry {
+	return &BundleEntry{
+		Schema: "olm.bundle",
+		Image:  image,
+	}
+}
+
+func generateLatestChannel(entries []CatalogChannelEntry) *ChannelEntry {
+	return &ChannelEntry{
+		Schema:  "olm.channel",
+		Name:    "latest",
+		Package: "rhacs-operator",
+		Entries: entries,
+	}
+}
+
+func generateStableChannel(entries []CatalogChannelEntry) *ChannelEntry {
+	return &ChannelEntry{
+		Schema:  "olm.channel",
+		Name:    "stable",
+		Package: "rhacs-operator",
+		Entries: entries,
+	}
+}
+
+func ShouldBePreviousChannelEntry(version Version) bool {
+	listToKeepForNextChannels := []string{"4.1.1", "4.1.2", "4.1.3"}
+
+	// If the version is in the list of versions that should be kept for the next channels
+	if slices.Contains(listToKeepForNextChannels, version.Tag) {
+		return true
+	}
+	return version.Patch == 0
 }
 
 func main() {
@@ -138,154 +173,73 @@ func main() {
 		return versionLess(versions[i], versions[j])
 	})
 
-	// Build channel maps
-	channels := make(map[string][]CatalogChannelEntry)
-	minorVersions := make(map[string][]string)
-	majorVersions := make(map[int][]string)
-
-	for _, v := range versions {
-		minorKey := fmt.Sprintf("%d.%d", v.Major, v.Minor)
-		minorVersions[minorKey] = append(minorVersions[minorKey], v.Tag)
-		majorVersions[v.Major] = append(majorVersions[v.Major], v.Tag)
-	}
-
-	// Build previous version mapping
-	previousVersionMap := make(map[string]string)
-	for i, v := range versions {
-		if i > 0 {
-			previousVersionMap[v.Tag] = versions[i-1].Tag
-		}
-	}
-
-	for minor, tags := range minorVersions {
-		var entries []CatalogChannelEntry
-		for i, tag := range tags {
-			entry := CatalogChannelEntry{
-				Name: "rhacs-operator.v" + tag,
-			}
-			// replaces
-			if i > 0 {
-				entry.Replaces = "rhacs-operator.v" + tags[i-1]
-			}
-			// skips for >=4.1.1
-			v, _ := parseVersion(tag)
-			if (v.Major > 4) ||
-				(v.Major == 4 && v.Minor > 1) ||
-				(v.Major == 4 && v.Minor == 1 && v.Patch >= 1) {
-				entry.Skips = []string{"rhacs-operator.v4.1.0"}
-			}
-			prevMinor := v.Minor - 1
-			if prevMinor >= 0 {
-				entry.SkipRange = fmt.Sprintf(">=%d.%d.0 <=%d.%d.%d", v.Major, prevMinor, v.Major, v.Minor, v.Patch)
-			}
-			entries = append(entries, entry)
-		}
-		channels[minor] = entries
-	}
-
-	var latestMajors []int
-	for major := range majorVersions {
-		latestMajors = append(latestMajors, major)
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(latestMajors)))
-	if len(latestMajors) > 3 {
-		latestMajors = latestMajors[:3]
-	}
-	var latestTags []string
-	for _, major := range latestMajors {
-		latestTags = append(latestTags, majorVersions[major]...)
-	}
-	sort.Slice(latestTags, func(i, j int) bool {
-		va, _ := parseVersion(latestTags[i])
-		vb, _ := parseVersion(latestTags[j])
-		return versionLess(va, vb)
-	})
-	var latestEntries []CatalogChannelEntry
-	for i, tag := range latestTags {
-		entry := CatalogChannelEntry{
-			Name: "rhacs-operator.v" + tag,
-		}
-		if i > 0 {
-			entry.Replaces = "rhacs-operator.v" + latestTags[i-1]
-		}
-		latestEntries = append(latestEntries, entry)
-	}
-	channels["latest"] = latestEntries
-
-	var stableMajors []int
-	for major := range majorVersions {
-		stableMajors = append(stableMajors, major)
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(stableMajors)))
-	if len(stableMajors) > 4 {
-		stableMajors = stableMajors[:4]
-	}
-	var stableTags []string
-	for _, major := range stableMajors {
-		stableTags = append(stableTags, majorVersions[major]...)
-	}
-	sort.Slice(stableTags, func(i, j int) bool {
-		va, _ := parseVersion(stableTags[i])
-		vb, _ := parseVersion(stableTags[j])
-		return versionLess(va, vb)
-	})
-	var stableEntries []CatalogChannelEntry
-	for i, tag := range stableTags {
-		entry := CatalogChannelEntry{
-			Name: "rhacs-operator.v" + tag,
-		}
-		if i > 0 {
-			entry.Replaces = "rhacs-operator.v" + stableTags[i-1]
-		}
-		stableEntries = append(stableEntries, entry)
-	}
-	channels["stable"] = stableEntries
-
 	var deprecations []string
-	if len(versions) > 2 {
+	var minorVersions []Version
+	for _, v := range versions {
+		if v.Patch == 0 {
+			minorVersions = append(minorVersions, v)
+		}
+	}
+	if len(minorVersions) > 2 {
 		for _, v := range versions[:len(versions)-2] {
 			deprecations = append(deprecations, "rhacs-operator.v"+v.Tag)
 		}
 	}
 
-	catalog := CatalogTemplate{
-		Channels:     channels,
-		Deprecations: deprecations,
-		Images:       input.Images,
-	}
-
 	var baseEntries []CatalogEntry
 
 	// Very first version in the catalog repalces 3.61.0 and skipRanges starts from 3.61.0
-	previousVersion := forceParseVersion("3.61.0")
-	previousMinor := "3.61.0"
-
-	// Add dummy version to properly traverse all version
-	versions = append(versions, forceParseVersion("9.9.9"))
+	previousEntryVersion := forceParseVersion("3.61.0")
+	previousChannelVersionTag := "3.61.0"
+	previousEntries := make([]CatalogChannelEntry, 0)
 
 	var channel *ChannelEntry = nil
-	for _, v := range versions {
-
-		catalogChannelEntry := buildCatalogChannelEntry(v, previousVersion, previousMinor)
+	for n, v := range versions {
+		if channel == nil {
+			channel = newChannelEntry(v, previousEntries)
+		}
+		catalogChannelEntry := buildCatalogChannelEntry(v, previousEntryVersion, previousChannelVersionTag)
 
 		// Create a new channel entry for each minor version
-		if v.Minor != previousVersion.Minor {
-			if channel != nil {
+		if n != 0 && v.Minor != previousEntryVersion.Minor {
+			// Do not add rhacs-3.63 channel to the catalog
+			if previousEntryVersion.Tag != "3.63.0" {
 				baseEntries = append(baseEntries, channel)
 			}
-			channel = newChannelEntry(v)
-			channel.Entries = append(channel.Entries, catalogChannelEntry)
+			channel = newChannelEntry(v, previousEntries)
+			previousChannelVersionTag = previousEntryVersion.Tag
+		}
+		channel.Entries = append(channel.Entries, catalogChannelEntry)
+
+		if v.Tag == "4.0.0" {
+			previousEntries = make([]CatalogChannelEntry, 0)
 		}
 
-		log.Printf("Processing version: %d.%d.%d: %s", v.Major, v.Minor, v.Patch, v.Tag)
+		if ShouldBePreviousChannelEntry(v) {
+			previousEntries = append(previousEntries, catalogChannelEntry)
+		}
+
+		// Add "latest" channel when "3.74.9" is reached
+		if v.Tag == "3.74.9" {
+			latestChannel := generateLatestChannel(channel.Entries)
+			baseEntries = append(baseEntries, latestChannel)
+		}
+
+		if n == len(versions)-1 {
+			baseEntries = append(baseEntries, channel)
+
+			// Add "stable" channel when the last version is reached
+			stableChannel := generateStableChannel(channel.Entries)
+			baseEntries = append(baseEntries, stableChannel)
+		}
+
+		previousEntryVersion = v
 	}
 
-	catalogbase := CatalogBase{
+	catalog := CatalogBase{
 		Schema:  "olm.template.basic",
 		Entries: baseEntries,
 	}
-
-	fmt.Printf("Catalog Base Schema: %s\n", catalogbase.Schema)
 
 	out, err := yaml.Marshal(catalog)
 	if err != nil {
