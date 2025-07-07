@@ -14,7 +14,7 @@ valid-catalogs: $(CATALOGS) $(OPM)
 .PHONY: clean
 clean:
 	rm -f $(CATALOGS)
-	rm -rf catalog-migrate $$(dirname $(OPM))
+	rm -rf $$(dirname $(OPM))
 
 catalog-bundle-object/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	mkdir -p "$$(dirname "$@")"
@@ -33,11 +33,3 @@ $(OPM):
 	done
 	chmod +x $@.tmp
 	mv $@.tmp $@
-
-# This is broken due to concurrency if invoked together with other targets (e.g. `make import-legacy valid-catalogs` - don't do this).
-# Instead invoke `make import-legacy && make valid-catalogs`.
-# TODO: fix it. Otherwise this target will disappear once konflux index builds replace the CPaaS-based ones.
-.PHONY: import-legacy
-import-legacy: $(OPM)
-	$(OPM) migrate registry.redhat.io/redhat/redhat-operator-index:v4.12 ./catalog-migrate
-	$(OPM) alpha convert-template basic --output yaml ./catalog-migrate/rhacs-operator/catalog.json > catalog-template.yaml
