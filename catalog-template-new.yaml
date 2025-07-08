@@ -23,11 +23,11 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.64.1
         replaces: rhacs-operator.v3.64.0
         skipRange: '>= 3.63.0 < 3.64.1'
@@ -41,14 +41,14 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.65.1
         replaces: rhacs-operator.v3.65.0
         skipRange: '>= 3.64.0 < 3.65.1'
@@ -59,17 +59,17 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.66.1
         replaces: rhacs-operator.v3.66.0
         skipRange: '>= 3.65.0 < 3.66.1'
@@ -80,26 +80,26 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
-      - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
-      - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
+      - name: rhacs-operator.v3.67.1
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.66.0 < 3.67.1'
+      - name: rhacs-operator.v3.67.2
+        replaces: rhacs-operator.v3.67.1
+        skipRange: '>= 3.66.0 < 3.67.2'
   - schema: olm.channel
     name: rhacs-3.68
     package: rhacs-operator
@@ -107,23 +107,23 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.68.1
         replaces: rhacs-operator.v3.68.0
         skipRange: '>= 3.67.0 < 3.68.1'
@@ -137,26 +137,26 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.69.1
         replaces: rhacs-operator.v3.69.0
         skipRange: '>= 3.68.0 < 3.69.1'
@@ -170,29 +170,29 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.70.1
         replaces: rhacs-operator.v3.70.0
         skipRange: '>= 3.69.0 < 3.70.1'
@@ -203,41 +203,41 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
-      - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
-      - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
-      - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
+      - name: rhacs-operator.v3.71.1
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.70.0 < 3.71.1'
+      - name: rhacs-operator.v3.71.2
+        replaces: rhacs-operator.v3.71.1
+        skipRange: '>= 3.70.0 < 3.71.2'
+      - name: rhacs-operator.v3.71.3
+        replaces: rhacs-operator.v3.71.2
+        skipRange: '>= 3.70.0 < 3.71.3'
   - schema: olm.channel
     name: rhacs-3.72
     package: rhacs-operator
@@ -245,46 +245,47 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
       - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
-      - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
-      - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
-      - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
-      - name: rhacs-operator.v4.0.1
-        replaces: rhacs-operator.v4.0.0
-        skipRange: '>= 3.74.0 < 4.0.1'
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.71.0 < 3.72.0'
+      - name: rhacs-operator.v3.72.1
+        replaces: rhacs-operator.v3.72.0
+        skipRange: '>= 3.71.0 < 3.72.1'
+      - name: rhacs-operator.v3.72.2
+        replaces: rhacs-operator.v3.72.1
+        skipRange: '>= 3.71.0 < 3.72.2'
+      - name: rhacs-operator.v3.72.3
+        replaces: rhacs-operator.v3.72.2
+        skipRange: '>= 3.71.0 < 3.72.3'
+      - name: rhacs-operator.v3.72.4
+        replaces: rhacs-operator.v3.72.3
+        skipRange: '>= 3.71.0 < 3.72.4'
   - schema: olm.channel
     name: rhacs-3.73
     package: rhacs-operator
@@ -292,52 +293,53 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
       - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.71.0 < 3.72.0'
       - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
-      - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
-      - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
-      - name: rhacs-operator.v4.0.1
-        replaces: rhacs-operator.v4.0.0
-        skipRange: '>= 3.74.0 < 4.0.1'
-      - name: rhacs-operator.v4.0.2
-        replaces: rhacs-operator.v4.0.1
-        skipRange: '>= 3.74.0 < 4.0.2'
-      - name: rhacs-operator.v4.0.3
-        replaces: rhacs-operator.v4.0.2
-        skipRange: '>= 3.74.0 < 4.0.3'
+        replaces: rhacs-operator.v3.72.0
+        skipRange: '>= 3.72.0 < 3.73.0'
+      - name: rhacs-operator.v3.73.1
+        replaces: rhacs-operator.v3.73.0
+        skipRange: '>= 3.72.0 < 3.73.1'
+      - name: rhacs-operator.v3.73.2
+        replaces: rhacs-operator.v3.73.1
+        skipRange: '>= 3.72.0 < 3.73.2'
+      - name: rhacs-operator.v3.73.3
+        replaces: rhacs-operator.v3.73.2
+        skipRange: '>= 3.72.0 < 3.73.3'
+      - name: rhacs-operator.v3.73.4
+        replaces: rhacs-operator.v3.73.3
+        skipRange: '>= 3.72.0 < 3.73.4'
+      - name: rhacs-operator.v3.73.5
+        replaces: rhacs-operator.v3.73.4
+        skipRange: '>= 3.72.0 < 3.73.5'
   - schema: olm.channel
     name: latest
     package: rhacs-operator
@@ -345,41 +347,41 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
       - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.71.0 < 3.72.0'
       - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
+        replaces: rhacs-operator.v3.72.0
+        skipRange: '>= 3.72.0 < 3.73.0'
       - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
+        replaces: rhacs-operator.v3.73.0
+        skipRange: '>= 3.73.0 < 3.74.0'
       - name: rhacs-operator.v3.74.1
         replaces: rhacs-operator.v3.74.0
         skipRange: '>= 3.73.0 < 3.74.1'
@@ -414,41 +416,41 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
       - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.71.0 < 3.72.0'
       - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
+        replaces: rhacs-operator.v3.72.0
+        skipRange: '>= 3.72.0 < 3.73.0'
       - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
+        replaces: rhacs-operator.v3.73.0
+        skipRange: '>= 3.73.0 < 3.74.0'
       - name: rhacs-operator.v3.74.1
         replaces: rhacs-operator.v3.74.0
         skipRange: '>= 3.73.0 < 3.74.1'
@@ -483,43 +485,43 @@ entries:
       - name: rhacs-operator.v3.62.0
         skipRange: '>= 3.61.0 < 3.62.0'
       - name: rhacs-operator.v3.63.0
-        replaces: rhacs-operator.v3.62.1
-        skipRange: '>= 3.61.0 < 3.63.0'
+        replaces: rhacs-operator.v3.62.0
+        skipRange: '>= 3.62.0 < 3.63.0'
       - name: rhacs-operator.v3.64.0
         replaces: rhacs-operator.v3.63.0
-        skipRange: '>= 3.61.0 < 3.64.0'
+        skipRange: '>= 3.63.0 < 3.64.0'
       - name: rhacs-operator.v3.65.0
-        replaces: rhacs-operator.v3.64.2
-        skipRange: '>= 3.63.0 < 3.65.0'
+        replaces: rhacs-operator.v3.64.0
+        skipRange: '>= 3.64.0 < 3.65.0'
       - name: rhacs-operator.v3.66.0
-        replaces: rhacs-operator.v3.65.1
-        skipRange: '>= 3.64.0 < 3.66.0'
+        replaces: rhacs-operator.v3.65.0
+        skipRange: '>= 3.65.0 < 3.66.0'
       - name: rhacs-operator.v3.67.0
-        replaces: rhacs-operator.v3.66.1
-        skipRange: '>= 3.65.0 < 3.67.0'
+        replaces: rhacs-operator.v3.66.0
+        skipRange: '>= 3.66.0 < 3.67.0'
       - name: rhacs-operator.v3.68.0
-        replaces: rhacs-operator.v3.67.2
-        skipRange: '>= 3.66.0 < 3.68.0'
+        replaces: rhacs-operator.v3.67.0
+        skipRange: '>= 3.67.0 < 3.68.0'
       - name: rhacs-operator.v3.69.0
-        replaces: rhacs-operator.v3.68.2
-        skipRange: '>= 3.67.0 < 3.69.0'
+        replaces: rhacs-operator.v3.68.0
+        skipRange: '>= 3.68.0 < 3.69.0'
       - name: rhacs-operator.v3.70.0
-        replaces: rhacs-operator.v3.69.2
-        skipRange: '>= 3.68.0 < 3.70.0'
+        replaces: rhacs-operator.v3.69.0
+        skipRange: '>= 3.69.0 < 3.70.0'
       - name: rhacs-operator.v3.71.0
-        replaces: rhacs-operator.v3.70.1
-        skipRange: '>= 3.69.0 < 3.71.0'
+        replaces: rhacs-operator.v3.70.0
+        skipRange: '>= 3.70.0 < 3.71.0'
       - name: rhacs-operator.v3.72.0
-        replaces: rhacs-operator.v3.71.3
-        skipRange: '>= 3.70.0 < 3.72.0'
+        replaces: rhacs-operator.v3.71.0
+        skipRange: '>= 3.71.0 < 3.72.0'
       - name: rhacs-operator.v3.73.0
-        replaces: rhacs-operator.v3.72.4
-        skipRange: '>= 3.71.0 < 3.73.0'
+        replaces: rhacs-operator.v3.72.0
+        skipRange: '>= 3.72.0 < 3.73.0'
       - name: rhacs-operator.v3.74.0
-        replaces: rhacs-operator.v3.73.5
-        skipRange: '>= 3.72.0 < 3.74.0'
+        replaces: rhacs-operator.v3.73.0
+        skipRange: '>= 3.73.0 < 3.74.0'
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.0.1
         replaces: rhacs-operator.v4.0.0
         skipRange: '>= 3.74.0 < 4.0.1'
@@ -540,10 +542,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -579,10 +581,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -599,8 +601,8 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.1
@@ -633,10 +635,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -653,13 +655,13 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.1
@@ -707,10 +709,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -727,18 +729,18 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.0
-        replaces: rhacs-operator.v4.3.8
-        skipRange: '>= 4.2.0 < 4.4.0'
+        replaces: rhacs-operator.v4.3.0
+        skipRange: '>= 4.3.0 < 4.4.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.1
@@ -786,10 +788,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -806,23 +808,23 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.0
-        replaces: rhacs-operator.v4.3.8
-        skipRange: '>= 4.2.0 < 4.4.0'
+        replaces: rhacs-operator.v4.3.0
+        skipRange: '>= 4.3.0 < 4.4.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.5.0
-        replaces: rhacs-operator.v4.4.8
-        skipRange: '>= 4.3.0 < 4.5.0'
+        replaces: rhacs-operator.v4.4.0
+        skipRange: '>= 4.4.0 < 4.5.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.5.1
@@ -875,10 +877,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -895,53 +897,53 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.0
-        replaces: rhacs-operator.v4.3.8
-        skipRange: '>= 4.2.0 < 4.4.0'
+        replaces: rhacs-operator.v4.3.0
+        skipRange: '>= 4.3.0 < 4.4.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.5.0
-        replaces: rhacs-operator.v4.4.8
-        skipRange: '>= 4.3.0 < 4.5.0'
+        replaces: rhacs-operator.v4.4.0
+        skipRange: '>= 4.4.0 < 4.5.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.6.0
-        replaces: rhacs-operator.v4.5.9
-        skipRange: '>= 4.4.0 < 4.6.0'
+        replaces: rhacs-operator.v4.5.0
+        skipRange: '>= 4.5.0 < 4.6.0'
         skips:
           - rhacs-operator.v4.1.0
-      - name: rhacs-operator.v4.7.0
-        replaces: rhacs-operator.v4.6.7
-        skipRange: '>= 4.5.0 < 4.7.0'
+      - name: rhacs-operator.v4.6.1
+        replaces: rhacs-operator.v4.6.0
+        skipRange: '>= 4.5.0 < 4.6.1'
         skips:
           - rhacs-operator.v4.1.0
-      - name: rhacs-operator.v4.7.1
-        replaces: rhacs-operator.v4.7.0
-        skipRange: '>= 4.6.0 < 4.7.1'
+      - name: rhacs-operator.v4.6.2
+        replaces: rhacs-operator.v4.6.1
+        skipRange: '>= 4.5.0 < 4.6.2'
         skips:
           - rhacs-operator.v4.1.0
-      - name: rhacs-operator.v4.7.2
-        replaces: rhacs-operator.v4.7.1
-        skipRange: '>= 4.6.0 < 4.7.2'
+      - name: rhacs-operator.v4.6.3
+        replaces: rhacs-operator.v4.6.2
+        skipRange: '>= 4.5.0 < 4.6.3'
         skips:
           - rhacs-operator.v4.1.0
-      - name: rhacs-operator.v4.7.3
-        replaces: rhacs-operator.v4.7.2
-        skipRange: '>= 4.6.0 < 4.7.3'
+      - name: rhacs-operator.v4.6.4
+        replaces: rhacs-operator.v4.6.3
+        skipRange: '>= 4.5.0 < 4.6.4'
         skips:
           - rhacs-operator.v4.1.0
-      - name: rhacs-operator.v4.7.4
-        replaces: rhacs-operator.v4.7.3
-        skipRange: '>= 4.6.0 < 4.7.4'
+      - name: rhacs-operator.v4.6.5
+        replaces: rhacs-operator.v4.6.4
+        skipRange: '>= 4.5.0 < 4.6.5'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.6.6
@@ -959,10 +961,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -979,33 +981,33 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.0
-        replaces: rhacs-operator.v4.3.8
-        skipRange: '>= 4.2.0 < 4.4.0'
+        replaces: rhacs-operator.v4.3.0
+        skipRange: '>= 4.3.0 < 4.4.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.5.0
-        replaces: rhacs-operator.v4.4.8
-        skipRange: '>= 4.3.0 < 4.5.0'
+        replaces: rhacs-operator.v4.4.0
+        skipRange: '>= 4.4.0 < 4.5.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.6.0
-        replaces: rhacs-operator.v4.5.9
-        skipRange: '>= 4.4.0 < 4.6.0'
+        replaces: rhacs-operator.v4.5.0
+        skipRange: '>= 4.5.0 < 4.6.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.7.0
-        replaces: rhacs-operator.v4.6.7
-        skipRange: '>= 4.5.0 < 4.7.0'
+        replaces: rhacs-operator.v4.6.0
+        skipRange: '>= 4.6.0 < 4.7.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.7.1
@@ -1033,10 +1035,10 @@ entries:
     package: rhacs-operator
     entries:
       - name: rhacs-operator.v4.0.0
-        skipRange: '>= 3.73.0 < 4.0.0'
+        skipRange: '>= 3.74.0 < 4.0.0'
       - name: rhacs-operator.v4.1.0
-        replaces: rhacs-operator.v4.0.5
-        skipRange: '>= 3.74.0 < 4.1.0'
+        replaces: rhacs-operator.v4.0.0
+        skipRange: '>= 4.0.0 < 4.1.0'
       - name: rhacs-operator.v4.1.1
         replaces: rhacs-operator.v4.1.0
         skipRange: '>= 4.0.0 < 4.1.1'
@@ -1053,33 +1055,33 @@ entries:
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.2.0
-        replaces: rhacs-operator.v4.1.6
-        skipRange: '>= 4.0.0 < 4.2.0'
+        replaces: rhacs-operator.v4.1.0
+        skipRange: '>= 4.1.0 < 4.2.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.3.0
-        replaces: rhacs-operator.v4.2.5
-        skipRange: '>= 4.1.0 < 4.3.0'
+        replaces: rhacs-operator.v4.2.0
+        skipRange: '>= 4.2.0 < 4.3.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.4.0
-        replaces: rhacs-operator.v4.3.8
-        skipRange: '>= 4.2.0 < 4.4.0'
+        replaces: rhacs-operator.v4.3.0
+        skipRange: '>= 4.3.0 < 4.4.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.5.0
-        replaces: rhacs-operator.v4.4.8
-        skipRange: '>= 4.3.0 < 4.5.0'
+        replaces: rhacs-operator.v4.4.0
+        skipRange: '>= 4.4.0 < 4.5.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.6.0
-        replaces: rhacs-operator.v4.5.9
-        skipRange: '>= 4.4.0 < 4.6.0'
+        replaces: rhacs-operator.v4.5.0
+        skipRange: '>= 4.5.0 < 4.6.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.7.0
-        replaces: rhacs-operator.v4.6.7
-        skipRange: '>= 4.5.0 < 4.7.0'
+        replaces: rhacs-operator.v4.6.0
+        skipRange: '>= 4.6.0 < 4.7.0'
         skips:
           - rhacs-operator.v4.1.0
       - name: rhacs-operator.v4.7.1

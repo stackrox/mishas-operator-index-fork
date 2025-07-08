@@ -143,8 +143,12 @@ func newChannelEntry(version Version, previousEntryVersion Version, previousChan
 	entry := CatalogChannelEntry{
 		Name: "rhacs-operator.v" + version.Tag,
 	}
+	replacesVersion := previousEntryVersion.Tag
+	if version.Minor != previousEntryVersion.Minor {
+		replacesVersion = fmt.Sprintf("%d.%d.0", previousChannelVersion.Major, previousChannelVersion.Minor)
+	}
 	if !slices.Contains(versionsWithoutReplaces, version.Tag) {
-		entry.Replaces = "rhacs-operator.v" + previousEntryVersion.Tag
+		entry.Replaces = "rhacs-operator.v" + replacesVersion
 	}
 	entry.SkipRange = fmt.Sprintf(">= %d.%d.0 < %s", previousChannelVersion.Major, previousChannelVersion.Minor, version.Tag)
 	if versionLess(skipVersion, version) {
@@ -273,23 +277,20 @@ func main() {
 
 	var channel ChannelEntry
 	for n, v := range versions {
-		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion)
-
-		if v.Tag == "3.63.0" {
-			fmt.Printf("3.63.0: Channel entry: %#v\n", catalogChannelEntry)
-			majorPersistentEntries = append(majorPersistentEntries, catalogChannelEntry)
-			previousEntryVersion = v
-			continue
-		}
-
 		// Create a new channel entry for each minor version
 		if v.Minor != previousEntryVersion.Minor {
-			channels = append(channels, channel)
-			channel = newChannel(v, majorPersistentEntries)
-			channelVersions = append(channelVersions, v)
 			previousChannelVersion = previousEntryVersion
+			if v.Tag != "3.63.0" {
+				channels = append(channels, channel)
+				channel = newChannel(v, slices.Clone(majorPersistentEntries))
+				channelVersions = append(channelVersions, v)
+			}
 		}
-		channel.Entries = append(channel.Entries, catalogChannelEntry)
+
+		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion)
+		if v.Tag != "3.63.0" {
+			channel.Entries = append(channel.Entries, catalogChannelEntry)
+		}
 
 		if v.Tag == "4.0.0" {
 			majorPersistentEntries = make([]CatalogChannelEntry, 0)
@@ -307,20 +308,13 @@ func main() {
 
 		if n == len(versions)-1 {
 			channels = append(channels, channel)
+
 			// Add "stable" channel when the last version is reached
 			stableChannel := generateStableChannel(channel.Entries)
 			channels = append(channels, stableChannel)
 		}
 
-		if v.Tag == "3.67.2" {
-			for _, entry := range channel.Entries {
-				fmt.Printf("Channel entry: %#v\n", entry)
-			}
-			fmt.Printf("%#v", channel)
-		}
-
 		previousEntryVersion = v
-		fmt.Printf("Processed version: %s channel: %s previousChannel: %s\n", v.Tag, channel.Name, previousChannelVersion.Tag)
 	}
 
 	baseEntries = append(baseEntries, channels...)
