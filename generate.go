@@ -18,29 +18,16 @@ const (
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
 
-type Image struct {
+type BundleImage struct {
 	Image string `yaml:"image"`
 	Tag   string `yaml:"tag"`
 }
 
 type Input struct {
-	Images []Image `yaml:"images"`
-}
-
-type CatalogChannelEntry struct {
-	Name      string   `yaml:"name"`
-	Replaces  string   `yaml:"replaces,omitempty"`
-	SkipRange string   `yaml:"skipRange"`
-	Skips     []string `yaml:"skips,omitempty"`
+	Images []BundleImage `yaml:"images"`
 }
 
 type CatalogTemplate struct {
-	Channels     map[string][]CatalogChannelEntry `yaml:"olm.channels"`
-	Deprecations []string                         `yaml:"olm.deprecations"`
-	Images       []Image                          `yaml:"images"`
-}
-
-type CatalogBase struct {
 	Schema  string         `yaml:"schema"`
 	Entries []CatalogEntry `yaml:"entries"`
 }
@@ -59,11 +46,17 @@ type Icon struct {
 	MediaType  string `yaml:"mediatype"`
 }
 
+type Channel struct {
+	Schema  string         `yaml:"schema"`
+	Name    string         `yaml:"name,omitempty"`
+	Package string         `yaml:"package,omitempty"`
+	Entries []ChannelEntry `yaml:"entries,omitempty"`
+}
 type ChannelEntry struct {
-	Schema  string                `yaml:"schema"`
-	Name    string                `yaml:"name,omitempty"`
-	Package string                `yaml:"package,omitempty"`
-	Entries []CatalogChannelEntry `yaml:"entries,omitempty"`
+	Name      string   `yaml:"name"`
+	Replaces  string   `yaml:"replaces,omitempty"`
+	SkipRange string   `yaml:"skipRange"`
+	Skips     []string `yaml:"skips,omitempty"`
 }
 
 type Deprecation struct {
@@ -144,7 +137,7 @@ func createPackageWithIcon() Package {
 	}
 }
 
-func newChannelEntry(version Version, previousEntryVersion Version, previousChannelVersion Version) CatalogChannelEntry {
+func newChannelEntry(version Version, previousEntryVersion Version, previousChannelVersion Version) ChannelEntry {
 	// skip setting "replaces" key for specific versions
 	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
 
@@ -152,7 +145,7 @@ func newChannelEntry(version Version, previousEntryVersion Version, previousChan
 	skipVersion := forceParseVersion("4.1.0")
 	versionsWithoutSkips := []string{"4.7.4", "4.6.7"}
 
-	entry := CatalogChannelEntry{
+	entry := ChannelEntry{
 		Name: "rhacs-operator.v" + version.Tag,
 	}
 	replacesVersion := previousEntryVersion.Tag
@@ -171,8 +164,8 @@ func newChannelEntry(version Version, previousEntryVersion Version, previousChan
 	return entry
 }
 
-func newChannel(version Version, entries []CatalogChannelEntry) *ChannelEntry {
-	return &ChannelEntry{
+func newChannel(version Version, entries []ChannelEntry) *Channel {
+	return &Channel{
 		Schema:  "olm.channel",
 		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major, version.Minor),
 		Package: "rhacs-operator",
@@ -215,8 +208,8 @@ func newBundleEntry(image string) *BundleEntry {
 	}
 }
 
-func generateLatestChannel(entries []CatalogChannelEntry) ChannelEntry {
-	return ChannelEntry{
+func generateLatestChannel(entries []ChannelEntry) Channel {
+	return Channel{
 		Schema:  "olm.channel",
 		Name:    "latest",
 		Package: "rhacs-operator",
@@ -224,8 +217,8 @@ func generateLatestChannel(entries []CatalogChannelEntry) ChannelEntry {
 	}
 }
 
-func generateStableChannel(entries []CatalogChannelEntry) ChannelEntry {
-	return ChannelEntry{
+func generateStableChannel(entries []ChannelEntry) Channel {
+	return Channel{
 		Schema:  "olm.channel",
 		Name:    "stable",
 		Package: "rhacs-operator",
@@ -270,8 +263,8 @@ func main() {
 
 	// Parse and sort versions
 	var versions []Version
-	versionToImageMap := make(map[Version]Image)
-	tagToImage := make(map[string]Image)
+	versionToImageMap := make(map[Version]BundleImage)
+	tagToImage := make(map[string]BundleImage)
 	for _, img := range input.Images {
 		// ignore image validation for now. Looks like docker library has a bug in it
 		_ = validateImageReference(img.Image)
@@ -300,18 +293,18 @@ func main() {
 	previousChannelVersion := forceParseVersion("3.61.0")
 	lastPersistentMajorVersion := forceParseVersion("3.61.0")
 
-	majorPersistentEntries := make([]CatalogChannelEntry, 0)
+	majorPersistentEntries := make([]ChannelEntry, 0)
 	channels := make([]CatalogEntry, 0)
 
-	var channel *ChannelEntry
+	var channel *Channel
 	for n, v := range versions {
 		if v.Tag == "4.0.0" {
-			majorPersistentEntries = make([]CatalogChannelEntry, 0)
+			majorPersistentEntries = make([]ChannelEntry, 0)
 		}
 
 		// Create a new channel entry for each minor version
-		if v.Minor != previousEntryVersion.Minor {
-			previousChannelVersion = previousEntryVersion
+		if v.Patch == 0 {
+			previousChannelVersion = lastPersistentMajorVersion
 			if v.Tag != "3.63.0" {
 				if channel != nil {
 					channels = append(channels, channel)
@@ -319,9 +312,6 @@ func main() {
 				channel = newChannel(v, slices.Clone(majorPersistentEntries))
 				channelVersions = append(channelVersions, v)
 			}
-		}
-		if v.Patch == 0 {
-			previousChannelVersion = lastPersistentMajorVersion
 		}
 
 		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion)
@@ -365,7 +355,7 @@ func main() {
 		baseEntries = append(baseEntries, newBundleEntry(versionToImageMap[v].Image))
 	}
 
-	catalog := CatalogBase{
+	catalog := CatalogTemplate{
 		Schema:  "olm.template.basic",
 		Entries: baseEntries,
 	}
