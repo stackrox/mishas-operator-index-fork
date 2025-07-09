@@ -1,5 +1,7 @@
 .idea/
 /.bin/
+
+# Leftover staging directory for importing legacy catalog. Can be safely deleted
 /catalog-migrate/
 
 # Ignore golang vendor
