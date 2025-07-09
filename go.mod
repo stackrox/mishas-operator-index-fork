@@ -3,6 +3,7 @@ module cataloggen
 go 1.24.4
 
 require (
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/distribution/reference v0.6.0
 	github.com/goccy/go-yaml v1.18.0
 )

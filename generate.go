@@ -8,6 +8,7 @@ import (
 	"slices"
 	"sort"
 
+	semver "github.com/Masterminds/semver/v3"
 	"github.com/distribution/reference"
 	"github.com/goccy/go-yaml"
 )
@@ -81,41 +82,6 @@ type BundleEntry struct {
 	Image  string `yaml:"image"`
 }
 
-type Version struct {
-	Major int
-	Minor int
-	Patch int
-	Tag   string
-}
-
-func parseVersion(tag string) (Version, error) {
-	var v Version
-	n, err := fmt.Sscanf(tag, "%d.%d.%d", &v.Major, &v.Minor, &v.Patch)
-	if err != nil || n != 3 {
-		return v, fmt.Errorf("invalid version tag: %s", tag)
-	}
-	v.Tag = tag
-	return v, nil
-}
-
-func forceParseVersion(tag string) Version {
-	v, err := parseVersion(tag)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to parse version tag: %s, error: %v", tag, err))
-	}
-	return v
-}
-
-func versionLess(a, b Version) bool {
-	if a.Major != b.Major {
-		return a.Major < b.Major
-	}
-	if a.Minor != b.Minor {
-		return a.Minor < b.Minor
-	}
-	return a.Patch < b.Patch
-}
-
 func createPackageWithIcon() Package {
 	iconFile := "icon.png"
 
@@ -138,37 +104,37 @@ func createPackageWithIcon() Package {
 	}
 }
 
-func newChannelEntry(version Version, previousEntryVersion Version, previousChannelVersion Version) ChannelEntry {
+func newChannelEntry(version *semver.Version, previousEntryVersion *semver.Version, previousChannelVersion *semver.Version) ChannelEntry {
 	// skip setting "replaces" key for specific versions
 	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
 
 	// 4.1.0 version should be added to "skips"
-	skipVersion := forceParseVersion("4.1.0")
+	skipVersion := semver.MustParse("4.1.0")
 	versionsWithoutSkips := []string{"4.7.4", "4.6.7"}
 
 	entry := ChannelEntry{
-		Name: "rhacs-operator.v" + version.Tag,
+		Name: "rhacs-operator.v" + version.Original(),
 	}
-	replacesVersion := previousEntryVersion.Tag
-	if version.Patch == 0 {
-		replacesVersion = previousChannelVersion.Tag
+	replacesVersion := previousEntryVersion.Original()
+	if version.Patch() == 0 {
+		replacesVersion = previousChannelVersion.Original()
 	}
-	if !slices.Contains(versionsWithoutReplaces, version.Tag) {
+	if !slices.Contains(versionsWithoutReplaces, version.Original()) {
 		entry.Replaces = "rhacs-operator.v" + replacesVersion
 	}
-	entry.SkipRange = fmt.Sprintf(">= %d.%d.0 < %s", previousChannelVersion.Major, previousChannelVersion.Minor, version.Tag)
-	if versionLess(skipVersion, version) && !slices.Contains(versionsWithoutSkips, version.Tag) {
+	entry.SkipRange = fmt.Sprintf(">= %d.%d.0 < %s", previousChannelVersion.Major(), previousChannelVersion.Minor(), version.Original())
+	if skipVersion.LessThan(version) && !slices.Contains(versionsWithoutSkips, version.Original()) {
 		entry.Skips = []string{
-			fmt.Sprintf("rhacs-operator.v%s", skipVersion.Tag),
+			fmt.Sprintf("rhacs-operator.v%s", skipVersion.Original()),
 		}
 	}
 	return entry
 }
 
-func newChannel(version Version, entries []ChannelEntry) *Channel {
+func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 	return &Channel{
 		Schema:  "olm.channel",
-		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major, version.Minor),
+		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
 		Package: "rhacs-operator",
 		Entries: entries,
 	}
@@ -192,11 +158,11 @@ func newDeprecation(entries []DeprecationEntry) *Deprecation {
 	}
 }
 
-func newDeprecationEntry(version Version) *DeprecationEntry {
+func newDeprecationEntry(version semver.Version) *DeprecationEntry {
 	return &DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.channel",
-			Name:   fmt.Sprintf("rhacs-%d.%d", version.Major, version.Minor),
+			Name:   fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
 		},
 		Message: deprecationMessage,
 	}
@@ -227,14 +193,14 @@ func generateStableChannel(entries []ChannelEntry) Channel {
 	}
 }
 
-func ShouldBePersistentToMajorVersion(version Version) bool {
+func ShouldBePersistentToMajorVersion(version *semver.Version) bool {
 	listToKeepForMajorVersion := []string{"4.1.1", "4.1.2", "4.1.3"}
 
 	// If the version is in the list of versions that should be kept for the next channels
-	if slices.Contains(listToKeepForMajorVersion, version.Tag) {
+	if slices.Contains(listToKeepForMajorVersion, version.Original()) {
 		return true
 	}
-	return version.Patch == 0
+	return version.Patch() == 0
 }
 
 func validateImageReference(image string) error {
@@ -260,60 +226,59 @@ func main() {
 	}
 
 	// Parse and sort versions
-	var versions []Version
-	versionToImageMap := make(map[Version]BundleImage)
-	tagToImage := make(map[string]BundleImage)
+	var versions []*semver.Version
+	versionToImageMap := make(map[*semver.Version]BundleImage)
 	for _, img := range input.Images {
 		// ignore image validation for now. Looks like docker library has a bug in it
 		_ = validateImageReference(img.Image)
 
-		v, err := parseVersion(img.Tag)
+		v, err := semver.StrictNewVersion(img.Tag)
 		if err != nil {
 			log.Fatalf("Invalid tag: %s", img.Tag)
 		}
+
 		versionToImageMap[v] = img
 		versions = append(versions, v)
-		tagToImage[img.Tag] = img
 	}
 	sort.Slice(versions, func(i, j int) bool {
-		return versionLess(versions[i], versions[j])
+		return versions[i].LessThan(versions[j])
 	})
 
 	var catalogEntries []CatalogEntry
 
 	iconPackage := createPackageWithIcon()
 
-	channelVersions := make([]Version, 0)
+	channelVersions := make([]semver.Version, 0)
 	catalogEntries = append(catalogEntries, iconPackage)
 
 	// Very first version in the catalog repalces 3.61.0 and skipRanges starts from 3.61.0
-	previousEntryVersion := forceParseVersion("3.61.0")
-	previousChannelVersion := forceParseVersion("3.61.0")
-	lastPersistentMajorVersion := forceParseVersion("3.61.0")
+	previousEntryVersion := semver.MustParse("3.61.0")
+	previousChannelVersion := semver.MustParse("3.61.0")
+	lastPersistentMajorVersion := semver.MustParse("3.61.0")
 
 	majorPersistentEntries := make([]ChannelEntry, 0)
 	channels := make([]CatalogEntry, 0)
 
 	var channel *Channel
 	for n, v := range versions {
-		if v.Tag == "4.0.0" {
+		if v.Original() == "4.0.0" {
 			majorPersistentEntries = make([]ChannelEntry, 0)
 		}
 
 		// Create a new channel entry for each minor version
-		if v.Patch == 0 {
+		if v.Patch() == 0 {
 			previousChannelVersion = lastPersistentMajorVersion
-			if v.Tag != "3.63.0" {
+			if v.Original() != "3.63.0" {
 				if channel != nil {
 					channels = append(channels, channel)
 				}
 				channel = newChannel(v, slices.Clone(majorPersistentEntries))
-				channelVersions = append(channelVersions, v)
+				channelVersions = append(channelVersions, *v)
 			}
 		}
 
 		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion)
-		if v.Tag != "3.63.0" {
+		if v.Original() != "3.63.0" {
 			channel.Entries = append(channel.Entries, catalogChannelEntry)
 		}
 
@@ -323,7 +288,7 @@ func main() {
 		}
 
 		// Add "latest" channel when "3.74.9" is reached
-		if v.Tag == "3.74.9" {
+		if v.Original() == "3.74.9" {
 			latestChannel := generateLatestChannel(channel.Entries)
 			channels = append(channels, latestChannel)
 		}
