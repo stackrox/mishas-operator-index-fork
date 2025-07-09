@@ -25,7 +25,7 @@ type BundleImage struct {
 	Tag   string `yaml:"tag"`
 }
 
-type Input struct {
+type BundleLiist struct {
 	Images []BundleImage `yaml:"images"`
 }
 
@@ -82,25 +82,36 @@ type BundleEntry struct {
 	Image  string `yaml:"image"`
 }
 
-func createPackageWithIcon() Package {
-	iconFile := "icon.png"
-
+func readBundleListFile() BundleLiist {
 	// Read the file
-	data, err := os.ReadFile(iconFile)
+	inputBytes, err := os.ReadFile(inputFile)
 	if err != nil {
-		log.Fatalf("Failed to read icon.png: %v", err)
+		log.Fatalf("Failed to read %s: %v", inputFile, err)
 	}
-	// Encode to base64
-	iconBase64 := base64.StdEncoding.EncodeToString(data)
+	var bundleList BundleLiist
+	if err := yaml.Unmarshal(inputBytes, &bundleList); err != nil {
+		log.Fatalf("Failed to parse YAML: %v", err)
+	}
 
-	return Package{
-		Schema:         "olm.package",
-		Name:           "rhacs-operator",
-		DefaultChannel: "stable",
-		Icon: Icon{
-			Base64data: iconBase64,
-			MediaType:  "image/png",
-		},
+	return bundleList
+}
+
+func writeCatalogTemplateToFile(catalog CatalogTemplate) error {
+	out, err := yaml.Marshal(&catalog)
+	if err != nil {
+		log.Fatalf("Failed to marshal catalog: %v", err)
+	}
+	if err := os.WriteFile(outputFile, out, 0644); err != nil {
+		log.Fatalf("Failed to write output: %v", err)
+	}
+
+	return nil
+}
+
+func newCatalogTemplate() CatalogTemplate {
+	return CatalogTemplate{
+		Schema:  "olm.template.basic",
+		Entries: []CatalogEntry{},
 	}
 }
 
@@ -158,7 +169,7 @@ func newDeprecation(entries []DeprecationEntry) *Deprecation {
 	}
 }
 
-func newDeprecationEntry(version semver.Version) *DeprecationEntry {
+func newDeprecationEntry(version *semver.Version) *DeprecationEntry {
 	return &DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.channel",
@@ -175,8 +186,8 @@ func newBundleEntry(image string) *BundleEntry {
 	}
 }
 
-func generateLatestChannel(entries []ChannelEntry) Channel {
-	return Channel{
+func generateLatestChannel(entries []ChannelEntry) *Channel {
+	return &Channel{
 		Schema:  "olm.channel",
 		Name:    "latest",
 		Package: "rhacs-operator",
@@ -184,8 +195,8 @@ func generateLatestChannel(entries []ChannelEntry) Channel {
 	}
 }
 
-func generateStableChannel(entries []ChannelEntry) Channel {
-	return Channel{
+func generateStableChannel(entries []ChannelEntry) *Channel {
+	return &Channel{
 		Schema:  "olm.channel",
 		Name:    "stable",
 		Package: "rhacs-operator",
@@ -215,51 +226,61 @@ func validateImageReference(image string) error {
 	return nil
 }
 
-func main() {
-	inputBytes, err := os.ReadFile(inputFile)
-	if err != nil {
-		log.Fatalf("Failed to read %s: %v", inputFile, err)
-	}
-	var input Input
-	if err := yaml.Unmarshal(inputBytes, &input); err != nil {
-		log.Fatalf("Failed to parse YAML: %v", err)
-	}
-
-	// Parse and sort versions
+func parseAndSortVersions(images []BundleImage) ([]*semver.Version, map[*semver.Version]BundleImage, error) {
 	var versions []*semver.Version
 	versionToImageMap := make(map[*semver.Version]BundleImage)
-	for _, img := range input.Images {
+
+	for _, img := range images {
 		// ignore image validation for now. Looks like docker library has a bug in it
 		_ = validateImageReference(img.Image)
 
 		v, err := semver.StrictNewVersion(img.Tag)
 		if err != nil {
-			log.Fatalf("Invalid tag: %s", img.Tag)
+			return nil, nil, fmt.Errorf("invalid tag %s: %w", img.Tag, err)
 		}
 
 		versionToImageMap[v] = img
 		versions = append(versions, v)
 	}
+
 	sort.Slice(versions, func(i, j int) bool {
 		return versions[i].LessThan(versions[j])
 	})
 
-	var catalogEntries []CatalogEntry
+	return versions, versionToImageMap, nil
+}
 
-	iconPackage := createPackageWithIcon()
+func addPackageWithIcon(catalogEntries []CatalogEntry) []CatalogEntry {
+	iconFile := "icon.png"
 
-	channelVersions := make([]semver.Version, 0)
-	catalogEntries = append(catalogEntries, iconPackage)
+	data, err := os.ReadFile(iconFile)
+	if err != nil {
+		log.Fatalf("Failed to read icon.png: %v", err)
+	}
+	iconBase64 := base64.StdEncoding.EncodeToString(data)
 
+	packageWithicon := &Package{
+		Schema:         "olm.package",
+		Name:           "rhacs-operator",
+		DefaultChannel: "stable",
+		Icon: Icon{
+			Base64data: iconBase64,
+			MediaType:  "image/png",
+		},
+	}
+
+	return append(catalogEntries, packageWithicon)
+}
+
+func addChannels(catalogEntries []CatalogEntry, versions []*semver.Version) []CatalogEntry {
+	channels := make([]CatalogEntry, 0)
+	majorPersistentEntries := make([]ChannelEntry, 0)
 	// Very first version in the catalog repalces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
 	previousChannelVersion := semver.MustParse("3.61.0")
 	lastPersistentMajorVersion := semver.MustParse("3.61.0")
-
-	majorPersistentEntries := make([]ChannelEntry, 0)
-	channels := make([]CatalogEntry, 0)
-
 	var channel *Channel
+
 	for n, v := range versions {
 		if v.Original() == "4.0.0" {
 			majorPersistentEntries = make([]ChannelEntry, 0)
@@ -273,7 +294,6 @@ func main() {
 					channels = append(channels, channel)
 				}
 				channel = newChannel(v, slices.Clone(majorPersistentEntries))
-				channelVersions = append(channelVersions, *v)
 			}
 		}
 
@@ -304,34 +324,58 @@ func main() {
 		previousEntryVersion = v
 	}
 
-	catalogEntries = append(catalogEntries, channels...)
+	for _, c := range channels {
+		catalogEntries = append(catalogEntries, c)
+	}
 
+	return catalogEntries
+}
+
+func addDeprecations(catalogEntries []CatalogEntry, versions []*semver.Version) []CatalogEntry {
 	var deprecations []DeprecationEntry
+	var channelVersions []*semver.Version
+	for _, v := range versions {
+		// assume that each 0 Patch version indicates a new channel except for 3.63.0. There is no 3.63 channel
+		if v.Patch() == 0 && v.Original() != "3.63.0" {
+			channelVersions = append(channelVersions, v)
+		}
+	}
+	// If there are more than 2 channels, we need to deprecate the older ones
 	if len(channelVersions) > 2 {
 		for _, v := range channelVersions[:len(channelVersions)-2] {
 			deprecations = append(deprecations, *newDeprecationEntry(v))
 		}
 	}
-	catalogEntries = append(catalogEntries, newDeprecation(deprecations))
 
+	return append(catalogEntries, newDeprecation(deprecations))
+}
+
+func addBundles(catalogEntries []CatalogEntry, versions []*semver.Version, versionToImageMap map[*semver.Version]BundleImage) []CatalogEntry {
+	var bundleEntries []*BundleEntry
 	for _, v := range versions {
-		catalogEntries = append(catalogEntries, newBundleEntry(versionToImageMap[v].Image))
+		bundleEntries = append(bundleEntries, newBundleEntry(versionToImageMap[v].Image))
 	}
-
-	catalog := CatalogTemplate{
-		Schema:  "olm.template.basic",
-		Entries: catalogEntries,
+	for _, bundle := range bundleEntries {
+		catalogEntries = append(catalogEntries, bundle)
 	}
+	return catalogEntries
+}
 
-	out, err := yaml.Marshal(&catalog)
+func main() {
+	inputBundleList := readBundleListFile()
+
+	versions, versionToImageMap, err := parseAndSortVersions(inputBundleList.Images)
 	if err != nil {
-		log.Fatalf("Failed to marshal catalog: %v", err)
+		log.Fatalf("Failed to parse versions: %v", err)
 	}
 
-	// Write catalog to the file
-	if err := os.WriteFile(outputFile, out, 0644); err != nil {
-		log.Fatalf("Failed to write output: %v", err)
-	}
+	catalog := newCatalogTemplate()
+	catalog.Entries = addPackageWithIcon(catalog.Entries)
+	catalog.Entries = addChannels(catalog.Entries, versions)
+	catalog.Entries = addDeprecations(catalog.Entries, versions)
+	catalog.Entries = addBundles(catalog.Entries, versions, versionToImageMap)
 
-	fmt.Println("catalog-template.yaml generated successfully.")
+	writeCatalogTemplateToFile(catalog)
+
+	fmt.Printf(" %s generated successfully.\n", outputFile)
 }
