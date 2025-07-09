@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -14,6 +13,8 @@ import (
 )
 
 const (
+	inputFile                       = "bundles.yaml"
+	outputFile                      = "catalog-template-new.yaml"
 	deprecationMessage              = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
@@ -249,9 +250,6 @@ func validateImageReference(image string) error {
 }
 
 func main() {
-	inputFile := "bundles.yaml"
-	outputFile := "catalog-template-new.yaml"
-
 	inputBytes, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Failed to read %s: %v", inputFile, err)
@@ -281,12 +279,12 @@ func main() {
 		return versionLess(versions[i], versions[j])
 	})
 
-	var baseEntries []CatalogEntry
+	var catalogEntries []CatalogEntry
 
 	iconPackage := createPackageWithIcon()
 
 	channelVersions := make([]Version, 0)
-	baseEntries = append(baseEntries, iconPackage)
+	catalogEntries = append(catalogEntries, iconPackage)
 
 	// Very first version in the catalog repalces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := forceParseVersion("3.61.0")
@@ -341,7 +339,7 @@ func main() {
 		previousEntryVersion = v
 	}
 
-	baseEntries = append(baseEntries, channels...)
+	catalogEntries = append(catalogEntries, channels...)
 
 	var deprecations []DeprecationEntry
 	if len(channelVersions) > 2 {
@@ -349,26 +347,21 @@ func main() {
 			deprecations = append(deprecations, *newDeprecationEntry(v))
 		}
 	}
-	baseEntries = append(baseEntries, newDeprecation(deprecations))
+	catalogEntries = append(catalogEntries, newDeprecation(deprecations))
 
 	for _, v := range versions {
-		baseEntries = append(baseEntries, newBundleEntry(versionToImageMap[v].Image))
+		catalogEntries = append(catalogEntries, newBundleEntry(versionToImageMap[v].Image))
 	}
 
 	catalog := CatalogTemplate{
 		Schema:  "olm.template.basic",
-		Entries: baseEntries,
+		Entries: catalogEntries,
 	}
 
-	// Set indention for catalog YAML representation
-	var buf bytes.Buffer
-	encoder := yaml.NewEncoder(&buf)
-	err = encoder.Encode(catalog)
+	out, err := yaml.Marshal(&catalog)
 	if err != nil {
-		log.Fatalf("Failed to encode catalog: %v", err)
+		log.Fatalf("Failed to marshal catalog: %v", err)
 	}
-	encoder.Close()
-	out := buf.Bytes()
 
 	// Write catalog to the file
 	if err := os.WriteFile(outputFile, out, 0644); err != nil {
