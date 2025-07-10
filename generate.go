@@ -15,7 +15,7 @@ import (
 
 const (
 	inputFile                       = "bundles.yaml"
-	outputFile                      = "catalog-template-new.yaml"
+	outputFile                      = "catalog-template.yaml"
 	deprecationMessage              = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
@@ -83,7 +83,6 @@ type BundleEntry struct {
 }
 
 func readBundleListFile() BundleLiist {
-	// Read the file
 	inputBytes, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Failed to read %s: %v", inputFile, err)
@@ -108,6 +107,8 @@ func writeCatalogTemplateToFile(catalog CatalogTemplate) error {
 	return nil
 }
 
+// Create base catalog template block.
+// It has to contain items with schema equal to: "olm.package", "olm.channel", "olm.deprecations" or "olm.bundle".
 func newCatalogTemplate() CatalogTemplate {
 	return CatalogTemplate{
 		Schema:  "olm.template.basic",
@@ -115,6 +116,47 @@ func newCatalogTemplate() CatalogTemplate {
 	}
 }
 
+// Create a new "olm.channel" object which should be added to the catalog base.
+// it will be represented in YAML like this:
+//   - schema: olm.channel
+//     name: rhacs-3.64
+//     package: rhacs-operator
+//     entries:
+//   - <ChannelEntry>
+func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
+	return &Channel{
+		Schema:  "olm.channel",
+		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
+		Package: "rhacs-operator",
+		Entries: entries,
+	}
+}
+
+func generateLatestChannel(entries []ChannelEntry) *Channel {
+	return &Channel{
+		Schema:  "olm.channel",
+		Name:    "latest",
+		Package: "rhacs-operator",
+		Entries: entries,
+	}
+}
+
+func generateStableChannel(entries []ChannelEntry) *Channel {
+	return &Channel{
+		Schema:  "olm.channel",
+		Name:    "stable",
+		Package: "rhacs-operator",
+		Entries: entries,
+	}
+}
+
+// Create a new Chanel entry object which should be added to Channel entries list.
+// it will be represented in YAML like this:
+//   - name: rhacs-operator.v<version>
+//     replaces: rhacs-operator.v<previousEntryVersion>
+//     skipRange: '>= <previousChannelVersion> < <version>'
+//     skips:
+//   - rhacs-operator.v4.1.0
 func newChannelEntry(version *semver.Version, previousEntryVersion *semver.Version, previousChannelVersion *semver.Version) ChannelEntry {
 	// skip setting "replaces" key for specific versions
 	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
@@ -142,15 +184,12 @@ func newChannelEntry(version *semver.Version, previousEntryVersion *semver.Versi
 	return entry
 }
 
-func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
-	return &Channel{
-		Schema:  "olm.channel",
-		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
-		Package: "rhacs-operator",
-		Entries: entries,
-	}
-}
-
+// Create a new "olm.deprecations" object which should be added to the catalog base.
+// it will be represented in YAML like this:
+//   - schema: olm.deprecations
+//     package: rhacs-operator
+//     entries:
+//   - <DeprecationEntry>
 func newDeprecation(entries []DeprecationEntry) *Deprecation {
 	// Add a deprecation entry for the "latest" channel
 	latestDeprecationEntry := &DeprecationEntry{
@@ -169,6 +208,13 @@ func newDeprecation(entries []DeprecationEntry) *Deprecation {
 	}
 }
 
+// Create a newdDeprecation reference object which should be added to Deprecation reference list.
+// it will be represented in YAML like this:
+//   - reference:
+//     schema: olm.channel
+//     name: rhacs-<version>
+//     message: |
+//     <message>
 func newDeprecationEntry(version *semver.Version) *DeprecationEntry {
 	return &DeprecationEntry{
 		Reference: DeprecationReference{
@@ -179,28 +225,14 @@ func newDeprecationEntry(version *semver.Version) *DeprecationEntry {
 	}
 }
 
+// Create a new "olm.bundle" object which should be added to the catalog base.
+// it will be represented in YAML like this:
+//   - image: <bundle_image_reference>
+//     schema: olm.bundle
 func newBundleEntry(image string) *BundleEntry {
 	return &BundleEntry{
 		Schema: "olm.bundle",
 		Image:  image,
-	}
-}
-
-func generateLatestChannel(entries []ChannelEntry) *Channel {
-	return &Channel{
-		Schema:  "olm.channel",
-		Name:    "latest",
-		Package: "rhacs-operator",
-		Entries: entries,
-	}
-}
-
-func generateStableChannel(entries []ChannelEntry) *Channel {
-	return &Channel{
-		Schema:  "olm.channel",
-		Name:    "stable",
-		Package: "rhacs-operator",
-		Entries: entries,
 	}
 }
 
