@@ -134,7 +134,10 @@ func parseAndSortVersions(images []BundleImage) ([]*semver.Version, map[*semver.
 
 	for _, img := range images {
 		// ignore image validation for now. Looks like docker library has a bug in it
-		_ = validateImageReference(img.Image)
+		err := validateImageReference(img.Image)
+		if err != nil {
+			return nil, nil, fmt.Errorf("invalid image reference %s: %w", img.Image, err)
+		}
 
 		v, err := semver.StrictNewVersion(img.Tag)
 		if err != nil {
@@ -448,7 +451,7 @@ func shouldBePersistentToMajorVersion(version *semver.Version) bool {
 // validateImageReference validates that the provided image string is a valid cintainer image reference with a digest
 func validateImageReference(image string) error {
 	// Validate the image reference using the distribution/reference package
-	ref, err := reference.ParseAnyReference(image)
+	ref, err := reference.Parse(image)
 	if err != nil {
 		return fmt.Errorf("Cannot parse string as docker image %s: %w", image, err)
 	}
