@@ -28,6 +28,11 @@ spec:
     value: '{{revision}}'
   - name: base-image
     value: registry.redhat.io/openshift4/ose-operator-registry:v4.12
+  - name: build-platforms
+    # The image is built only for x86_64 because OCP stopped multiarch builds for ose-operator-registry:v4.12.
+    # See https://redhat-internal.slack.com/archives/C04PZ7H0VA8/p1752509725098509
+    value:
+    - linux/x86_64
   - name: output-image-tag
     value: ocp-v4-12-{{revision}}-fast
   - name: catalog-dir

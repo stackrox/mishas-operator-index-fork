@@ -28,6 +28,10 @@ spec:
     value: '{{revision}}'
   - name: base-image
     value: registry.redhat.io/openshift4/ose-operator-registry:v4.13
+  - name: build-platforms
+    # Only building for x86_64 for the same reason as v4.12, see the note there.
+    value:
+    - linux/x86_64
   - name: output-image-tag
     value: ocp-v4-13-{{revision}}-fast
   - name: catalog-dir
