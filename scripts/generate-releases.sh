@@ -9,7 +9,7 @@ if [[ "$#" -lt 1 || "$#" -gt 3 ]]; then
     echo "COMMIT - a 40 character-long SHA of the commit to pull Snapshots only with this commit label for the Release. Default: currently checked out commit" >&2
     echo "BRANCH - an optional parameter to specify git branch name for filtering snapshots by having branch name in annotations. Default: currently checked out branch" >&2
     echo "" >&2
-    echo "You must have your KUBECONFIG point to the Konflux cluster, see https://spaces.redhat.com/pages/viewpage.action?pageId=407312060#HowtoeverythingKonflux/RHTAPforRHACS-GettingocCLItoworkwithKonflux." >&2
+    echo "You must have your KUBECONFIG point to the Konflux cluster, see https://spaces.redhat.com/pages/viewpage.action?pageId=407312060#HowtoeverythingKonfluxforRHACS-GettingocCLItoworkwithKonflux." >&2
     exit 1
 fi
 
