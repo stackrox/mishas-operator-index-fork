@@ -452,51 +452,88 @@ entries:
     name: rhacs-operator.v4.3.0
     replaces: rhacs-operator.v4.2.0
     skipRange: '>= 4.2.0 < 4.3.0'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.1
+  - &bundle-4-3-1
+    name: rhacs-operator.v4.3.1
     replaces: rhacs-operator.v4.3.0
     skipRange: '>= 4.2.0 < 4.3.1'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.2
+  - &bundle-4-3-2
+    name: rhacs-operator.v4.3.2
     replaces: rhacs-operator.v4.3.1
     skipRange: '>= 4.2.0 < 4.3.2'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.3
+  - &bundle-4-3-3
+    name: rhacs-operator.v4.3.3
     replaces: rhacs-operator.v4.3.2
     skipRange: '>= 4.2.0 < 4.3.3'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.4
+  - &bundle-4-3-4
+    name: rhacs-operator.v4.3.4
     replaces: rhacs-operator.v4.3.3
     skipRange: '>= 4.2.0 < 4.3.4'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.5
+  - &bundle-4-3-5
+    name: rhacs-operator.v4.3.5
     replaces: rhacs-operator.v4.3.4
     skipRange: '>= 4.2.0 < 4.3.5'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.6
+  - &bundle-4-3-6
+    name: rhacs-operator.v4.3.6
     replaces: rhacs-operator.v4.3.5
     skipRange: '>= 4.2.0 < 4.3.6'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.7
+  - &bundle-4-3-7
+    name: rhacs-operator.v4.3.7
     replaces: rhacs-operator.v4.3.6
     skipRange: '>= 4.2.0 < 4.3.7'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.3.8
+  - &bundle-4-3-8
+    name: rhacs-operator.v4.3.8
     replaces: rhacs-operator.v4.3.7
     skipRange: '>= 4.2.0 < 4.3.8'
-    skips:
-    - rhacs-operator.v4.1.0
 
 - schema: olm.channel
   name: rhacs-4.4
+  package: rhacs-operator
+  entries:
+  - *bundle-4-0-0
+  - *bundle-4-1-0
+  - *bundle-4-1-1
+  - *bundle-4-1-2
+  - *bundle-4-1-3
+  - *bundle-4-2-0
+  - *bundle-4-3-0
+  - *bundle-4-3-1
+  - *bundle-4-3-2
+  - *bundle-4-3-3
+  - *bundle-4-3-4
+  - *bundle-4-3-5
+  - *bundle-4-3-6
+  - *bundle-4-3-7
+  - *bundle-4-3-8
+  - name: rhacs-operator.v4.4.0
+    replaces: rhacs-operator.v4.3.8
+    skipRange: '>= 4.3.0 < 4.4.0'
+  - name: rhacs-operator.v4.4.1
+    replaces: rhacs-operator.v4.4.0
+    skipRange: '>= 4.3.0 < 4.4.1'
+  - name: rhacs-operator.v4.4.2
+    replaces: rhacs-operator.v4.4.1
+    skipRange: '>= 4.3.0 < 4.4.2'
+  - name: rhacs-operator.v4.4.3
+    replaces: rhacs-operator.v4.4.2
+    skipRange: '>= 4.3.0 < 4.4.3'
+  - name: rhacs-operator.v4.4.4
+    replaces: rhacs-operator.v4.4.3
+    skipRange: '>= 4.3.0 < 4.4.4'
+  - name: rhacs-operator.v4.4.5
+    replaces: rhacs-operator.v4.4.4
+    skipRange: '>= 4.3.0 < 4.4.5'
+  - name: rhacs-operator.v4.4.6
+    replaces: rhacs-operator.v4.4.5
+    skipRange: '>= 4.3.0 < 4.4.6'
+  - name: rhacs-operator.v4.4.7
+    replaces: rhacs-operator.v4.4.6
+    skipRange: '>= 4.3.0 < 4.4.7'
+  - name: rhacs-operator.v4.4.8
+    replaces: rhacs-operator.v4.4.7
+    skipRange: '>= 4.3.0 < 4.4.8'
+
+- schema: olm.channel
+  name: rhacs-4.5
   package: rhacs-operator
   entries:
   - *bundle-4-0-0
@@ -510,61 +547,6 @@ entries:
     name: rhacs-operator.v4.4.0
     replaces: rhacs-operator.v4.3.0
     skipRange: '>= 4.3.0 < 4.4.0'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.1
-    replaces: rhacs-operator.v4.4.0
-    skipRange: '>= 4.3.0 < 4.4.1'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.2
-    replaces: rhacs-operator.v4.4.1
-    skipRange: '>= 4.3.0 < 4.4.2'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.3
-    replaces: rhacs-operator.v4.4.2
-    skipRange: '>= 4.3.0 < 4.4.3'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.4
-    replaces: rhacs-operator.v4.4.3
-    skipRange: '>= 4.3.0 < 4.4.4'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.5
-    replaces: rhacs-operator.v4.4.4
-    skipRange: '>= 4.3.0 < 4.4.5'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.6
-    replaces: rhacs-operator.v4.4.5
-    skipRange: '>= 4.3.0 < 4.4.6'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.7
-    replaces: rhacs-operator.v4.4.6
-    skipRange: '>= 4.3.0 < 4.4.7'
-    skips:
-    - rhacs-operator.v4.1.0
-  - name: rhacs-operator.v4.4.8
-    replaces: rhacs-operator.v4.4.7
-    skipRange: '>= 4.3.0 < 4.4.8'
-    skips:
-    - rhacs-operator.v4.1.0
-
-- schema: olm.channel
-  name: rhacs-4.5
-  package: rhacs-operator
-  entries:
-  - *bundle-4-0-0
-  - *bundle-4-1-0
-  - *bundle-4-1-1
-  - *bundle-4-1-2
-  - *bundle-4-1-3
-  - *bundle-4-2-0
-  - *bundle-4-3-0
-  - *bundle-4-4-0
   - &bundle-4-5-0
     name: rhacs-operator.v4.5.0
     replaces: rhacs-operator.v4.4.0
