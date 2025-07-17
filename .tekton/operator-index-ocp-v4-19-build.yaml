@@ -27,7 +27,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: base-image
-    value: brew.registry.redhat.io/rh-osbs/openshift-ose-operator-registry-rhel9:v4.19
+    value: registry.redhat.io/openshift4/ose-operator-registry-rhel9:v4.19
   - name: output-image-tag
     value: ocp-v4-19-{{revision}}-fast
   - name: catalog-dir
