@@ -11,7 +11,7 @@ metadata:
     # onto these branches even without PRs and so that Mintmaker/Renovate can automerge its updates without PRs.
     pipelinesascode.tekton.dev/on-cel-expression: |
       (event == "push" && target_branch.matches("^(master|konflux/references/master|konflux/mintmaker/.*)$")) ||
-      (event == "pull_request")
+      (event == "pull_request" && body.action != "ready_for_review")
   labels:
     # Arbitrarily chosen application. It just needs to exist, see https://redhat-internal.slack.com/archives/C04PZ7H0VA8/p1731696009187979
     appstudio.openshift.io/application: acs-operator-index-ocp-v4-17
