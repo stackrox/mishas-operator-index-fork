@@ -14,4 +14,4 @@ fi
 COMMIT="${1:-$(git rev-parse HEAD)}"
     
 echo -e "Release status for \033[0;32m$COMMIT\033[0m commit (Press ctrl+C to quit):"
-kubectl get releases --watch -l pac.test.appstudio.openshift.io/sha="${COMMIT}"
+kubectl -n rh-acs-tenant get releases.appstudio.redhat.com --watch -l pac.test.appstudio.openshift.io/sha="${COMMIT}"
