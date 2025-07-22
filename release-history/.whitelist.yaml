@@ -1,0 +1,15 @@
+# This is a list of annotations and labels that will be retained when /scripts/generate-releases.sh copies
+# Konflux-created Snapshots to this repo.
+annotations:
+  build.appstudio.redhat.com/pull_request_number: true
+  build.appstudio.redhat.com/target_branch: true
+  pac.test.appstudio.openshift.io/branch: true
+  pac.test.appstudio.openshift.io/sender: true
+  pac.test.appstudio.openshift.io/sha-title: true
+  pac.test.appstudio.openshift.io/sha-url: true
+  pac.test.appstudio.openshift.io/source-branch: true
+labels:
+  appstudio.openshift.io/application: true
+  appstudio.openshift.io/component: true
+  pac.test.appstudio.openshift.io/event-type: true
+  pac.test.appstudio.openshift.io/sha: true
