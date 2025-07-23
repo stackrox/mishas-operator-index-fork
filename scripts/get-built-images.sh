@@ -2,8 +2,11 @@
 
 set -euo pipefail
 
-if [[ "$#" -gt 1 ]]; then
-    echo "USAGE: ./get-built-images.sh [COMMIT]"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+source "$SCRIPT_DIR/helpers.sh"
+
+if [[ "$#" -gt 1 || "${1:-}" == "--help" ]]; then
+    echo "USAGE: ./$(basename "${BASH_SOURCE[0]}") [COMMIT]"
     echo ""
     echo "COMMIT - an optional 40 character-long SHA of the commit to pull built images only with this commit sha. Default: the latest commit in the current branch"
     echo ""
@@ -12,6 +15,7 @@ if [[ "$#" -gt 1 ]]; then
 fi
 
 COMMIT="${1:-$(git rev-parse HEAD)}"
+COMMIT="$(expand_commit "$COMMIT")"
 
 echo -e "Operator catalog images for commit \033[0;32m$COMMIT\033[0m:"
 kubectl -n rh-acs-tenant get pipelinerun.tekton.dev -l pipelinesascode.tekton.dev/sha="${COMMIT}" -o json | jq -r '
