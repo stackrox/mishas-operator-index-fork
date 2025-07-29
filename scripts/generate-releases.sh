@@ -35,33 +35,26 @@ validate_environment() {
     fi
 }
 
-# Fetch the list of snapshots for provided commit and branch values. 
-# Make sure that only one the most recent snapshot per application is returned.
-get_snapshots() {
+# Fetch the list of snapshot names and associented application name for provided commit and branch values.
+get_snapshots_data() {
     local -r commit="$1"
     local -r branch="$2"
-    kubectl get -n rh-acs-tenant snapshot -l pac.test.appstudio.openshift.io/sha="${commit}" -o json | jq -r '
-        .items
-        | map(select((.metadata.annotations["pac.test.appstudio.openshift.io/source-branch"]=="'"${branch}"'") or (.metadata.annotations["pac.test.appstudio.openshift.io/source-branch"]=="refs/heads/'${branch}'")))
-        | sort_by(.spec.application)
-        | group_by(.spec.application)
-        | map(sort_by(.metadata.creationTimestamp) | last)
-        | .[]
-        | "\(.metadata.name)|\(.spec.application)"'
+    snapshot_list="$(get_snapshots "$commit" "$branch")"
+    echo "$snapshot_list" | jq -r '.[] | "\(.metadata.name)|\(.spec.application)"'
 }
 
 # Validate all expected Snapshots were found.
 validate_snapshots() {
     local -r commit="$1"
-    local -r snapshot_list="$2"
+    local -r snapshots_data="$2"
 
     local pipelines_count
     local snapshots_count
     pipelines_count="$(find ".tekton" -maxdepth 1 -type f -name "operator-index-ocp-*-build.yaml" | wc -l )"
-    snapshots_count="$(echo "$snapshot_list" | wc -l )"
+    snapshots_count="$(echo "$snapshots_data" | wc -l )"
 
     echo -e "Found the following snapshots for \033[0;32m$commit\033[0m commit:" >&2
-    echo "$snapshot_list" >&2
+    echo "$snapshots_data" >&2
 
     if [[ "$snapshots_count" -eq 0 ]]; then
         echo "ERROR: Could not find any Snapshots for the commit '${commit}'." >&2
@@ -77,7 +70,7 @@ validate_snapshots() {
 generate_release_resources() {
     local -r environment="$1"
     local -r commit="$2"
-    local -r snapshot_list="$3"
+    local -r snapshots_data="$3"
 
     local release_name
     local snapshot
@@ -131,7 +124,7 @@ generate_release_resources() {
           releasePlan: ${release_plan}
           snapshot: ${snapshot_copy}"
 
-    done <<< "$snapshot_list" > "${out_file}"
+    done <<< "$snapshots_data" > "${out_file}"
 
     echo "Staging the file for commit..."
     git add --verbose "${out_file}"
@@ -145,11 +138,11 @@ commit="${2:-$(git rev-parse HEAD)}"
 commit="$(expand_commit "$commit")"
 
 branch="${3:-$(git rev-parse --abbrev-ref HEAD)}"
-validate_branch "$branch"
+validate_branch "$branch" "$commit"
 
 validate_environment "$environment" "$branch"
 
-snapshot_list=$(get_snapshots "$commit" "$branch")
-validate_snapshots "$commit" "$snapshot_list"
+snapshots_data=$(get_snapshots_data "$commit" "$branch")
+validate_snapshots "$commit" "$snapshots_data"
 
-generate_release_resources "$environment" "$commit" "$snapshot_list"
+generate_release_resources "$environment" "$commit" "$snapshots_data"
