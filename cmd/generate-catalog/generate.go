@@ -19,19 +19,20 @@ import (
 const (
 	inputFile                       = "bundles.yaml"
 	outputFile                      = "catalog-template-new.yaml"
-	deprecationMessage              = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
+	channelDeprecationMessage       = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
+	bundleDeprecationMessage        = "This operator bundle version is no longer supported. Please switch to non deprecated bundle version for support.\n"
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
+
+type Input struct {
+	OldestSupportedVersion *semver.Version   `yaml:"oldest_supported_version"`
+	BrokenVersions         []*semver.Version `yaml:"broken_versions"`
+	Images                 []BundleImage     `yaml:"images"`
+}
 
 type BundleImage struct {
 	Image   string `yaml:"image"`
 	Version string `yaml:"version"`
-}
-
-type BundleList struct {
-	OldestSupportedVersion string        `yaml:"oldest_supported_version"`
-	BrokenVersions         []string      `yaml:"broken_versions"`
-	Images                 []BundleImage `yaml:"images"`
 }
 
 type CatalogTemplate struct {
@@ -88,12 +89,12 @@ type BundleEntry struct {
 }
 
 func main() {
-	inputBundleList, err := readBundleListFile()
+	input, err := readInputFile()
 	if err != nil {
 		log.Fatalf("Failed to read bundle list file: %v", err)
 	}
 
-	versions, versionToImageMap, err := parseAndSortVersions(inputBundleList.Images)
+	versions, versionToImageMap, err := parseAndSortVersions(input.Images)
 	if err != nil {
 		log.Fatalf("Failed to parse versions: %v", err)
 	}
@@ -102,8 +103,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to generate package object with icon: %v", err)
 	}
-	channels := generateChannels(versions)
-	deprecations := generateDeprecations(versions)
+	channels := generateChannels(versions, input.BrokenVersions)
+	deprecations := generateDeprecations(versions, input.OldestSupportedVersion)
 	bundles := generateBundles(versions, versionToImageMap)
 
 	catalog := newCatalogTemplate()
@@ -117,18 +118,18 @@ func main() {
 	fmt.Printf("%s generated successfully.\n", outputFile)
 }
 
-// readBundleListFile reads the bundle list from the input YAML file.
-func readBundleListFile() (BundleList, error) {
+// readInputFile reads the operator bundle image list, broken versions list and the latest supported version from the input YAML file.
+func readInputFile() (Input, error) {
 	inputBytes, err := os.ReadFile(inputFile)
 	if err != nil {
-		return BundleList{}, fmt.Errorf("Failed to read %s: %v", inputFile, err)
+		return Input{}, fmt.Errorf("Failed to read %s: %v", inputFile, err)
 	}
-	var bundleList BundleList
-	if err := yaml.Unmarshal(inputBytes, &bundleList); err != nil {
-		return BundleList{}, fmt.Errorf("Failed to parse YAML: %v", err)
+	var input Input
+	if err := yaml.Unmarshal(inputBytes, &input); err != nil {
+		return Input{}, fmt.Errorf("Failed to parse YAML: %v", err)
 	}
 
-	return bundleList, nil
+	return input, nil
 }
 
 // parseAndSortVersions parses the bundle images and versions from the list of BundleImage
@@ -170,7 +171,7 @@ func generatePackageWithIcon() (Package, error) {
 	}
 	iconBase64 := base64.StdEncoding.EncodeToString(data)
 
-	packageWithicon := Package{
+	packageWithIcon := Package{
 		Schema:         "olm.package",
 		Name:           "rhacs-operator",
 		DefaultChannel: "stable",
@@ -180,14 +181,14 @@ func generatePackageWithIcon() (Package, error) {
 		},
 	}
 
-	return packageWithicon, nil
+	return packageWithIcon, nil
 }
 
 // generateChannels creates a list of channels based on the provided bundle versions.
-func generateChannels(versions []*semver.Version) []Channel {
+func generateChannels(versions []*semver.Version, brokenVersions []*semver.Version) []Channel {
 	channels := make([]Channel, 0)
 	majorEntries := make([]ChannelEntry, 0)
-	// Very first version in the catalog repalces 3.61.0 and skipRanges starts from 3.61.0
+	// Very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
 	previousChannelVersion := semver.MustParse("3.61.0")
 	var channel *Channel
@@ -209,7 +210,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 			}
 		}
 
-		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion)
+		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion, brokenVersions)
 		if v.Original() != "3.63.0" {
 			channel.Entries = append(channel.Entries, catalogChannelEntry)
 		}
@@ -235,7 +236,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 }
 
 // generateDeprecations creates an object with a list of deprecations based on the provided versions.
-func generateDeprecations(versions []*semver.Version) Deprecations {
+func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *semver.Version) Deprecations {
 	var deprecations []DeprecationEntry
 	var channelVersions []*semver.Version
 	for _, v := range versions {
@@ -244,11 +245,18 @@ func generateDeprecations(versions []*semver.Version) Deprecations {
 			channelVersions = append(channelVersions, v)
 		}
 	}
-	// TODO: mark as  deprecated based on the ipput bundle list parameter
-	// If there are more than 3 channels, we need to deprecate the older ones
-	if len(channelVersions) > 3 {
-		for _, v := range channelVersions[:len(channelVersions)-3] {
-			deprecations = append(deprecations, *newDeprecationEntry(v))
+
+	// Deprecate all channels that are older than the oldest supported version
+	for _, channelVersion := range channelVersions {
+		if channelVersion.LessThan(oldestSupportedVersion) {
+			deprecations = append(deprecations, newChannelDeprecationEntry(channelVersion))
+		}
+	}
+
+	// Deprecate all bundles that are older than the oldest supported version
+	for _, v := range versions {
+		if v.LessThan(oldestSupportedVersion) {
+			deprecations = append(deprecations, newBundleDeprecationEntry(v))
 		}
 	}
 
@@ -319,7 +327,7 @@ func writeCatalogTemplateToFile(catalog CatalogTemplate) error {
 func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 	return &Channel{
 		Schema:  "olm.channel",
-		Name:    fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
+		Name:    generateChannelName(version),
 		Package: "rhacs-operator",
 		Entries: entries,
 	}
@@ -354,13 +362,13 @@ func generateStableChannel(entries []ChannelEntry) Channel {
 //     skipRange: '>= <previousChannelVersion> < <version>'
 //     skips:
 //   - rhacs-operator.v4.1.0
-func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version) ChannelEntry {
+func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, brokenVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
-		Name: "rhacs-operator.v" + version.Original(),
+		Name: generateBundleName(version),
 	}
 	entry.addReplaces(version, previousEntryVersion)
 	entry.addSkipRange(version, previousChannelVersion)
-	entry.addSkips(version)
+	entry.addSkips(version, brokenVersions)
 	return entry
 }
 
@@ -380,9 +388,7 @@ func (entry *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.
 	entry.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeGreaterThanEqual, skipRangeLessThan)
 }
 
-func (entry *ChannelEntry) addSkips(version *semver.Version) {
-	brokenVersions := []*semver.Version{semver.MustParse("4.1.0")}
-
+func (entry *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semver.Version) {
 	for _, brokenVersion := range brokenVersions {
 		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
 		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", brokenVersion.Major(), brokenVersion.Minor()+2))
@@ -416,20 +422,37 @@ func newDeprecation(entries []DeprecationEntry) Deprecations {
 	}
 }
 
-// Create a newdDeprecation reference object which should be added to Deprecation reference list.
+// Create a new channel DeprecationEntry reference object which should be added to Deprecation reference list.
 // it will be represented in YAML like this:
 //   - reference:
 //     schema: olm.channel
 //     name: rhacs-<version>
 //     message: |
 //     <message>
-func newDeprecationEntry(version *semver.Version) *DeprecationEntry {
-	return &DeprecationEntry{
+func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
+	return DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.channel",
-			Name:   fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
+			Name:   generateChannelName(version),
 		},
-		Message: deprecationMessage,
+		Message: channelDeprecationMessage,
+	}
+}
+
+// Create a new channel DeprecationEntry reference object which should be added to Deprecation reference list.
+// it will be represented in YAML like this:
+//   - reference:
+//     schema: olm.bundle
+//     name: rhacs-<version>
+//     message: |
+//     <message>
+func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
+	return DeprecationEntry{
+		Reference: DeprecationReference{
+			Schema: "olm.bundle",
+			Name:   generateBundleName(version),
+		},
+		Message: bundleDeprecationMessage,
 	}
 }
 
@@ -444,7 +467,15 @@ func newBundleEntry(image string) BundleEntry {
 	}
 }
 
-// validateImageReference validates that the provided image string is a valid cintainer image reference with a digest
+func generateChannelName(version *semver.Version) string {
+	return fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor())
+}
+
+func generateBundleName(version *semver.Version) string {
+	return fmt.Sprintf("rhacs-operator.v%d.%d.%d", version.Major(), version.Minor(), version.Patch())
+}
+
+// validateImageReference validates that the provided image string is a valid container image reference with a digest
 func validateImageReference(image string) error {
 	// Validate the image reference using the distribution/reference package
 	ref, err := reference.Parse(image)
