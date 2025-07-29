@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"slices"
-	"sort"
 
 	semver "github.com/Masterminds/semver/v3"
 	"github.com/distribution/reference"
@@ -31,8 +30,8 @@ type Input struct {
 }
 
 type BundleImage struct {
-	Image   string `yaml:"image"`
-	Version string `yaml:"version"`
+	Image   string          `yaml:"image"`
+	Version *semver.Version `yaml:"version"`
 }
 
 type CatalogTemplate struct {
@@ -94,7 +93,12 @@ func main() {
 		log.Fatalf("Failed to read bundle list file: %v", err)
 	}
 
-	versions, versionToImageMap, err := parseAndSortVersions(input.Images)
+	versions := make([]*semver.Version, 0)
+	for _, img := range input.Images {
+		versions = append(versions, img.Version)
+	}
+
+	versionToImageMap, err := buildMapVersionToImage(input.Images)
 	if err != nil {
 		log.Fatalf("Failed to parse versions: %v", err)
 	}
@@ -129,36 +133,30 @@ func readInputFile() (Input, error) {
 		return Input{}, fmt.Errorf("Failed to parse YAML: %v", err)
 	}
 
+	for i := 0; i < len(input.Images)-1; i++ {
+		version := input.Images[i].Version
+		nextVersion := input.Images[i+1].Version
+		if version.GreaterThan(nextVersion) {
+			return Input{}, fmt.Errorf("Operator bundle images are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
+		}
+	}
+
 	return input, nil
 }
 
-// parseAndSortVersions parses the bundle images and versions from the list of BundleImage
-// and returns a sorted list of versions along with a map from version to BundleImage mapping.
-func parseAndSortVersions(images []BundleImage) ([]*semver.Version, map[*semver.Version]BundleImage, error) {
-	var versions []*semver.Version
+// buildMapVersionToImage returns a mapping from version to BundleImage.
+func buildMapVersionToImage(images []BundleImage) (map[*semver.Version]BundleImage, error) {
 	versionToImageMap := make(map[*semver.Version]BundleImage)
 
 	for _, img := range images {
-		// ignore image validation for now. Looks like docker library has a bug in it
 		err := validateImageReference(img.Image)
 		if err != nil {
-			return nil, nil, fmt.Errorf("invalid image reference %s: %w", img.Image, err)
+			return nil, fmt.Errorf("invalid image reference %s: %w", img.Image, err)
 		}
-
-		v, err := semver.StrictNewVersion(img.Version)
-		if err != nil {
-			return nil, nil, fmt.Errorf("invalid tag %s: %w", img.Version, err)
-		}
-
-		versionToImageMap[v] = img
-		versions = append(versions, v)
+		versionToImageMap[img.Version] = img
 	}
 
-	sort.Slice(versions, func(i, j int) bool {
-		return versions[i].LessThan(versions[j])
-	})
-
-	return versions, versionToImageMap, nil
+	return versionToImageMap, nil
 }
 
 // generatePackageWithIcon creates a new "olm.package" object with an operator icon.
