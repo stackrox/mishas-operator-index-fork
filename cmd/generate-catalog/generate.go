@@ -18,7 +18,7 @@ import (
 
 const (
 	inputFile                       = "bundles.yaml"
-	outputFile                      = "catalog-template-new.yaml"
+	outputFile                      = "catalog-template.yaml"
 	channelDeprecationMessage       = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
 	bundleDeprecationMessage        = "This operator bundle version is no longer supported. Please switch to non deprecated bundle version for support.\n"
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
