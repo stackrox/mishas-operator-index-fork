@@ -18,18 +18,20 @@ import (
 
 const (
 	inputFile                       = "bundles.yaml"
-	outputFile                      = "catalog-template.yaml"
+	outputFile                      = "catalog-template-new.yaml"
 	deprecationMessage              = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
 	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
 
 type BundleImage struct {
-	Image string `yaml:"image"`
-	Tag   string `yaml:"tag"`
+	Image   string `yaml:"image"`
+	Version string `yaml:"version"`
 }
 
 type BundleList struct {
-	Images []BundleImage `yaml:"images"`
+	OldestSupportedVersion string        `yaml:"oldest_supported_version"`
+	BrokenVersions         []string      `yaml:"broken_versions"`
+	Images                 []BundleImage `yaml:"images"`
 }
 
 type CatalogTemplate struct {
@@ -142,9 +144,9 @@ func parseAndSortVersions(images []BundleImage) ([]*semver.Version, map[*semver.
 			return nil, nil, fmt.Errorf("invalid image reference %s: %w", img.Image, err)
 		}
 
-		v, err := semver.StrictNewVersion(img.Tag)
+		v, err := semver.StrictNewVersion(img.Version)
 		if err != nil {
-			return nil, nil, fmt.Errorf("invalid tag %s: %w", img.Tag, err)
+			return nil, nil, fmt.Errorf("invalid tag %s: %w", img.Version, err)
 		}
 
 		versionToImageMap[v] = img
