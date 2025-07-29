@@ -27,7 +27,7 @@ spec:
     - use
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
   - name: check-generated-files-up-to-date
-    image: registry.access.redhat.com/ubi9:latest@sha256:61bf5be4fcf7fa4d1ce6c8c0376dcb8b06e68aae6a0a54c4cf39c06116684962
+    image: registry.access.redhat.com/ubi9:latest@sha256:e2ec76831504fcb2e3af8f243fba7a08398e343ee27296adcc8c80f82818b22d
     workingDir: /var/workdir/source
     script: |
       #!/usr/bin/env bash
