@@ -6,3 +6,6 @@
 
 # Ignore golang vendor
 vendor
+
+# Ignore VS code local settings
+.vscode
