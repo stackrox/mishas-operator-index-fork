@@ -5,25 +5,88 @@ This repository is for building the ACS (downstream) operator indexes on Konflux
 
 ## Development
 
-#### Restarting Konflux job
+### Restarting Konflux job
 
 Comment in the PR `/test <job_name>` (e.g. `/test operator-index-ocp-v4-16-on-push`).
 See more in [our docs](https://spaces.redhat.com/display/StackRox/How+to+everything+Konflux+for+RHACS#HowtoeverythingKonfluxforRHACS-Howtore-runpipelines).
 
-#### Updating catalogs
+### Adding new ACS operator version
 
-Followed [this](https://gitlab.cee.redhat.com/konflux/docs/users/-/blob/main/topics/getting-started/building-olm-products.md)
-and [this](https://github.com/konflux-ci/olm-operator-konflux-sample/blob/main/docs/konflux-onboarding.md) doc:
+1. Open `catalog-template.yaml` file
+2. Find the `stable` channel block. It starts with:
+```yaml
+- schema: olm.channel
+  name: stable
+```
+3. Insert a new entry to the `entries` list. 
+   - *Note:* Keep entries sorted by version (e.g. `4.9.1` should be before `4.9.2`)
+   
+   The entry should look like this:
+   ```yaml
+   - &bundle-4-Y-Z
+     name: rhacs-operator.v4.Y.Z
+     replaces: rhacs-operator.v4.PREVIOUS_Y.PREVIOUS_Z
+     skipRange: '>= 4.PREVIOUS_CHANNEL_Y.0 < 4.Y.Z'
+   ```
+   Replace `Y`, `Z`, `PREVIOUS_Y`, `PREVIOUS_Z`, `PREVIOUS_CHANNEL_Y` accordingly.
+   * `Y` is the minor component of the version (e.g. for 4.9.1 `Y` equals to 9)
+   * `Z` is the patch component of the version (e.g. for 4.9.1 `Z` equals to 1)
+   * `PREVIOUS_Y` is the minor component of the previous version (e.g. the previous version for 4.5.3 is 4.5.2 so`PREVIOUS_Y` equals to 5. For 4.3.0 `PREVIOUS_Y` is equal to 2)
+   * `PREVIOUS_Z` is the minor component of the previous version (e.g. the previous version for 4.5.3 is 4.5.2 so`PREVIOUS_Z` equals to 2. For 4.3.0 `PREVIOUS_Z` is equal to 5 because the previous version is 4.2.5)
+   * `PREVIOUS_CHANNEL_Y` is the minor component of the previous **channel** version (e.g. for 4.6.3 the previous channel is 4.5 so `PREVIOUS_CHANNEL_Y` is equal to 4)
+   - *Note:* Add an empty line after the last entry if you add a new Y version with Z equals to 0 (e.g. 4.9.0). It helps visually separate different Y version in the list.
+4. (For new Y version only where Z is equal to 0) Create a new channel block:
+   ```yaml
+   - schema: olm.channel
+     name: rhacs-4.Y
+     package: rhacs-operator
+     entries:
+   ```
+   Replace `Y` accordingly.
+   Keep the channel blocks sorted in ascending order (e.g. 4.6 goes after 4.5).
+5. Find a channel block for your Y version and insert a new entry to the `entries` list. Use the yaml anchor declared on the 3d step (starts with `&`):
+   ```yaml
+   - schema: olm.channel
+     name: rhacs-4.Y
+     package: rhacs-operator
+     entries:
+      - *bundle-4-Y-Z
+   ```
+   Replace `Y` and `Z` accordingly.
+6. Add a new block with operator bundle image for this version to the list:
+   ```yaml
+   - schema: olm.bundle
+   # 4.Y.Z
+   image: OPERATOR_BUNDLE_REGISTRY@OPERATOR_BUNDLE_SHA256
+   ```
+   Replace `Y`, `Z` accordingly.
+   * `OPERATOR_BUNDLE_REGISTRY` set to `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` for ready to release version. Use `brew.registry.redhat.io/rh-osbs/rhacs-operator-bundle` for release candidates.
+   * `OPERATOR_BUNDLE_SHA256` the operator bundle SHA starts with `sha256:`. In order to fetch SHA find an email `[CVP] (SUCCESS) cvp-redhatadvancedclustersecurity: rhacs-operator-bundle-container-4.Y.Z-x` subject. Open `Brew Build Info` link and find the digest of the`registry-proxy.engineering.redhat.com/rh-osbs/rhacs-operator-bundle` image. Use the digest value for the `OPERATOR_BUNDLE_SHA256`.
+7. Update catalogs (follow [updating catalogs steps](#updating-catalogs))
+8. open a PR with `Add 4.Y.Z version` title
+
+
+
+### Updating catalogs
+
+Run
 ```
 make clean && make valid-catalogs
 ```
+Note: this will take a while.
 
-#### Getting built images for specific commit
+If a new bundle was added then you should see that `catalog-bundle-object/rhacs-operator/catalog.json` and `catalog-csv-metadata/rhacs-operator/catalog.json` files are changed.
+
+#### Historical note
+
+The following documentation was used for setting up catalogs update ([this](https://gitlab.cee.redhat.com/konflux/docs/users/-/blob/main/topics/getting-started/building-olm-products.md) and [this](https://github.com/konflux-ci/olm-operator-konflux-sample/blob/main/docs/konflux-onboarding.md)).
+
+### Getting built images for specific commit
 
 Run `./scripts/get-built-images.sh [COMMIT]` to fetch built operator catalog images for the provided `COMMIT` for each supported OCP version.
 *Note:* The script uses current branch commit if no `COMMIT` argument provided.
 
-#### Catalog formats
+### Catalog formats
 
 This directory contains two versions of the catalog, in subdirectories `catalog-bundle-object` and `catalog-csv-metadata`.
 The former is expected by OpenShift versions up to and including 4.16, and the latter - by 4.17 and later.
@@ -32,7 +95,7 @@ See [konflux docs](https://github.com/konflux-ci/build-definitions/blob/c93ea73d
 
 ## Release File-based operator catalog
 
-#### Release process
+### Release process
 
 1. Make sure you [logged in](https://spaces.redhat.com/pages/viewpage.action?pageId=407312060#HowtoeverythingKonfluxforRHACS-GettingocCLItoworkwithKonflux) to the Konflux cluster.
 2. Make sure you checked out the latest master branch: `git checkout master && git pull`
@@ -49,16 +112,22 @@ See [konflux docs](https://github.com/konflux-ci/build-definitions/blob/c93ea73d
 10. Once releases for all OCP versions successfully finish, then the operator catalog release is done. If you perform it as part of a bigger release procedure, you should go back to that procedure and continue with further steps.
 
 
-#### Monitoring Release
+### Monitoring Release
 
 Run `./scripts/monitor-release.sh [COMMIT]` to see the current status for the releases associated with the provided `COMMIT`.
 *Note:* The script uses current branch commit if no `COMMIT` argument provided.
 
-#### Restarting Konflux Release
+### Restarting Konflux Release
 
 If a particular Release fails (i.e. the CRs status changes to `Failed`), you should restart it until it succeeds. Failing to do so will leave corresponding OpenShift Operator catalog without updates.
 
 1. Go to [the list of Konflux applications](https://konflux-ui.apps.stone-prd-rh01.pg1f.p1.openshiftapps.com/ns/rh-acs-tenant/applications).
+<details>
+<summary>Click to see Release rerun navigation gif</summary>
+
+![rerun_release](https://github.com/user-attachments/assets/a24f3bbc-e81f-42e2-8db7-05e3cbcdff7f)
+</details>
+
 2. Open `acs-operator-index-ocp-v4-XX` Konflux application for OCP version you want to restart (`XX` means minor part of the OCP version).
 3. Select `Releases` tab.
 4. Find release by name you want to restart.
