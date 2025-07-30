@@ -1,7 +1,7 @@
 package main
 
 import (
-	// needs for digest algorithm validation
+	// needed for digest algorithm validation
 	_ "crypto/sha256"
 
 	"encoding/base64"
@@ -151,7 +151,7 @@ func buildMapVersionToImage(images []BundleImage) (map[*semver.Version]BundleIma
 	for _, img := range images {
 		err := validateImageReference(img.Image)
 		if err != nil {
-			return nil, fmt.Errorf("invalid image reference %s: %w", img.Image, err)
+			return nil, fmt.Errorf("invalid image reference %q: %w", img.Image, err)
 		}
 		versionToImageMap[img.Version] = img
 	}
@@ -279,7 +279,7 @@ func newCatalogTemplate() CatalogTemplate {
 }
 
 // addPackage adds a "olm.package" object to the base catalog.
-func (catalog *CatalogTemplate) addPackage(pkg Package) {
+func (c *CatalogTemplate) addPackage(pkg Package) {
 	catalog.Entries = append(catalog.Entries, CatalogEntry(pkg))
 }
 
@@ -333,7 +333,7 @@ func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 
 // Create a special "olm.channel" object with name "latest".
 // It is a deprecated channel which was used before 4.x.x version.
-func generateLatestChannel(entries []ChannelEntry) Channel {
+func newLatestChannel(entries []ChannelEntry) Channel {
 	return Channel{
 		Schema:  "olm.channel",
 		Name:    "latest",
@@ -344,7 +344,7 @@ func generateLatestChannel(entries []ChannelEntry) Channel {
 
 // Create a special "olm.channel" object with name "stable".
 // It is a default channel for all versions after 4.x.x.
-func generateStableChannel(entries []ChannelEntry) Channel {
+func newStableChannel(entries []ChannelEntry) Channel {
 	return Channel{
 		Schema:  "olm.channel",
 		Name:    "stable",
