@@ -166,12 +166,6 @@ func generateChannels(versions []*semver.Version, brokenVersions []*semver.Versi
 			channels = append(channels, stableChannel)
 		}
 
-		// Add "latest" channel when "3.74.9" is reached
-		if v.Original() == "3.74.9" {
-			latestChannel := newLatestChannel(channel.Entries)
-			channels = append(channels, latestChannel)
-		}
-
 		previousEntryVersion = v
 	}
 
