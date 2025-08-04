@@ -34,7 +34,7 @@ deps:
 
 # update template/catalog-template.yaml based on bundle.yaml file.
 .PHONY: generate-catalog-template
-generate-catalog-template: deps bundles.yaml
+generate-catalog-template: bundles.yaml
 	rm -rf template
 	mkdir template
 	@$(GO) run ./cmd/generate-catalog/
