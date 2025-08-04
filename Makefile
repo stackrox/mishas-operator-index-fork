@@ -6,6 +6,8 @@ MAKEFLAGS += "-j 2"
 
 OPM = .bin/opm-$(OPM_VERSION)
 
+GO := go
+
 .PHONY: valid-catalogs
 valid-catalogs: $(CATALOGS) $(OPM)
 	$(OPM) validate catalog-bundle-object
@@ -23,6 +25,17 @@ catalog-bundle-object/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	mkdir -p "$$(dirname "$@")"
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
+
+
+# download go dependencies.
+.PHONY: deps
+deps:
+	@$(GO) mod download
+
+# update catalog-template.yaml based on bundle.yaml file.
+.PHONY: generate-catalog-template
+generate-catalog-template: deps bundles.yaml	
+	@$(GO) run ./cmd/generate-catalog/
 
 $(OPM):
 	mkdir -p "$$(dirname $@)"
