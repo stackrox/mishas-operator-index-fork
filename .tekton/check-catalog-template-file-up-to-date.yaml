@@ -33,7 +33,6 @@ spec:
       #!/usr/bin/env bash
       set -euo pipefail
       set -x
-      chmod -R a+w catalog-template.yaml
 
       make generate-catalog-template
 
