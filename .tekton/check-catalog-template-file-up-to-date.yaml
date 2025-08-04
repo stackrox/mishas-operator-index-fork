@@ -33,6 +33,9 @@ spec:
       set -euo pipefail
       set -x
 
+      time dnf -y upgrade --nobest
+      time dnf -y install git make
+
       make generate-catalog-template
 
       if ! git diff --exit-code HEAD catalog-template.yaml; then
