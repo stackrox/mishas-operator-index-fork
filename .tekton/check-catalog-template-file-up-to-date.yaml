@@ -24,6 +24,12 @@ spec:
     args:
     - use
     - $(params.SOURCE_ARTIFACT)=/opt/app-root/workdir/source
+  - name: fix-permissions
+    image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
+    script: |
+      chown -R 1001:0 /opt/app-root/workdir/source
+    securityContext:
+      runAsUser: 0
   - name: check-catalog-template-file-up-to-date
     image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
     workingDir: /opt/app-root/workdir/source
