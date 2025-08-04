@@ -18,11 +18,11 @@ clean:
 	rm -f $(CATALOGS)
 	rm -rf $$(dirname $(OPM))
 
-catalog-bundle-object/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
+catalog-bundle-object/rhacs-operator/catalog.json: template/catalog-template.yaml $(OPM)
 	mkdir -p "$$(dirname "$@")"
 	$(OPM) alpha render-template basic --migrate-level none $< > $@
 
-catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
+catalog-csv-metadata/rhacs-operator/catalog.json: template/catalog-template.yaml $(OPM)
 	mkdir -p "$$(dirname "$@")"
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
 
@@ -32,10 +32,11 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 deps:
 	@$(GO) mod download
 
-# update catalog-template.yaml based on bundle.yaml file.
+# update template/catalog-template.yaml based on bundle.yaml file.
 .PHONY: generate-catalog-template
 generate-catalog-template: deps bundles.yaml
-	rm -f catalog-template.yaml
+	rm -rf template
+	mkdir template
 	@$(GO) run ./cmd/generate-catalog/
 
 $(OPM):

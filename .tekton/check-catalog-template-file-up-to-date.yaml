@@ -14,8 +14,6 @@ spec:
   volumes:
   - name: workdir
     emptyDir: { }
-  - name: deps
-    emptyDir: { }
   stepTemplate:
     volumeMounts:
     - mountPath: /var/workdir
