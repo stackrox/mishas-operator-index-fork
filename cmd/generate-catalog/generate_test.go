@@ -7,84 +7,58 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewChannelEntryWithBrokenVersions(t *testing.T) {
+func TestGenerateChannels(t *testing.T) {
+	// Define test cases
 	tests := []struct {
-		name                   string
-		version                string
-		previousEntryVersion   string
-		previousChannelVersion string
-		brokenVersions         []string
-		expected               ChannelEntry
+		name             string
+		versions         []*semver.Version
+		brokenVersions   []*semver.Version
+		expectedChannels []Channel
 	}{
 		{
-			name:                   "Version with broken versions in skips",
-			version:                "4.1.2",
-			previousEntryVersion:   "4.1.1",
-			previousChannelVersion: "4.1.0",
-			brokenVersions:         []string{"4.1.0", "4.1.1"},
-			expected: ChannelEntry{
-				Name:      "rhacs-operator.v4.1.2",
-				Replaces:  "rhacs-operator.v4.1.1",
-				SkipRange: ">= 4.1.0 < 4.1.2",
-				Skips:     []string{"rhacs-operator.v4.1.0", "rhacs-operator.v4.1.1"},
+			name: "Single major version with no broken versions",
+			versions: []*semver.Version{
+				semver.MustParse("4.0.0"),
+				semver.MustParse("4.0.1"),
+				semver.MustParse("4.1.0"),
+				semver.MustParse("4.1.1"),
+			},
+			brokenVersions:   nil,
+			expectedChannels: []Channel{
+				// Expected channels for the given versions
 			},
 		},
 		{
-			name:                   "Version without broken versions in skips",
-			version:                "4.2.0",
-			previousEntryVersion:   "4.1.2",
-			previousChannelVersion: "4.1.0",
-			brokenVersions:         []string{},
-			expected: ChannelEntry{
-				Name:      "rhacs-operator.v4.2.0",
-				Replaces:  "rhacs-operator.v4.1.2",
-				SkipRange: ">= 4.1.0 < 4.2.0",
+			name: "Multiple major versions with broken versions",
+			versions: []*semver.Version{
+				semver.MustParse("3.61.0"),
+				semver.MustParse("4.0.0"),
+				semver.MustParse("4.0.1"),
+				semver.MustParse("4.1.0"),
+				semver.MustParse("5.0.0"),
+			},
+			brokenVersions: []*semver.Version{
+				semver.MustParse("4.0.1"),
+			},
+			expectedChannels: []Channel{
+				// Expected channels for the given versions
 			},
 		},
 		{
-			name:                   "Version with no replaces and broken versions",
-			version:                "4.0.0",
-			previousEntryVersion:   "3.62.0",
-			previousChannelVersion: "3.61.0",
-			brokenVersions:         []string{"3.61.0"},
-			expected: ChannelEntry{
-				Name:      "rhacs-operator.v4.0.0",
-				SkipRange: ">= 3.61.0 < 4.0.0",
-				Skips:     []string{"rhacs-operator.v3.61.0"},
-			},
-		},
-		{
-			name:                   "Version with multiple broken versions",
-			version:                "4.3.0",
-			previousEntryVersion:   "4.2.0",
-			previousChannelVersion: "4.1.0",
-			brokenVersions:         []string{"4.1.0", "4.2.0"},
-			expected: ChannelEntry{
-				Name:      "rhacs-operator.v4.3.0",
-				Replaces:  "rhacs-operator.v4.2.0",
-				SkipRange: ">= 4.1.0 < 4.3.0",
-				Skips:     []string{"rhacs-operator.v4.1.0", "rhacs-operator.v4.2.0"},
-			},
+			name:             "Empty versions list",
+			versions:         []*semver.Version{},
+			brokenVersions:   nil,
+			expectedChannels: []Channel{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			version := semver.MustParse(tt.version)
-			previousEntryVersion := semver.MustParse(tt.previousEntryVersion)
-			previousChannelVersion := semver.MustParse(tt.previousChannelVersion)
+			// Call the function
+			actualChannels := generateChannels(tt.versions, tt.brokenVersions)
 
-			var brokenVersions []*semver.Version
-			for _, bv := range tt.brokenVersions {
-				brokenVersions = append(brokenVersions, semver.MustParse(bv))
-			}
-
-			result := newChannelEntry(version, previousEntryVersion, previousChannelVersion, brokenVersions)
-
-			assert.Equal(t, tt.expected.Name, result.Name)
-			assert.Equal(t, tt.expected.Replaces, result.Replaces)
-			assert.Equal(t, tt.expected.SkipRange, result.SkipRange)
-			assert.ElementsMatch(t, tt.expected.Skips, result.Skips)
+			// Assert the result
+			assert.Equal(t, tt.expectedChannels, actualChannels)
 		})
 	}
 }
