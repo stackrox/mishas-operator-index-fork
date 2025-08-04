@@ -121,7 +121,7 @@ func (c *CatalogTemplate) writeToFile() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal catalog: %v", err)
 	}
-	if err := os.WriteFile(outputFile, out, 0644); err != nil {
+	if err := os.WriteFile(outputFile, out, 0666); err != nil {
 		return fmt.Errorf("failed to write output: %v", err)
 	}
 
