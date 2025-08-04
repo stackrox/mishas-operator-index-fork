@@ -16,7 +16,7 @@ spec:
     emptyDir: { }
   stepTemplate:
     volumeMounts:
-    - mountPath: /var/workdir
+    - mountPath: /opt/app-root/workdir
       name: workdir
   steps:
   - name: use-trusted-artifact
@@ -26,14 +26,11 @@ spec:
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
   - name: check-catalog-template-file-up-to-date
     image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
-    workingDir: /var/workdir/source
+    workingDir: /opt/app-root/workdir/source
     script: |
       #!/usr/bin/env bash
       set -euo pipefail
       set -x
-
-      time dnf -y upgrade --nobest
-      time dnf -y install git make
 
       make generate-catalog-template
 
