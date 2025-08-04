@@ -121,8 +121,6 @@ func (c *CatalogTemplate) writeToFile() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal catalog: %v", err)
 	}
-	// Remove the output file before writing to handles permission issue, ignore error if the file does not exists.
-	_ = os.Remove(outputFile)
 	if err := os.WriteFile(outputFile, out, 0644); err != nil {
 		return fmt.Errorf("failed to write output: %v", err)
 	}
