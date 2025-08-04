@@ -83,11 +83,19 @@ spec:
       - name: basic-auth
         workspace: git-auth
 
-    - name: check-generated-files-up-to-date
+    - name: check-catalog-template-file-up-to-date
       params:
       - name: SOURCE_ARTIFACT
         value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
       # Retries are for the cases when opm alpha render-template occasionally fails to pull images.
+      retries: 3
+      taskRef:
+        name: check-catalog-template-file-up-to-date
+
+    - name: check-generated-files-up-to-date
+      params:
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
       retries: 3
       taskRef:
         name: check-generated-files-up-to-date

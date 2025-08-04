@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: check-catalog-template-file-up-to-date
+  namespace: rh-acs-tenant
+spec:
+  description: Run `make generate-catalog-template` to regenerate catalog-template.yaml file and verifies that it is up-to-date.
+  params:
+  - name: SOURCE_ARTIFACT
+    description: The Trusted Artifact URI pointing to the artifact with
+      the application source code. This should be the result of the git-clone task,
+      results from other tasks might fail as dirty.
+    type: string
+  volumes:
+  - name: workdir
+    emptyDir: { }
+  - name: deps
+    emptyDir: { }
+  stepTemplate:
+    volumeMounts:
+    - mountPath: /var/workdir
+      name: workdir
+  steps:
+  - name: use-trusted-artifact
+    image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
+    args:
+    - use
+    - $(params.SOURCE_ARTIFACT)=/var/workdir/source
+  - name: check-catalog-template-file-up-to-date
+    image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
+    workingDir: /var/workdir/source
+    script: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      set -x
+
+      make generate-catalog-template
+
+      if ! git diff --exit-code HEAD catalog-template.yaml; then
+        echo >&2 "catalog-template.yaml file is not up-to-date. Run 'make generate-catalog-template' to update the file."
+        exit 1
+      fi
