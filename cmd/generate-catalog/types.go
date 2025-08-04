@@ -82,31 +82,31 @@ func newCatalogTemplate() CatalogTemplate {
 }
 
 // addPackage adds a "olm.package" object to the base catalog.
-func (catalog *CatalogTemplate) addPackage(pkg Package) {
-	catalog.Entries = append(catalog.Entries, CatalogEntry(pkg))
+func (c *CatalogTemplate) addPackage(pkg Package) {
+	c.Entries = append(c.Entries, CatalogEntry(pkg))
 }
 
 // addChannels adds a list of "olm.channel" objects to the base catalog.
-func (catalog *CatalogTemplate) addChannels(channels []Channel) {
+func (c *CatalogTemplate) addChannels(channels []Channel) {
 	for _, channel := range channels {
-		catalog.Entries = append(catalog.Entries, CatalogEntry(channel))
+		c.Entries = append(c.Entries, CatalogEntry(channel))
 	}
 }
 
 // addDeprecations adds a "olm.deprecations" object to the base catalog.
-func (catalog *CatalogTemplate) addDeprecations(deprecations Deprecations) {
-	catalog.Entries = append(catalog.Entries, CatalogEntry(deprecations))
+func (c *CatalogTemplate) addDeprecations(deprecations Deprecations) {
+	c.Entries = append(c.Entries, CatalogEntry(deprecations))
 }
 
 // addBundles adds a list of "olm.bundle" objects to the base catalog.
-func (catalog *CatalogTemplate) addBundles(bundles []BundleEntry) {
+func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 	for _, bundle := range bundles {
-		catalog.Entries = append(catalog.Entries, CatalogEntry(bundle))
+		c.Entries = append(c.Entries, CatalogEntry(bundle))
 	}
 }
 
-// writeCatalogTemplateToFile writes the resulting catalog template to the output YAML file.
-func (catalog *CatalogTemplate) writeCatalogTemplateToFile() error {
+// writeToFile writes the resulting catalog template to the output YAML file.
+func (c *CatalogTemplate) writeToFile() error {
 	headComment := yaml.HeadComment(
 		"---------------------------------------------------------------------------",
 		firstLineHeadComment,
@@ -117,7 +117,7 @@ func (catalog *CatalogTemplate) writeCatalogTemplateToFile() error {
 		"$": []*yaml.Comment{headComment}, // "$" means top-level comment
 	}
 
-	out, err := yaml.MarshalWithOptions(&catalog, yaml.WithComment(comments))
+	out, err := yaml.MarshalWithOptions(&c, yaml.WithComment(comments))
 	if err != nil {
 		return fmt.Errorf("failed to marshal catalog: %v", err)
 	}
@@ -183,28 +183,28 @@ func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semv
 	return entry
 }
 
-func (entry *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version) {
+func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version) {
 	// skip setting "replaces" key for specific versions
 	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
 
 	replacesVersion := previousEntryVersion.Original()
 	if !slices.Contains(versionsWithoutReplaces, version.Original()) {
-		entry.Replaces = "rhacs-operator.v" + replacesVersion
+		e.Replaces = "rhacs-operator.v" + replacesVersion
 	}
 }
 
-func (entry *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.Version) {
+func (e *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.Version) {
 	skipRangeGreaterThanEqual := fmt.Sprintf("%d.%d.0", previousChannelVersion.Major(), previousChannelVersion.Minor())
 	skipRangeLessThan := version.Original()
-	entry.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeGreaterThanEqual, skipRangeLessThan)
+	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeGreaterThanEqual, skipRangeLessThan)
 }
 
-func (entry *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semver.Version) {
+func (e *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semver.Version) {
 	for _, brokenVersion := range brokenVersions {
 		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
 		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", brokenVersion.Major(), brokenVersion.Minor()+2))
 		if version.GreaterThan(brokenVersion) && version.LessThan(skipsUntilVersion) {
-			entry.Skips = append(entry.Skips, fmt.Sprintf("rhacs-operator.v%s", brokenVersion.Original()))
+			e.Skips = append(e.Skips, fmt.Sprintf("rhacs-operator.v%s", brokenVersion.Original()))
 		}
 	}
 }
