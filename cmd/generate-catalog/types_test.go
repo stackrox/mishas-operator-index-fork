@@ -22,16 +22,16 @@ func TestNewChannelEntry(t *testing.T) {
 		{
 			name:                   "Valid channel entry with no broken versions",
 			version:                "4.1.0",
-			previousEntryVersion:   "4.0.0",
+			previousEntryVersion:   "4.0.5",
 			previousChannelVersion: "4.0.0",
-			brokenVersions:         []string{},
+			brokenVersions:         nil,
 			expectedName:           "rhacs-operator.v4.1.0",
-			expectedReplaces:       "rhacs-operator.v4.0.0",
+			expectedReplaces:       "rhacs-operator.v4.0.5",
 			expectedSkipRange:      ">= 4.0.0 < 4.1.0",
-			expectedSkips:          []string{},
+			expectedSkips:          nil,
 		},
 		{
-			name:                   "Valid channel entry with broken versions",
+			name:                   "Valid channel entry with broken version",
 			version:                "4.2.0",
 			previousEntryVersion:   "4.1.0",
 			previousChannelVersion: "4.1.0",
@@ -42,22 +42,47 @@ func TestNewChannelEntry(t *testing.T) {
 			expectedSkips:          []string{"rhacs-operator.v4.1.1"},
 		},
 		{
+			name:                   "Channel entry for version 2 minor version ahead of broken version which should not be in skips value",
+			version:                "4.5.0",
+			previousEntryVersion:   "4.4.5",
+			previousChannelVersion: "4.4.0",
+			brokenVersions:         []string{"4.1.1"},
+			expectedName:           "rhacs-operator.v4.5.0",
+			expectedReplaces:       "rhacs-operator.v4.4.5",
+			expectedSkipRange:      ">= 4.4.0 < 4.5.0",
+			expectedSkips:          nil,
+		},
+		{
 			name:                   "Version without replaces",
 			version:                "4.0.0",
 			previousEntryVersion:   "3.62.0",
 			previousChannelVersion: "3.62.0",
-			brokenVersions:         []string{},
+			brokenVersions:         nil,
 			expectedName:           "rhacs-operator.v4.0.0",
 			expectedReplaces:       "",
 			expectedSkipRange:      ">= 3.62.0 < 4.0.0",
-			expectedSkips:          []string{},
+			expectedSkips:          nil,
+		},
+		{
+			name:                   "Multiple broken versions",
+			version:                "4.3.0",
+			previousEntryVersion:   "4.2.0",
+			previousChannelVersion: "4.2.0",
+			brokenVersions:         []string{"4.2.1", "4.2.2"},
+			expectedName:           "rhacs-operator.v4.3.0",
+			expectedReplaces:       "rhacs-operator.v4.2.0",
+			expectedSkipRange:      ">= 4.2.0 < 4.3.0",
+			expectedSkips:          []string{"rhacs-operator.v4.2.1", "rhacs-operator.v4.2.2"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			version := semver.MustParse(tt.version)
-			previousEntryVersion := semver.MustParse(tt.previousEntryVersion)
+			var previousEntryVersion *semver.Version
+			if tt.previousEntryVersion != "" {
+				previousEntryVersion = semver.MustParse(tt.previousEntryVersion)
+			}
 			previousChannelVersion := semver.MustParse(tt.previousChannelVersion)
 
 			var brokenVersions []*semver.Version

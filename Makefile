@@ -37,6 +37,9 @@ deps:
 generate-catalog-template: deps bundles.yaml
 	@$(GO) run ./cmd/generate-catalog/
 
+go-test: deps
+	@$(GO) test ./cmd/...
+
 $(OPM):
 	mkdir -p "$$(dirname $@)"
 	os_name="$$(uname | tr '[:upper:]' '[:lower:]')"; \
