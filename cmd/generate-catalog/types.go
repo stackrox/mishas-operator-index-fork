@@ -172,7 +172,7 @@ func newStableChannel(entries []ChannelEntry) Channel {
 //     replaces: rhacs-operator.v<previousEntryVersion>
 //     skipRange: '>= <previousChannelVersion> < <version>'
 //     skips:
-//   - rhacs-operator.v4.1.0
+//     - rhacs-operator.v4.1.0
 func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, brokenVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
 		Name: generateBundleName(version),
@@ -204,18 +204,18 @@ func (e *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semve
 		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
 		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", brokenVersion.Major(), brokenVersion.Minor()+2))
 		if version.GreaterThan(brokenVersion) && version.LessThan(skipsUntilVersion) {
-			e.Skips = append(e.Skips, fmt.Sprintf("rhacs-operator.v%s", brokenVersion.Original()))
+			e.Skips = append(e.Skips, generateBundleName(brokenVersion))
 		}
 	}
 }
 
 // Create a new "olm.deprecations" object which should be added to the catalog base.
-// it will be represented in YAML like this:
+// It will be represented in YAML like this:
 //   - schema: olm.deprecations
 //     package: rhacs-operator
 //     entries:
-//   - <DeprecationEntry>
-func newDeprecation(entries []DeprecationEntry) Deprecations {
+//     - <DeprecationEntry>
+func newDeprecations(entries []DeprecationEntry) Deprecations {
 	// Add a deprecation entry for the "latest" channel
 	latestDeprecationEntry := &DeprecationEntry{
 		Reference: DeprecationReference{
@@ -239,7 +239,7 @@ func newDeprecation(entries []DeprecationEntry) Deprecations {
 //     schema: olm.channel
 //     name: rhacs-<version>
 //     message: |
-//     <message>
+//       <message>
 func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
@@ -256,7 +256,7 @@ func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 //     schema: olm.bundle
 //     name: rhacs-<version>
 //     message: |
-//     <message>
+//       <message>
 func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{

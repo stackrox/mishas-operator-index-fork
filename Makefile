@@ -32,13 +32,13 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 deps:
 	@$(GO) mod download
 
-# update template/catalog-template.yaml based on bundle.yaml file.
+# update template/catalog-template.yaml based on bundles.yaml file.
 .PHONY: generate-catalog-template
 generate-catalog-template: deps bundles.yaml
 	@$(GO) run ./cmd/generate-catalog/
 
 go-test: deps
-	@$(GO) test ./cmd/...
+	@$(GO) test -cover -v ./cmd/...
 
 $(OPM):
 	mkdir -p "$$(dirname $@)"

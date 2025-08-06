@@ -23,7 +23,7 @@ const (
 	secondLineHeadComment           = "Any manual changes will be overwritten."
 	channelDeprecationMessage       = "This version is no longer supported. Please switch to the `stable` channel or a channel for a version that is still supported.\n"
 	bundleDeprecationMessage        = "This operator bundle version is no longer supported. Please switch to non deprecated bundle version for support.\n"
-	deprecationMessageLatestChannel = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
+	latestChannelDeprecationMessage = "The `latest` channel is no longer supported.  Please switch to the `stable` channel.\n"
 )
 
 func main() {
@@ -78,7 +78,7 @@ func readInputFile() (Input, error) {
 	for i := 0; i < len(input.Images)-1; i++ {
 		version := input.Images[i].Version
 		nextVersion := input.Images[i+1].Version
-		if version.GreaterThan(nextVersion) {
+		if version.GreaterThanEqual(nextVersion) {
 			return Input{}, fmt.Errorf("operator bundle images are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
 		}
 	}
@@ -87,7 +87,7 @@ func readInputFile() (Input, error) {
 }
 
 // buildMapVersionToImage returns a mapping from version to BundleImage.
-func buildMapVersionToImage(images []BundleImage) (map[*semver.Version]BundleImage, error) {
+func mapVersionToImage(images []BundleImage) (map[*semver.Version]BundleImage, error) {
 	versionToImageMap := make(map[*semver.Version]BundleImage)
 
 	for _, img := range images {

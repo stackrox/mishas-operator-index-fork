@@ -71,10 +71,7 @@ func TestGenerateChannels(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Call the function
 			actualChannels := generateChannels(tt.versions, tt.brokenVersions)
-
-			// Assert the result
 			assert.Equal(t, tt.expectedChannels, actualChannels)
 		})
 	}
