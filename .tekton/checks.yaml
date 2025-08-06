@@ -92,10 +92,10 @@ spec:
       taskRef:
         name: check-generated-files-up-to-date
 
-    - name: check-catalog-template-has-only-released-images
+    - name: check-operator-images-are-only-released-images
       params:
       - name: SOURCE_ARTIFACT
         value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
       retries: 3
       taskRef:
-        name: check-catalog-template-has-only-released-images
+        name: check-operator-images-are-only-released-images

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: check-catalog-template-has-only-released-images
+  name: check-operator-images-are-only-released-images
   namespace: rh-acs-tenant
 spec:
   description: This task is to prevent operator bundle images from quay.io or any repositories other than release ones to be added to the `master` branch. This is to make sure `master` is in good state to be released and would not require first cleaning unreleased bundles from it.
@@ -23,7 +23,7 @@ spec:
     args:
     - use
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
-  - name: check-bundle-images-in-catalog-template
+  - name: check-bundle-images
     image: quay.io/konflux-ci/release-service-utils:latest@sha256:1d1bb624b7b9ce369427ca90954132b82adb93fe5069f1d150d1692bedd0cfcf
     workingDir: /var/workdir/source
     script: |
