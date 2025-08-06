@@ -210,7 +210,7 @@ func generateChannelName(version *semver.Version) string {
 }
 
 func generateBundleName(version *semver.Version) string {
-	return fmt.Sprintf("rhacs-operator.v%d.%d.%d", version.Major(), version.Minor(), version.Patch())
+	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
 }
 
 // validateImageReference validates that the provided image string is a valid container image reference with a digest
