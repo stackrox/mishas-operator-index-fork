@@ -27,28 +27,28 @@ const (
 )
 
 func main() {
+	err := generateCatalogTemplateFile()
+	if err != nil {
+		log.Fatalf("Failed to generate catalog template file: %v", err)
+	}
+	fmt.Printf("%s generated successfully.\n", outputFile)
+}
+
+// generateCatalogTemplateFile reads the bundles.yaml file, processes the data, and writes the catalog template to the output file.
+func generateCatalogTemplateFile() error {
 	input, err := readInputFile()
 	if err != nil {
-		log.Fatalf("Failed to read bundle list file: %v", err)
+		return fmt.Errorf("failed to read bundle list file: %v", err)
 	}
-
-	versions := make([]*semver.Version, 0)
-	for _, img := range input.Images {
-		versions = append(versions, img.Version)
-	}
-
-	versionToImageMap, err := mapVersionToImage(input.Images)
-	if err != nil {
-		log.Fatalf("Failed to parse versions: %v", err)
-	}
+	versions := getAllVersions(input.Images)
 
 	pkg, err := generatePackageWithIcon()
 	if err != nil {
-		log.Fatalf("Failed to generate package object with icon: %v", err)
+		return fmt.Errorf("failed to generate package object with icon: %v", err)
 	}
 	channels := generateChannels(versions, input.BrokenVersions)
 	deprecations := generateDeprecations(versions, input.OldestSupportedVersion)
-	bundles := generateBundles(versions, versionToImageMap)
+	bundles := generateBundles(input.Images)
 
 	ct := newCatalogTemplate()
 	ct.addPackage(pkg)
@@ -56,12 +56,12 @@ func main() {
 	ct.addDeprecations(deprecations)
 	ct.addBundles(bundles)
 
-	err = ct.writeToFile()
+	err = writeToFile(ct)
 	if err != nil {
-		log.Fatalf("Failed to write catalog template to file: %v", err)
+		return fmt.Errorf("failed to write catalog template to file: %v", err)
 	}
 
-	fmt.Printf("%s generated successfully.\n", outputFile)
+	return nil
 }
 
 // readInputFile unmarshals YAML file onto Input structure.
@@ -75,30 +75,23 @@ func readInputFile() (Input, error) {
 		return Input{}, fmt.Errorf("failed to parse YAML: %v", err)
 	}
 
-	for i := 0; i < len(input.Images)-1; i++ {
-		version := input.Images[i].Version
-		nextVersion := input.Images[i+1].Version
-		if version.GreaterThanEqual(nextVersion) {
-			return Input{}, fmt.Errorf("operator bundle images are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
-		}
+	if err := validateImages(input.Images); err != nil {
+		return Input{}, fmt.Errorf("invalid images: %v", err)
+	}
+	if err := validateVersions(input.Images); err != nil {
+		return Input{}, fmt.Errorf("invalid versions: %v", err)
 	}
 
 	return input, nil
 }
 
-// mapVersionToImage returns a mapping from version to BundleImage.
-func mapVersionToImage(images []BundleImage) (map[*semver.Version]BundleImage, error) {
-	versionToImageMap := make(map[*semver.Version]BundleImage)
-
+// getAllVersions extracts all operator versions from the input images.
+func getAllVersions(images []InputBundleImage) []*semver.Version {
+	versions := make([]*semver.Version, 0)
 	for _, img := range images {
-		err := validateImageReference(img.Image)
-		if err != nil {
-			return nil, fmt.Errorf("invalid image reference %q: %w", img.Image, err)
-		}
-		versionToImageMap[img.Version] = img
+		versions = append(versions, img.Version)
 	}
-
-	return versionToImageMap, nil
+	return versions
 }
 
 // generatePackageWithIcon creates a new "olm.package" object with an operator icon.
@@ -125,20 +118,20 @@ func generatePackageWithIcon() (Package, error) {
 // generateChannels creates a list of channels based on the provided bundle versions.
 func generateChannels(versions []*semver.Version, brokenVersions []*semver.Version) []Channel {
 	channels := make([]Channel, 0)
-	// The list of ChannelEntry for specific major version (4.2 channel contains all <= 4.2.X versions starting from 4.0.0)
+	// the list of ChannelEntry for specific major version (4.2 channel contains all <= 4.2.X versions starting from 4.0.0)
 	majorEntries := make([]ChannelEntry, 0)
-	// Very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
+	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
 	previousChannelVersion := semver.MustParse("3.61.0")
 	var channel *Channel
 
 	for _, v := range versions {
-		// Refresh major channel entries list when new major version is reached
+		// refresh major channel entries list when new major version is reached
 		if v.Major() != previousEntryVersion.Major() {
 			majorEntries = make([]ChannelEntry, 0)
 		}
 
-		// Create a new channel entry for each new minor version (patch = 0)
+		// create a new channel entry for each new minor version (patch = 0)
 		if v.Patch() == 0 {
 			previousChannelVersion = previousEntryVersion
 			if channel != nil {
@@ -159,9 +152,9 @@ func generateChannels(versions []*semver.Version, brokenVersions []*semver.Versi
 		previousEntryVersion = v
 	}
 
-	// Add the last channel entry for the last version processed
+	// add the last channel entry for the last version processed
 	channels = append(channels, *channel)
-	// Add "stable" channel when the last version is reached
+	// add "stable" channel when the last version is reached
 	stableChannel := newStableChannel(channel.Entries)
 	channels = append(channels, stableChannel)
 
@@ -173,49 +166,108 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 	var deprecations []DeprecationEntry
 	var channelVersions []*semver.Version
 	for _, v := range versions {
-		// Each 0 Patch version indicates a new channel.
+		// each 0 Patch version indicates a new channel.
 		if v.Patch() == 0 {
 			channelVersions = append(channelVersions, v)
 		}
 	}
 
-	// Deprecate all channels that are older than the oldest supported version
+	// deprecate all channels that are older than the oldest supported version
 	for _, channelVersion := range channelVersions {
 		if channelVersion.LessThan(oldestSupportedVersion) {
 			deprecations = append(deprecations, newChannelDeprecationEntry(channelVersion))
 		}
 	}
 
-	// Deprecate all bundles that are older than the oldest supported version
+	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
 		if v.LessThan(oldestSupportedVersion) {
 			deprecations = append(deprecations, newBundleDeprecationEntry(v))
 		}
 	}
 
+	// add a deprecation entry for the "latest" channel
+	latestDeprecationEntry := &DeprecationEntry{
+		Reference: DeprecationReference{
+			Schema: "olm.channel",
+			Name:   "latest",
+		},
+		Message: latestChannelDeprecationMessage,
+	}
+	deprecations = slices.Insert(deprecations, 0, *latestDeprecationEntry)
+
 	return newDeprecations(deprecations)
 }
 
 // generateBundles creates a list of bundle entries based on the provided versions and their corresponding images.
-func generateBundles(versions []*semver.Version, versionToImageMap map[*semver.Version]BundleImage) []BundleEntry {
+func generateBundles(images []InputBundleImage) []BundleEntry {
 	var bundleEntries []BundleEntry
-	for _, v := range versions {
-		bundleEntries = append(bundleEntries, newBundleEntry(versionToImageMap[v].Image))
+	for _, img := range images {
+		bundleEntries = append(bundleEntries, newBundleEntry(img.Image))
 	}
 	return bundleEntries
 }
 
-func generateChannelName(version *semver.Version) string {
-	return fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor())
+// writeToFile writes the resulting catalog template to the output YAML file.
+func writeToFile(ct CatalogTemplate) error {
+	headComment := yaml.HeadComment(
+		"---------------------------------------------------------------------------",
+		// add a space before the comment to separate it from the "#" YAML comment character
+		" "+firstLineHeadComment,
+		" "+secondLineHeadComment,
+		"---------------------------------------------------------------------------",
+	)
+	comments := yaml.CommentMap{
+		"$": []*yaml.Comment{headComment}, // "$" means top-level comment
+	}
+
+	out, err := yaml.MarshalWithOptions(ct, yaml.WithComment(comments))
+	if err != nil {
+		return fmt.Errorf("failed to marshal catalog: %v", err)
+	}
+	if err := os.WriteFile(outputFile, out, 0644); err != nil {
+		return fmt.Errorf("failed to write output: %v", err)
+	}
+
+	return nil
 }
 
-func generateBundleName(version *semver.Version) string {
-	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
+// validateVersions checks that the operator versions are sorted in ascending order and that there are no duplicates.
+func validateVersions(images []InputBundleImage) error {
+	seenVersions := make(map[*semver.Version]bool)
+	for i := 0; i < len(images)-1; i++ {
+		version := images[i].Version
+		nextVersion := images[i+1].Version
+		if version == nil {
+			return fmt.Errorf("version is not set for image %s", images[i].Image)
+		}
+		if nextVersion == nil {
+			return fmt.Errorf("version is not set for image %s", images[i+1].Image)
+		}
+		if version.GreaterThan(nextVersion) {
+			return fmt.Errorf("operator versions are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
+		}
+		if seenVersions[version] {
+			return fmt.Errorf("operator list have duplicate versions: %s == %s", version.Original(), nextVersion.Original())
+		}
+		seenVersions[version] = true
+	}
+	return nil
+}
+
+// validateImages checks that all images in the input bundle have valid container image references with a digest.
+func validateImages(images []InputBundleImage) error {
+	for _, img := range images {
+		if err := validateImageReference(img.Image); err != nil {
+			return fmt.Errorf("invalid image reference %q: %w", img.Image, err)
+		}
+	}
+	return nil
 }
 
 // validateImageReference validates that the provided image string is a valid container image reference with a digest
 func validateImageReference(image string) error {
-	// Validate the image reference using the distribution/reference package
+	// validate the image reference using the distribution/reference package
 	ref, err := reference.Parse(image)
 	if err != nil {
 		return fmt.Errorf("cannot parse string as docker image %s: %w", image, err)

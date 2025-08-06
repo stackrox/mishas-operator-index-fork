@@ -33,8 +33,8 @@ deps:
 	@$(GO) mod download
 
 # update template/catalog-template.yaml based on bundles.yaml file.
-.PHONY: generate-catalog-template
-generate-catalog-template: deps bundles.yaml
+.PHONY: catalog-template.yaml
+catalog-template.yaml: bundles.yaml
 	@$(GO) run ./cmd/generate-catalog/
 
 go-test: deps

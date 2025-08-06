@@ -4,8 +4,5 @@
 # Leftover staging directory for importing legacy catalog. Can be safely deleted
 /catalog-migrate/
 
-# Ignore golang vendor
-vendor
-
 # Ignore VS code local settings
 .vscode

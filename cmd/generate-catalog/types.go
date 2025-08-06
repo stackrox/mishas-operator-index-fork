@@ -2,20 +2,18 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"slices"
 
 	semver "github.com/Masterminds/semver/v3"
-	"github.com/goccy/go-yaml"
 )
 
 type Input struct {
-	OldestSupportedVersion *semver.Version   `yaml:"oldest_supported_version"`
-	BrokenVersions         []*semver.Version `yaml:"broken_versions"`
-	Images                 []BundleImage     `yaml:"images"`
+	OldestSupportedVersion *semver.Version    `yaml:"oldest_supported_version"`
+	BrokenVersions         []*semver.Version  `yaml:"broken_versions"`
+	Images                 []InputBundleImage `yaml:"images"`
 }
 
-type BundleImage struct {
+type InputBundleImage struct {
 	Image   string          `yaml:"image"`
 	Version *semver.Version `yaml:"version"`
 }
@@ -45,6 +43,7 @@ type Channel struct {
 	Package string         `yaml:"package,omitempty"`
 	Entries []ChannelEntry `yaml:"entries,omitempty"`
 }
+
 type ChannelEntry struct {
 	Name      string   `yaml:"name"`
 	Replaces  string   `yaml:"replaces,omitempty"`
@@ -105,36 +104,13 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 	}
 }
 
-// writeToFile writes the resulting catalog template to the output YAML file.
-func (c *CatalogTemplate) writeToFile() error {
-	headComment := yaml.HeadComment(
-		"---------------------------------------------------------------------------",
-		firstLineHeadComment,
-		secondLineHeadComment,
-		"---------------------------------------------------------------------------",
-	)
-	comments := yaml.CommentMap{
-		"$": []*yaml.Comment{headComment}, // "$" means top-level comment
-	}
-
-	out, err := yaml.MarshalWithOptions(&c, yaml.WithComment(comments))
-	if err != nil {
-		return fmt.Errorf("failed to marshal catalog: %v", err)
-	}
-	if err := os.WriteFile(outputFile, out, 0644); err != nil {
-		return fmt.Errorf("failed to write output: %v", err)
-	}
-
-	return nil
-}
-
 // Create a new "olm.channel" object which should be added to the catalog base.
 // it will be represented in YAML like this:
-//   - schema: olm.channel
-//     name: rhacs-3.64
-//     package: rhacs-operator
-//     entries:
-//   - <ChannelEntry>
+// |  - schema: olm.channel
+// |    name: rhacs-3.64
+// |    package: rhacs-operator
+// |    entries:
+// |      - <ChannelEntry>
 func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 	return &Channel{
 		Schema:  "olm.channel",
@@ -168,11 +144,11 @@ func newStableChannel(entries []ChannelEntry) Channel {
 
 // Create a new Chanel entry object which should be added to Channel entries list.
 // it will be represented in YAML like this:
-//   - name: rhacs-operator.v<version>
-//     replaces: rhacs-operator.v<previousEntryVersion>
-//     skipRange: '>= <previousChannelVersion> < <version>'
-//     skips:
-//   - rhacs-operator.v4.1.0
+// |  - name: rhacs-operator.v<version>
+// |    replaces: rhacs-operator.v<previousEntryVersion>
+// |    skipRange: '>= <previousChannelVersion> < <version>'
+// |    skips:
+// |      - rhacs-operator.v<broken_version>
 func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, brokenVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
 		Name: generateBundleName(version),
@@ -211,21 +187,11 @@ func (e *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semve
 
 // Create a new "olm.deprecations" object which should be added to the catalog base.
 // It will be represented in YAML like this:
-//   - schema: olm.deprecations
-//     package: rhacs-operator
-//     entries:
-//   - <DeprecationEntry>
+// |  - schema: olm.deprecations
+// |    package: rhacs-operator
+// |    entries:
+// |      - <DeprecationEntry>
 func newDeprecations(entries []DeprecationEntry) Deprecations {
-	// Add a deprecation entry for the "latest" channel
-	latestDeprecationEntry := &DeprecationEntry{
-		Reference: DeprecationReference{
-			Schema: "olm.channel",
-			Name:   "latest",
-		},
-		Message: channelDeprecationMessage,
-	}
-	entries = slices.Insert(entries, 0, *latestDeprecationEntry)
-
 	return Deprecations{
 		Schema:  "olm.deprecations",
 		Package: "rhacs-operator",
@@ -235,11 +201,11 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 
 // Create a new channel DeprecationEntry reference object which should be added to Deprecation reference list.
 // it will be represented in YAML like this:
-//   - reference:
-//     schema: olm.channel
-//     name: rhacs-<version>
-//     message: |
-//     <message>
+// |  - reference:
+// |    schema: olm.channel
+// |    name: rhacs-<version>
+// |    message: |
+// |      <message>
 func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
@@ -252,11 +218,11 @@ func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 
 // Create a new channel DeprecationEntry reference object which should be added to Deprecation reference list.
 // it will be represented in YAML like this:
-//   - reference:
-//     schema: olm.bundle
-//     name: rhacs-<version>
-//     message: |
-//     <message>
+// |  - reference:
+// |    schema: olm.bundle
+// |    name: rhacs-<version>
+// |    message: |
+// |      <message>
 func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
@@ -269,11 +235,19 @@ func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
 
 // Create a new "olm.bundle" object which should be added to the catalog base.
 // it will be represented in YAML like this:
-//   - image: <bundle_image_reference>
-//     schema: olm.bundle
+// |  - image: <bundle_image_reference>
+// |    schema: olm.bundle
 func newBundleEntry(image string) BundleEntry {
 	return BundleEntry{
 		Schema: "olm.bundle",
 		Image:  image,
 	}
+}
+
+func generateChannelName(version *semver.Version) string {
+	return fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor())
+}
+
+func generateBundleName(version *semver.Version) string {
+	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
 }
