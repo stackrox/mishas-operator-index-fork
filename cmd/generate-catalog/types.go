@@ -206,13 +206,13 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 // |    name: rhacs-<version>
 // |    message: |
 // |      <message>
-func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
+func newChannelDeprecationEntry(version *semver.Version, message string) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.channel",
 			Name:   generateChannelName(version),
 		},
-		Message: channelDeprecationMessage,
+		Message: message,
 	}
 }
 
@@ -223,11 +223,7 @@ func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 // |    name: rhacs-<version>
 // |    message: |
 // |      <message>
-func newBundleDeprecationEntry(version *semver.Version, brokenVersions []*semver.Version) DeprecationEntry {
-	message := bundleDeprecationMessage
-	if containsVersion(brokenVersions, version) {
-		message = bundleBrokenMessage
-	}
+func newBundleDeprecationEntry(version *semver.Version, message string) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.bundle",

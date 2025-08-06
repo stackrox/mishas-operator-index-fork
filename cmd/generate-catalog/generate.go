@@ -176,14 +176,18 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 	// deprecate all channels that are older than the oldest supported version
 	for _, channelVersion := range channelVersions {
 		if channelVersion.LessThan(oldestSupportedVersion) {
-			deprecations = append(deprecations, newChannelDeprecationEntry(channelVersion))
+			deprecations = append(deprecations, newChannelDeprecationEntry(channelVersion, channelDeprecationMessage))
 		}
 	}
 
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
 		if v.LessThan(oldestSupportedVersion) {
-			deprecations = append(deprecations, newBundleDeprecationEntry(v, brokenVersions))
+			deprecationMessage := bundleDeprecationMessage
+			if containsVersion(brokenVersions, v) {
+				deprecationMessage = bundleBrokenMessage
+			}
+			deprecations = append(deprecations, newBundleDeprecationEntry(v, deprecationMessage))
 		}
 	}
 
