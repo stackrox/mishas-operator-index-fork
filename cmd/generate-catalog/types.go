@@ -206,11 +206,11 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 // |    name: rhacs-<version>
 // |    message: |
 // |      <message>
-func newChannelDeprecationEntry(version *semver.Version, message string) DeprecationEntry {
+func newChannelDeprecationEntry(name string, message string) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.channel",
-			Name:   generateChannelName(version),
+			Name:   name,
 		},
 		Message: message,
 	}

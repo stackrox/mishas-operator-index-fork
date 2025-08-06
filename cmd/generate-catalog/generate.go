@@ -176,9 +176,12 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 	// deprecate all channels that are older than the oldest supported version
 	for _, channelVersion := range channelVersions {
 		if channelVersion.LessThan(oldestSupportedVersion) {
-			deprecations = append(deprecations, newChannelDeprecationEntry(channelVersion, channelDeprecationMessage))
+			channelname := generateChannelName(channelVersion)
+			deprecations = append(deprecations, newChannelDeprecationEntry(channelname, channelDeprecationMessage))
 		}
 	}
+	latestDeprecationEntry := newChannelDeprecationEntry("latest", latestChannelDeprecationMessage)
+	deprecations = append(deprecations, latestDeprecationEntry)
 
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
@@ -190,16 +193,6 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 			deprecations = append(deprecations, newBundleDeprecationEntry(v, deprecationMessage))
 		}
 	}
-
-	// add a deprecation entry for the "latest" channel
-	latestDeprecationEntry := &DeprecationEntry{
-		Reference: DeprecationReference{
-			Schema: "olm.channel",
-			Name:   "latest",
-		},
-		Message: latestChannelDeprecationMessage,
-	}
-	deprecations = slices.Insert(deprecations, 0, *latestDeprecationEntry)
 
 	return newDeprecations(deprecations)
 }
