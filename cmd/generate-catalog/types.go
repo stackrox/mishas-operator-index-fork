@@ -223,13 +223,17 @@ func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 // |    name: rhacs-<version>
 // |    message: |
 // |      <message>
-func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
+func newBundleDeprecationEntry(version *semver.Version, brokenVersions []*semver.Version) DeprecationEntry {
+	message := bundleDeprecationMessage
+	if containsVersion(brokenVersions, version) {
+		message = bundleBrokenMessage
+	}
 	return DeprecationEntry{
 		Reference: DeprecationReference{
 			Schema: "olm.bundle",
 			Name:   generateBundleName(version),
 		},
-		Message: bundleDeprecationMessage,
+		Message: message,
 	}
 }
 
@@ -250,4 +254,13 @@ func generateChannelName(version *semver.Version) string {
 
 func generateBundleName(version *semver.Version) string {
 	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
+}
+
+func containsVersion(brokenVersions []*semver.Version, ver *semver.Version) bool {
+	for _, v := range brokenVersions {
+		if v.Equal(ver) {
+			return true
+		}
+	}
+	return false
 }

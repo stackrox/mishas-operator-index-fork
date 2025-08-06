@@ -48,7 +48,7 @@ func generateCatalogTemplateFile() error {
 		return fmt.Errorf("failed to generate package object with icon: %v", err)
 	}
 	channels := generateChannels(versions, input.BrokenVersions)
-	deprecations := generateDeprecations(versions, input.OldestSupportedVersion)
+	deprecations := generateDeprecations(versions, input.OldestSupportedVersion, input.BrokenVersions)
 	bundles := generateBundles(input.Images)
 
 	ct := newCatalogTemplate()
@@ -163,7 +163,7 @@ func generateChannels(versions []*semver.Version, brokenVersions []*semver.Versi
 }
 
 // generateDeprecations creates an object with a list of deprecations based on the provided versions.
-func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *semver.Version) Deprecations {
+func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *semver.Version, brokenVersions []*semver.Version) Deprecations {
 	var deprecations []DeprecationEntry
 	var channelVersions []*semver.Version
 	for _, v := range versions {
@@ -183,7 +183,7 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
 		if v.LessThan(oldestSupportedVersion) {
-			deprecations = append(deprecations, newBundleDeprecationEntry(v))
+			deprecations = append(deprecations, newBundleDeprecationEntry(v, brokenVersions))
 		}
 	}
 
