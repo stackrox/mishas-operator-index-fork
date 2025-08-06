@@ -12,58 +12,28 @@ See more in [our docs](https://spaces.redhat.com/display/StackRox/How+to+everyth
 
 ### Adding new ACS operator version
 
-1. Open `catalog-template.yaml` file
-2. Find the `stable` channel block. It starts with:
-```yaml
-- schema: olm.channel
-  name: stable
-```
-3. Insert a new entry to the `entries` list. 
-   - *Note:* Keep entries sorted by version (e.g. `4.9.1` should be before `4.9.2`)
-   
-   The entry should look like this:
+1. Open `bundles.yaml` file.
+2. Add a new operator bundle image with version:
    ```yaml
-   - &bundle-4-Y-Z
-     name: rhacs-operator.v4.Y.Z
-     replaces: rhacs-operator.v4.PREVIOUS_Y.PREVIOUS_Z
-     skipRange: '>= 4.PREVIOUS_CHANNEL_Y.0 < 4.Y.Z'
+      - image: brew.registry.redhat.io/rh-osbs/rhacs-operator-bundle@sha256:c82e8330c257e56eb43cb5fa7b0c842a7f7f0414e32e26a792ef36817cb5ca02
+        version: X.Y.Z
    ```
-   Replace `Y`, `Z`, `PREVIOUS_Y`, `PREVIOUS_Z`, `PREVIOUS_CHANNEL_Y` accordingly.
-   * `Y` is the minor component of the version (e.g. for 4.9.1 `Y` equals to 9)
-   * `Z` is the patch component of the version (e.g. for 4.9.1 `Z` equals to 1)
-   * `PREVIOUS_Y` is the minor component of the previous version (e.g. the previous version for 4.5.3 is 4.5.2 so`PREVIOUS_Y` equals to 5. For 4.3.0 `PREVIOUS_Y` is equal to 2)
-   * `PREVIOUS_Z` is the minor component of the previous version (e.g. the previous version for 4.5.3 is 4.5.2 so`PREVIOUS_Z` equals to 2. For 4.3.0 `PREVIOUS_Z` is equal to 5 because the previous version is 4.2.5)
-   * `PREVIOUS_CHANNEL_Y` is the minor component of the previous **channel** version (e.g. for 4.6.3 the previous channel is 4.5 so `PREVIOUS_CHANNEL_Y` is equal to 4)
-   - *Note:* Add an empty line after the last entry if you add a new Y version with Z equals to 0 (e.g. 4.9.0). It helps visually separate different Y version in the list.
-4. (For new Y version only where Z is equal to 0) Create a new channel block:
-   ```yaml
-   - schema: olm.channel
-     name: rhacs-4.Y
-     package: rhacs-operator
-     entries:
-   ```
-   Replace `Y` accordingly.
-   Keep the channel blocks sorted in ascending order (e.g. 4.6 goes after 4.5).
-5. Find a channel block for your Y version and insert a new entry to the `entries` list. Use the yaml anchor declared on the 3d step (starts with `&`):
-   ```yaml
-   - schema: olm.channel
-     name: rhacs-4.Y
-     package: rhacs-operator
-     entries:
-      - *bundle-4-Y-Z
-   ```
-   Replace `Y` and `Z` accordingly.
-6. Add a new block with operator bundle image for this version to the list:
-   ```yaml
-   - schema: olm.bundle
-   # 4.Y.Z
-   image: OPERATOR_BUNDLE_REGISTRY@OPERATOR_BUNDLE_SHA256
-   ```
-   Replace `Y`, `Z` accordingly.
-   * `OPERATOR_BUNDLE_REGISTRY` set to `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` for ready to release version. Use `brew.registry.redhat.io/rh-osbs/rhacs-operator-bundle` for release candidates.
-   * `OPERATOR_BUNDLE_SHA256` the operator bundle SHA starts with `sha256:`. In order to fetch SHA find an email `[CVP] (SUCCESS) cvp-redhatadvancedclustersecurity: rhacs-operator-bundle-container-4.Y.Z-x` subject. Open `Brew Build Info` link and find the digest of the`registry-proxy.engineering.redhat.com/rh-osbs/rhacs-operator-bundle` image. Use the digest value for the `OPERATOR_BUNDLE_SHA256`.
-7. Update catalogs (follow [updating catalogs steps](#updating-catalogs))
-8. open a PR with `Add 4.Y.Z version` title
+   * Note that the image must be referenced by digest, not by tag.
+   * Keep entries sorted by version.
+   * You may add bundle images from `quay.io`, `brew.registry.redhat.io` and so on (provided they exist and are pullable) during development and/or when preparing to release.  
+      Ultimately, all released bundle images must come from
+      `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` repo because this is where customers expect
+      to find them. There's a CI check which should make it impossible to push to `master` if there's any bundle from
+      a different repo.
+   * If you're adding a bundle as part of downstream release, you will find bundle image's digest in
+      `[CVP] (SUCCESS) cvp-redhatadvancedclustersecurity: rhacs-operator-bundle-container-4.Y.Z-x` email. Open the
+      link in `Brew Build Info` and find the digest of the
+      `registry-proxy.engineering.redhat.com/rh-osbs/rhacs-operator-bundle` image. Take that image and replace
+      `registry-proxy.engineering.redhat.com` with `brew.registry.redhat.io`.
+
+3. Run `make catalog-template.yaml`. This step should update `catalog-template.yaml` with the new version.
+4. Update catalogs (follow [updating catalogs steps](#updating-catalogs))
+5. open a PR with `Add 4.Y.Z version` title
 
 
 
