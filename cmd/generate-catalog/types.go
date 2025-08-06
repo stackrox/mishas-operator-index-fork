@@ -160,8 +160,8 @@ func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semv
 }
 
 func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version) {
-	// skip setting "replaces" key for specific versions
-	versionsWithoutReplaces := []string{"4.0.0", "3.62.0"}
+	// skip setting "replaces" key for the first version in each major version
+	versionsWithoutReplaces := []string{first3MajorVersion, first4MajorVersion}
 
 	replacesVersion := previousEntryVersion.Original()
 	if !slices.Contains(versionsWithoutReplaces, version.Original()) {

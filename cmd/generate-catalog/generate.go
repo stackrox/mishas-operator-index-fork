@@ -25,6 +25,8 @@ const (
 	bundleDeprecationMessage        = "This Operator version is no longer supported. Use a later version that is supported. Find supported versions in the RHACS support matrix: https://access.redhat.com/support/policy/updates/rhacs \n"
 	bundleBrokenMessage             = "This Operator version is broken and should not be used. Use a later version that is supported.  Find supported versions in the RHACS support matrix: https://access.redhat.com/support/policy/updates/rhacs \n"
 	latestChannelDeprecationMessage = "The `latest` channel is no longer supported.  Use the `stable` channel.\n"
+	first3MajorVersion              = "3.62.0"
+	first4MajorVersion              = "4.0.0"
 )
 
 func main() {
@@ -138,7 +140,7 @@ func generateChannels(versions []*semver.Version, brokenVersions []*semver.Versi
 			if channel != nil {
 				channels = append(channels, *channel)
 				// Add "latest" channel when all "3.X.X" version are processed
-				if v.Original() == "4.0.0" {
+				if v.Original() == first4MajorVersion {
 					latestChannel := newLatestChannel(channel.Entries)
 					channels = append(channels, latestChannel)
 				}
