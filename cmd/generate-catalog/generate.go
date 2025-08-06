@@ -37,7 +37,7 @@ func main() {
 		versions = append(versions, img.Version)
 	}
 
-	versionToImageMap, err := buildMapVersionToImage(input.Images)
+	versionToImageMap, err := mapVersionToImage(input.Images)
 	if err != nil {
 		log.Fatalf("Failed to parse versions: %v", err)
 	}
@@ -86,7 +86,7 @@ func readInputFile() (Input, error) {
 	return input, nil
 }
 
-// buildMapVersionToImage returns a mapping from version to BundleImage.
+// mapVersionToImage returns a mapping from version to BundleImage.
 func mapVersionToImage(images []BundleImage) (map[*semver.Version]BundleImage, error) {
 	versionToImageMap := make(map[*semver.Version]BundleImage)
 
@@ -193,7 +193,7 @@ func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *se
 		}
 	}
 
-	return newDeprecation(deprecations)
+	return newDeprecations(deprecations)
 }
 
 // generateBundles creates a list of bundle entries based on the provided versions and their corresponding images.

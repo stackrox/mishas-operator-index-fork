@@ -172,7 +172,7 @@ func newStableChannel(entries []ChannelEntry) Channel {
 //     replaces: rhacs-operator.v<previousEntryVersion>
 //     skipRange: '>= <previousChannelVersion> < <version>'
 //     skips:
-//     - rhacs-operator.v4.1.0
+//   - rhacs-operator.v4.1.0
 func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, brokenVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
 		Name: generateBundleName(version),
@@ -214,7 +214,7 @@ func (e *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semve
 //   - schema: olm.deprecations
 //     package: rhacs-operator
 //     entries:
-//     - <DeprecationEntry>
+//   - <DeprecationEntry>
 func newDeprecations(entries []DeprecationEntry) Deprecations {
 	// Add a deprecation entry for the "latest" channel
 	latestDeprecationEntry := &DeprecationEntry{
@@ -222,7 +222,7 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 			Schema: "olm.channel",
 			Name:   "latest",
 		},
-		Message: deprecationMessageLatestChannel,
+		Message: channelDeprecationMessage,
 	}
 	entries = slices.Insert(entries, 0, *latestDeprecationEntry)
 
@@ -239,7 +239,7 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 //     schema: olm.channel
 //     name: rhacs-<version>
 //     message: |
-//       <message>
+//     <message>
 func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
@@ -256,7 +256,7 @@ func newChannelDeprecationEntry(version *semver.Version) DeprecationEntry {
 //     schema: olm.bundle
 //     name: rhacs-<version>
 //     message: |
-//       <message>
+//     <message>
 func newBundleDeprecationEntry(version *semver.Version) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
