@@ -26,18 +26,12 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	mkdir -p "$$(dirname "$@")"
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
 
-
-# download go dependencies.
-.PHONY: deps
-deps:
-	@$(GO) mod download
-
 # update template/catalog-template.yaml based on bundles.yaml file.
 .PHONY: catalog-template.yaml
 catalog-template.yaml: bundles.yaml
 	@$(GO) run ./cmd/generate-catalog/
 
-go-test: deps
+go-test:
 	@$(GO) test -cover -v ./cmd/...
 
 $(OPM):
