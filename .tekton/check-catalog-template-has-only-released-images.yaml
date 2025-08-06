@@ -30,7 +30,7 @@ spec:
       #!/usr/bin/env bash
       set -euo pipefail
 
-      if yq eval '.. | select(has("image")) | .image' catalog-template.yaml | grep -vE '^registry\.redhat\.io/advanced-cluster-security/rhacs-operator-bundle(:|@)'; then
-        echo >&2 "catalog-template.yaml has image(s) not from registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle. It is not allowed to merge such bundle images to master branch because it will no longer be releasable."
+      if yq eval '.images[].image' bundles.yaml | grep -vE '^registry\.redhat\.io/advanced-cluster-security/rhacs-operator-bundle(:|@)'; then
+        echo >&2 "bundles.yaml has image(s) not from registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle. It is not allowed to merge such bundle images to master branch because it will no longer be releasable."
         exit 1
       fi

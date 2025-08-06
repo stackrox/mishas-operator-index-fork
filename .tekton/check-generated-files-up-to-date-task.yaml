@@ -27,18 +27,20 @@ spec:
     - use
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
   - name: check-generated-files-up-to-date
-    image: registry.access.redhat.com/ubi9:latest@sha256:0fa3e48369775f03b640a28cd5b55e6410569fa149f1827240619169463a7833
+    image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
     workingDir: /var/workdir/source
     script: |
       #!/usr/bin/env bash
       set -euo pipefail
       set -x
 
-      time dnf -y upgrade --nobest
-      # TODO: find an image with these preinstalled to reduce flakiness
-      time dnf -y install git make jq
-
       time make clean
+      time make catalog-template.yaml
+      if ! git diff --exit-code HEAD catalog-template.yaml; then
+        echo >&2 "catalog-template.yaml file is not up-to-date. Run 'make catalog-template.yaml' to update the file."
+        exit 1
+      fi
+
       cmd="make valid-catalogs"
       time $cmd
       set +x
@@ -47,3 +49,5 @@ spec:
         echo >&2 "Some generated files are not up to date with their source ^^^. Run '$cmd' to update them."
         exit 1
       fi
+    securityContext:
+      runAsUser: 0
