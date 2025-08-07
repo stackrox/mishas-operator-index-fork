@@ -83,6 +83,29 @@ spec:
       - name: basic-auth
         workspace: git-auth
 
+    - name: run-go-unit-tests
+      params:
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
+      taskSpec:
+        metadata:
+          name: run-go-unit-tests
+          namespace: rh-acs-tenant
+        params:
+        - name: SOURCE_ARTIFACT
+          type: string
+        steps:
+        - name: run-go-tests
+          image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
+          workingDir: /var/workdir/source
+          securityContext:
+            runAsUser: 0
+          script: |
+            #!/usr/bin/env bash
+            set -euo pipefail
+            set -x
+            time make go-test
+
     - name: check-generated-files-up-to-date
       params:
       - name: SOURCE_ARTIFACT
