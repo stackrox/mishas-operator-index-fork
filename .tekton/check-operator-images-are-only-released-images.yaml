@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: check-operator-images-are-only-released-images
+  namespace: rh-acs-tenant
+spec:
+  description: This task is to prevent operator bundle images from quay.io or any repositories other than release ones to be added to the `master` branch. This is to make sure `master` is in good state to be released and would not require first cleaning unreleased bundles from it.
+  params:
+  - name: SOURCE_ARTIFACT
+    description: The Trusted Artifact URI pointing to the artifact with
+      the application source code.
+    type: string
+  volumes:
+  - name: workdir
+    emptyDir: { }
+  stepTemplate:
+    volumeMounts:
+    - mountPath: /var/workdir
+      name: workdir
+  steps:
+  - name: use-trusted-artifact
+    image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
+    args:
+    - use
+    - $(params.SOURCE_ARTIFACT)=/var/workdir/source
+  - name: check-bundle-images
+    image: quay.io/konflux-ci/release-service-utils:latest@sha256:3c319bb1b38762c568f1d15d1061381aa9d9f860d843ea5d966c61b85d540fd7
+    workingDir: /var/workdir/source
+    script: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      if yq eval '.images[].image' bundles.yaml | grep -vE '^registry\.redhat\.io/advanced-cluster-security/rhacs-operator-bundle(:|@)'; then
+        echo >&2 "bundles.yaml has image(s) not from registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle. It is not allowed to merge such bundle images to master branch because it will no longer be releasable."
+        exit 1
+      fi
