@@ -94,6 +94,13 @@ spec:
         params:
         - name: SOURCE_ARTIFACT
           type: string
+        volumes:
+        - name: workdir
+          emptyDir: { }
+        stepTemplate:
+          volumeMounts:
+          - mountPath: /var/workdir
+            name: workdir
         steps:
         - name: use-trusted-artifact
           image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
@@ -103,8 +110,6 @@ spec:
         - name: run-go-tests
           image: registry.redhat.io/ubi9/go-toolset@sha256:3ce6311380d5180599a3016031a9112542d43715244816d1d0eabc937952667b
           workingDir: /var/workdir/source
-          securityContext:
-            runAsUser: 0
           script: |
             #!/usr/bin/env bash
             set -euo pipefail
