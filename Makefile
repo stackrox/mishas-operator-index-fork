@@ -27,7 +27,6 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
 
 # update template/catalog-template.yaml based on bundles.yaml file.
-.PHONY: catalog-template.yaml
 catalog-template.yaml: bundles.yaml
 	@$(GO) run ./cmd/generate-catalog/
 
