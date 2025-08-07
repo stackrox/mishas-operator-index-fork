@@ -8,7 +8,7 @@ OPM = .bin/opm-$(OPM_VERSION)
 
 GO := go
 
-GENERATE_CATALOG_FOLDER = ./cmd/generate-catalog/
+GENERATE_SCRIPT_FOLDER = ./cmd/generate-catalog/
 
 .PHONY: valid-catalogs
 valid-catalogs: $(CATALOGS) $(OPM)
@@ -30,8 +30,8 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
 
 # update template/catalog-template.yaml based on bundles.yaml file.
-catalog-template.yaml: bundles.yaml $(wildcard $(GENERATE_CATALOG_FOLDER)/*.go)
-	@$(GO) run $(GENERATE_CATALOG_FOLDER)
+catalog-template.yaml: bundles.yaml $(wildcard $(GENERATE_SCRIPT_FOLDER)/*.go)
+	@$(GO) run $(GENERATE_SCRIPT_FOLDER)
 
 go-test:
 	@$(GO) test -cover -v ./cmd/...
