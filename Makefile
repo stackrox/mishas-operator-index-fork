@@ -15,6 +15,7 @@ valid-catalogs: $(CATALOGS) $(OPM)
 
 .PHONY: clean
 clean:
+	rm -f catalog-template.yaml
 	rm -f $(CATALOGS)
 	rm -rf $$(dirname $(OPM))
 
@@ -27,7 +28,7 @@ catalog-csv-metadata/rhacs-operator/catalog.json: catalog-template.yaml $(OPM)
 	$(OPM) alpha render-template basic --migrate-level bundle-object-to-csv-metadata $< > $@
 
 # update template/catalog-template.yaml based on bundles.yaml file.
-catalog-template.yaml: bundles.yaml
+catalog-template.yaml: bundles.yaml $(wildcard cmd/**/*.go)
 	@$(GO) run ./cmd/generate-catalog/
 
 go-test:
