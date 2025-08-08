@@ -39,9 +39,9 @@ type Icon struct {
 
 type Channel struct {
 	Schema  string         `yaml:"schema"`
-	Name    string         `yaml:"name,omitempty"`
-	Package string         `yaml:"package,omitempty"`
-	Entries []ChannelEntry `yaml:"entries,omitempty"`
+	Name    string         `yaml:"name"`
+	Package string         `yaml:"package"`
+	Entries []ChannelEntry `yaml:"entries"`
 }
 
 type ChannelEntry struct {
@@ -165,13 +165,13 @@ func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version
 
 	replacesVersion := previousEntryVersion.Original()
 	if !slices.Contains(versionsWithoutReplaces, version.Original()) {
-		e.Replaces = "rhacs-operator.v" + replacesVersion
+		e.Replaces = generateBundleName(previousEntryVersion)
 	}
 }
 
 func (e *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.Version) {
-	skipRangeGreaterThanEqual := fmt.Sprintf("%d.%d.0", previousChannelVersion.Major(), previousChannelVersion.Minor())
-	skipRangeLessThan := version.Original()
+	skipRangeFrom := fmt.Sprintf("%d.%d.0", previousChannelVersion.Major(), previousChannelVersion.Minor())
+	skipRangeTo := version.Original()
 	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeGreaterThanEqual, skipRangeLessThan)
 }
 

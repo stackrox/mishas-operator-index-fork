@@ -23,7 +23,7 @@ const (
 	secondLineHeadComment           = "Any manual changes will be overwritten."
 	channelDeprecationMessage       = "This version is no longer supported. Please switch to the `stable` channel or a channel for a more recent version that is still supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	bundleDeprecationMessage        = "This Operator version is no longer supported. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs\n"
-	versionBrokenMessage            = "This Operator version is broken and should not be used. Use a more recent version that is supported.  Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs\n"
+	versionBrokenMessage            = "This product version has known significant defects and should not be used. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs\n"
 	latestChannelDeprecationMessage = "The `latest` channel is no longer supported. Use the `stable` channel."
 	first3MajorVersion              = "3.62.0"
 	first4MajorVersion              = "4.0.0"
@@ -32,7 +32,7 @@ const (
 func main() {
 	err := generateCatalogTemplateFile()
 	if err != nil {
-		log.Fatalf("Failed to generate catalog template file: %v", err)
+		log.Fatalf("Failed to generate catalog template: %v", err)
 	}
 	fmt.Printf("%s generated successfully.\n", outputFile)
 }
@@ -79,10 +79,10 @@ func readInputFile() (Input, error) {
 	}
 
 	if err := validateImages(input.Images); err != nil {
-		return Input{}, fmt.Errorf("invalid images: %v", err)
+		return Input{}, err
 	}
 	if err := validateVersions(input.Images); err != nil {
-		return Input{}, fmt.Errorf("invalid versions: %v", err)
+		return Input{}, err
 	}
 
 	return input, nil
@@ -101,7 +101,7 @@ func getAllVersions(images []InputBundleImage) []*semver.Version {
 func generatePackageWithIcon() (Package, error) {
 	data, err := os.ReadFile(iconFile)
 	if err != nil {
-		return Package{}, fmt.Errorf("failed to read icon.png: %v", err)
+		return Package{}, fmt.Errorf("failed to read %s: %v", iconFile, err)
 	}
 	iconBase64 := base64.StdEncoding.EncodeToString(data)
 
@@ -120,7 +120,7 @@ func generatePackageWithIcon() (Package, error) {
 
 // generateChannels creates a list of channels based on the provided bundle versions.
 func generateChannels(versions []*semver.Version, brokenVersions []*semver.Version) []Channel {
-	channels := make([]Channel, 0)
+	allChannels := make([]Channel, 0)
 	// the list of ChannelEntry for specific major version (4.2 channel contains all <= 4.2.X versions starting from 4.0.0)
 	majorEntries := make([]ChannelEntry, 0)
 	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
