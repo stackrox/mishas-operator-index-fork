@@ -7,23 +7,50 @@ import (
 	semver "github.com/Masterminds/semver/v3"
 )
 
+// A list of versions which must not have "replaces" key in they channel entries.
+var versionsWithoutReplaces = []string{first3MajorVersion, first4MajorVersion}
+
 type Input struct {
-	OldestSupportedVersion *semver.Version    `yaml:"oldest_supported_version"`
-	BrokenVersions         []*semver.Version  `yaml:"broken_versions"`
+	OldestSupportedVersion string             `yaml:"oldest_supported_version"`
+	BrokenVersions         []string           `yaml:"broken_versions"`
 	Images                 []InputBundleImage `yaml:"images"`
 }
 
 type InputBundleImage struct {
-	Image   string          `yaml:"image"`
-	Version *semver.Version `yaml:"version"`
+	Image   string `yaml:"image"`
+	Version string `yaml:"version"`
 }
 
+// Describes configuration for the catalog template generation. It contains:
+// - OldestSupportedVersion - the oldest supported version of the operator. All versions < OldestSupportedVersion are marked as deprecated.
+// - BrokenVersions - a list of versions which are broken and should be skipped in the catalog.
+// - Images - a list of bundle images with their versions.
+type Configuration struct {
+	OldestSupportedVersion *semver.Version
+	BrokenVersions         map[*semver.Version]bool
+	Images                 []BundleImage
+}
+
+type BundleImage struct {
+	Image   string
+	Version *semver.Version
+}
+
+// Describes catalog template structure which is used to generate the catalog YAML file.
+// See OLM catalog template documentation for more details: https://olm.operatorframework.io/docs/reference/catalog-templates/
 type CatalogTemplate struct {
 	Schema  string         `yaml:"schema"`
 	Entries []CatalogEntry `yaml:"entries"`
 }
 
-type CatalogEntry any
+type CatalogEntry interface {
+	isCatalogEntry()
+}
+
+func (Package) isCatalogEntry()      {}
+func (Channel) isCatalogEntry()      {}
+func (Deprecations) isCatalogEntry() {}
+func (BundleEntry) isCatalogEntry()  {}
 
 type Package struct {
 	Schema         string `yaml:"schema"`
@@ -148,22 +175,18 @@ func newStableChannel(entries []ChannelEntry) Channel {
 // |    replaces: rhacs-operator.v<previousEntryVersion>
 // |    skipRange: '>= <previousChannelVersion> < <version>'
 // |    skips:
-// |      - rhacs-operator.v<broken_version>
-func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, brokenVersions []*semver.Version) ChannelEntry {
+// |      - rhacs-operator.v<skipped_versions>
+func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, skippedVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
 		Name: generateBundleName(version),
 	}
 	entry.addReplaces(version, previousEntryVersion)
 	entry.addSkipRange(version, previousChannelVersion)
-	entry.addSkips(version, brokenVersions)
+	entry.addSkips(version, skippedVersions)
 	return entry
 }
 
 func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version) {
-	// skip setting "replaces" key for the first version in each major version
-	versionsWithoutReplaces := []string{first3MajorVersion, first4MajorVersion}
-
-	replacesVersion := previousEntryVersion.Original()
 	if !slices.Contains(versionsWithoutReplaces, version.Original()) {
 		e.Replaces = generateBundleName(previousEntryVersion)
 	}
@@ -172,15 +195,15 @@ func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version
 func (e *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.Version) {
 	skipRangeFrom := fmt.Sprintf("%d.%d.0", previousChannelVersion.Major(), previousChannelVersion.Minor())
 	skipRangeTo := version.Original()
-	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeGreaterThanEqual, skipRangeLessThan)
+	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeFrom, skipRangeTo)
 }
 
-func (e *ChannelEntry) addSkips(version *semver.Version, brokenVersions []*semver.Version) {
-	for _, brokenVersion := range brokenVersions {
+func (e *ChannelEntry) addSkips(version *semver.Version, skippedVersions []*semver.Version) {
+	for _, skippedVersion := range skippedVersions {
 		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
-		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", brokenVersion.Major(), brokenVersion.Minor()+2))
-		if version.GreaterThan(brokenVersion) && version.LessThan(skipsUntilVersion) {
-			e.Skips = append(e.Skips, generateBundleName(brokenVersion))
+		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", skippedVersion.Major(), skippedVersion.Minor()+2))
+		if version.GreaterThan(skippedVersion) && version.LessThan(skipsUntilVersion) {
+			e.Skips = append(e.Skips, generateBundleName(skippedVersion))
 		}
 	}
 }
@@ -250,13 +273,4 @@ func generateChannelName(version *semver.Version) string {
 
 func generateBundleName(version *semver.Version) string {
 	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
-}
-
-func containsVersion(brokenVersions []*semver.Version, ver *semver.Version) bool {
-	for _, v := range brokenVersions {
-		if v.Equal(ver) {
-			return true
-		}
-	}
-	return false
 }
