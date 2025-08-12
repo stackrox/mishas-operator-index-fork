@@ -1,6 +1,8 @@
 package main
 
 import (
+	"maps"
+	"slices"
 	"testing"
 
 	semver "github.com/Masterminds/semver/v3"
@@ -36,43 +38,136 @@ var (
 )
 
 func TestGenerateChannels(t *testing.T) {
-	// Define test cases
 	tests := []struct {
 		name             string
 		versions         []*semver.Version
-		brokenVersions   []*semver.Version
 		expectedChannels []Channel
 	}{
 		{
-			name: "Multiple major versions with broken version",
+			name: "Single major version with patch versions",
+			versions: []*semver.Version{
+				v3620,
+				v3621,
+			},
+			expectedChannels: []Channel{
+				*newChannel(v3620, nil),
+				newStableChannel(nil),
+			},
+		},
+		{
+			name: "Multiple major versions with patch versions",
 			versions: []*semver.Version{
 				v3620,
 				v3621,
 				v4000,
 				v4001,
-				v4002,
-				v4100,
-				v4101,
-				v4200,
-			},
-			brokenVersions: []*semver.Version{
-				v4001,
 			},
 			expectedChannels: []Channel{
-				*channel36,
-				latestChannel,
-				*channel40,
-				*channel41,
-				*channel42,
-				stableChannel,
+				*newChannel(v3620, nil),
+				newLatestChannel(nil),
+				*newChannel(v4000, nil),
+				newStableChannel(nil),
+			},
+		},
+		{
+			name:     "Only stable channel with no versions",
+			versions: []*semver.Version{},
+			expectedChannels: []Channel{
+				newStableChannel(nil),
+			},
+		},
+		{
+			name: "First 4.x version triggers latest channel",
+			versions: []*semver.Version{
+				v4000,
+			},
+			expectedChannels: []Channel{
+				newLatestChannel(nil),
+				*newChannel(v4000, nil),
+				newStableChannel(nil),
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actualChannels := generateChannels(tt.versions, tt.brokenVersions)
+			actualChannels := generateChannels(tt.versions)
 			assert.Equal(t, tt.expectedChannels, actualChannels)
+		})
+	}
+}
+func TestReadInputFile(t *testing.T) {
+	tests := []struct {
+		name           string
+		filePath       string
+		expectedError  string
+		expectedConfig Configuration
+	}{
+		{
+			name:          "Valid input file",
+			filePath:      "testdata/valid_input.yaml",
+			expectedError: "",
+			expectedConfig: Configuration{
+				OldestSupportedVersion: semver.MustParse("4.6.0"),
+				BrokenVersions: map[*semver.Version]bool{
+					semver.MustParse("4.1.0"): true,
+				},
+				Images: []BundleImage{
+					{
+						Image:   "example.com/image@sha256:6cdcf20771f9c46640b466f804190d00eaf2e59caee6d420436e78b283d177bf",
+						Version: semver.MustParse("3.62.0"),
+					},
+					{
+						Image:   "example.com/image@sha256:7fd7595e6a61352088f9a3a345be03a6c0b9caa0bbc5ddd8c61ba1d38b2c3b8e",
+						Version: semver.MustParse("4.0.0"),
+					},
+				},
+			},
+		},
+		{
+			name:          "Invalid YAML format",
+			filePath:      "testdata/invalid_yaml.yaml",
+			expectedError: "failed to unmarshal YAML",
+		},
+		{
+			name:          "Invalid oldest_supported_version",
+			filePath:      "testdata/invalid_oldest_supported_version.yaml",
+			expectedError: "invalid oldest_supported_version",
+		},
+		{
+			name:          "Invalid broken_versions",
+			filePath:      "testdata/invalid_broken_versions.yaml",
+			expectedError: "invalid broken_versions",
+		},
+		{
+			name:          "Invalid image version",
+			filePath:      "testdata/invalid_image_version.yaml",
+			expectedError: "invalid version",
+		},
+		{
+			name:          "Image reference without digest",
+			filePath:      "testdata/image_without_digest.yaml",
+			expectedError: "image reference does not include a digest",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Call the function under test
+			config, err := readInputFile(tt.filePath)
+
+			// Check for expected errors
+			if tt.expectedError != "" {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedError)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expectedConfig.Images, config.Images)
+				assert.True(t, tt.expectedConfig.OldestSupportedVersion.Equal(config.OldestSupportedVersion))
+				expectedBrokenVersions := slices.Collect(maps.Keys(tt.expectedConfig.BrokenVersions))
+				actualBrokenVersions := slices.Collect(maps.Keys(config.BrokenVersions))
+				assert.ElementsMatch(t, expectedBrokenVersions, actualBrokenVersions)
+			}
 		})
 	}
 }
