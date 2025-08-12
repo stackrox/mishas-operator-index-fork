@@ -1,16 +1,17 @@
 # ACS Operator Index
 
-This repository is for building the ACS (downstream) operator indexes on Konflux.
-
+This repository is for building and releasing the ACS operator indexes on Konflux.  
+It's for updating Operator Catalogs, i.e., so OpenShift clusters can see new versions of ACS operator in their
+OperatorHub.
 
 ## Development
 
-### Restarting Konflux job
+### Restarting Konflux pipeline
 
-Comment in the PR `/test <job_name>` (e.g. `/test operator-index-ocp-v4-16-on-push`).
+If some pipeline failed, you can restart it by commenting in the PR `/test <pipeline-name>` (e.g. `/test operator-index-ocp-v4-16-on-push`).
 See more in [our docs](https://spaces.redhat.com/display/StackRox/How+to+everything+Konflux+for+RHACS#HowtoeverythingKonfluxforRHACS-Howtore-runpipelines).
 
-### Adding new ACS operator version
+### <a name="add-bundle"></a> Adding new ACS operator version
 
 1. Open `bundles.yaml` file.
 2. Add a new operator bundle image with version:
@@ -51,7 +52,7 @@ If a new bundle was added then you should see that `catalog-bundle-object/rhacs-
 
 The following documentation was used for setting up catalogs update ([this](https://gitlab.cee.redhat.com/konflux/docs/users/-/blob/main/topics/getting-started/building-olm-products.md) and [this](https://github.com/konflux-ci/olm-operator-konflux-sample/blob/main/docs/konflux-onboarding.md)).
 
-### Getting built images for specific commit
+### <a name="get-built-image-index"></a> Getting built images for specific commit
 
 Run `./scripts/get-built-images.sh [COMMIT]` to fetch built operator catalog images for the provided `COMMIT` for each supported OCP version.
 *Note:* The script uses current branch commit if no `COMMIT` argument provided.
@@ -63,7 +64,7 @@ The former is expected by OpenShift versions up to and including 4.16, and the l
 
 See [konflux docs](https://github.com/konflux-ci/build-definitions/blob/c93ea73dbc30b8be15615e4d230040c70a0cf826/task/fbc-validation/0.1/TROUBLESHOOTING.md?plain=1#L7-L8).
 
-## Release File-based operator catalog
+## <a name="release"></a> Release File-based operator catalog
 
 ### Release process
 
