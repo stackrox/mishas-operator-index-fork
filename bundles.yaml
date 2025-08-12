@@ -1,3 +1,5 @@
+# Oldest supported version should be equal to the lowest supported version in the support policy document.
+# See: https://access.redhat.com/support/policy/updates/rhacs 
 oldest_supported_version: 4.6.0
 broken_versions:
 - 4.1.0
