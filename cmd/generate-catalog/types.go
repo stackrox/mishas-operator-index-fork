@@ -10,6 +10,11 @@ import (
 // A list of versions which must not have "replaces" key in they channel entries.
 var versionsWithoutReplaces = []string{first3MajorVersion, first4MajorVersion}
 
+// Describes format of the input file for catalog template generation.
+// It contains:
+// - OldestSupportedVersion - the oldest supported version of the operator. All versions < OldestSupportedVersion are marked as deprecated.
+// - BrokenVersions - a list of versions which are broken and should be skipped in the catalog.
+// - Images - a list of bundle images with their versions.
 type Input struct {
 	OldestSupportedVersion string             `yaml:"oldest_supported_version"`
 	BrokenVersions         []string           `yaml:"broken_versions"`
@@ -21,10 +26,7 @@ type InputBundleImage struct {
 	Version string `yaml:"version"`
 }
 
-// Describes configuration for the catalog template generation. It contains:
-// - OldestSupportedVersion - the oldest supported version of the operator. All versions < OldestSupportedVersion are marked as deprecated.
-// - BrokenVersions - a list of versions which are broken and should be skipped in the catalog.
-// - Images - a list of bundle images with their versions.
+// Describes domain logic configuration for the catalog template generation.
 type Configuration struct {
 	OldestSupportedVersion *semver.Version
 	BrokenVersions         map[*semver.Version]bool
@@ -65,17 +67,19 @@ type Icon struct {
 }
 
 type Channel struct {
-	Schema  string         `yaml:"schema"`
-	Name    string         `yaml:"name"`
-	Package string         `yaml:"package"`
-	Entries []ChannelEntry `yaml:"entries"`
+	Schema       string          `yaml:"schema"`
+	Name         string          `yaml:"name"`
+	Package      string          `yaml:"package"`
+	Entries      []ChannelEntry  `yaml:"entries"`
+	FirstVersion *semver.Version `yaml:"-"`
 }
 
 type ChannelEntry struct {
-	Name      string   `yaml:"name"`
-	Replaces  string   `yaml:"replaces,omitempty"`
-	SkipRange string   `yaml:"skipRange"`
-	Skips     []string `yaml:"skips,omitempty"`
+	Name      string          `yaml:"name"`
+	Replaces  string          `yaml:"replaces,omitempty"`
+	SkipRange string          `yaml:"skipRange"`
+	Skips     []string        `yaml:"skips,omitempty"`
+	Version   *semver.Version `yaml:"-"`
 }
 
 type Deprecations struct {
@@ -140,10 +144,11 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 // |      - <ChannelEntry>
 func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 	return &Channel{
-		Schema:  "olm.channel",
-		Name:    generateChannelName(version),
-		Package: "rhacs-operator",
-		Entries: entries,
+		Schema:       "olm.channel",
+		Name:         generateChannelName(version),
+		Package:      "rhacs-operator",
+		Entries:      entries,
+		FirstVersion: version,
 	}
 }
 
@@ -152,7 +157,7 @@ func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
 func newLatestChannel(entries []ChannelEntry) Channel {
 	return Channel{
 		Schema:  "olm.channel",
-		Name:    "latest",
+		Name:    latestChannelName,
 		Package: "rhacs-operator",
 		Entries: entries,
 	}
@@ -163,7 +168,7 @@ func newLatestChannel(entries []ChannelEntry) Channel {
 func newStableChannel(entries []ChannelEntry) Channel {
 	return Channel{
 		Schema:  "olm.channel",
-		Name:    "stable",
+		Name:    stableChannelName,
 		Package: "rhacs-operator",
 		Entries: entries,
 	}
@@ -178,7 +183,8 @@ func newStableChannel(entries []ChannelEntry) Channel {
 // |      - rhacs-operator.v<skipped_versions>
 func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, skippedVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
-		Name: generateBundleName(version),
+		Name:    generateBundleName(version),
+		Version: version,
 	}
 	entry.addReplaces(version, previousEntryVersion)
 	entry.addSkipRange(version, previousChannelVersion)

@@ -20,10 +20,12 @@ const (
 	inputFile                       = "bundles.yaml"
 	outputFile                      = "catalog-template.yaml"
 	iconFile                        = "icon.png"
-	channelDeprecationMessage       = "This version is no longer supported. Please switch to the `stable` channel or a channel for a more recent version that is still supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
+	channelDeprecationMessage       = "This version is no longer supported. Switch to the `stable` channel or a channel for a more recent version that is still supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	bundleDeprecationMessage        = "This Operator version is no longer supported. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	versionBrokenMessage            = "This product version has known significant defects and should not be used. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	latestChannelDeprecationMessage = "The `latest` channel is no longer supported. Use the `stable` channel."
+	latestChannelName               = "latest"
+	stableChannelName               = "stable"
 	first3MajorVersion              = "3.62.0"
 	first4MajorVersion              = "4.0.0"
 	resultYamlHeadComment           = `--------------------------------------------------------------------------------
@@ -52,8 +54,14 @@ func generateCatalogTemplateFile() error {
 	if err != nil {
 		return fmt.Errorf("failed to generate package object with icon: %v", err)
 	}
-	channels := generateChannels(versions, skippedVersions)
-	deprecations := generateDeprecations(versions, config.OldestSupportedVersion, config.BrokenVersions)
+	channels := generateChannels(versions)
+	entries := generateChannelEntries(versions, skippedVersions)
+	channels, err = addChannelEntries(channels, entries)
+	if err != nil {
+		return fmt.Errorf("failed to add channel entries: %v", err)
+	}
+
+	deprecations := generateDeprecations(versions, channels, config.OldestSupportedVersion, config.BrokenVersions)
 	bundles := generateBundles(config.Images)
 
 	ct := newCatalogTemplate()
@@ -145,7 +153,7 @@ func generatePackageWithIcon() (Package, error) {
 	packageWithIcon := Package{
 		Schema:         "olm.package",
 		Name:           "rhacs-operator",
-		DefaultChannel: "stable",
+		DefaultChannel: stableChannelName,
 		Icon: Icon{
 			Base64data: iconBase64,
 			MediaType:  "image/png",
@@ -155,71 +163,113 @@ func generatePackageWithIcon() (Package, error) {
 	return packageWithIcon, nil
 }
 
-// generateChannels creates a list of channels based on the provided bundle versions.
-func generateChannels(versions []*semver.Version, skippedVersions []*semver.Version) []Channel {
-	allChannels := make([]Channel, 0)
-	// the list of ChannelEntry for specific major version (4.2 channel contains all <= 4.2.X versions starting from 4.0.0)
-	majorEntries := make([]ChannelEntry, 0)
+func generateChannels(versions []*semver.Version) []Channel {
+	channels := make([]Channel, 0)
+
+	for _, v := range versions {
+		if v.Original() == first4MajorVersion {
+			latestChannel := newLatestChannel(nil)
+			channels = append(channels, latestChannel)
+		}
+		if v.Patch() == 0 {
+			// Create a new channel for each new minor version (patch = 0)
+			channel := newChannel(v, nil)
+			channels = append(channels, *channel)
+		}
+
+	}
+	// Create a stable channel at the end
+	stableChannel := newStableChannel(nil)
+	channels = append(channels, stableChannel)
+
+	return channels
+}
+
+func generateChannelEntries(versions []*semver.Version, skippedVersions []*semver.Version) []ChannelEntry {
+	channelEntries := make([]ChannelEntry, 0)
 	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
 	previousChannelVersion := semver.MustParse("3.61.0")
-	var channel *Channel
 
 	for _, v := range versions {
-		// refresh major channel entries list when new major version is reached
-		if v.Major() != previousEntryVersion.Major() {
-			majorEntries = make([]ChannelEntry, 0)
-		}
-
-		// create a new channel entry for each new minor version (patch = 0)
-		if v.Patch() == 0 {
+		if v.Minor() != previousEntryVersion.Minor() {
 			previousChannelVersion = previousEntryVersion
-			if channel != nil {
-				allChannels = append(allChannels, *channel)
-				// Add "latest" channel when all "3.X.X" version are processed
-				if v.Original() == first4MajorVersion {
-					latestChannel := newLatestChannel(channel.Entries)
-					allChannels = append(allChannels, latestChannel)
-				}
-			}
-			channel = newChannel(v, slices.Clone(majorEntries))
 		}
 
 		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion, skippedVersions)
-		channel.Entries = append(channel.Entries, catalogChannelEntry)
-		majorEntries = append(majorEntries, catalogChannelEntry)
+		channelEntries = append(channelEntries, catalogChannelEntry)
 
 		previousEntryVersion = v
 	}
 
-	// add the last channel entry for the last version processed
-	allChannels = append(allChannels, *channel)
-	// add "stable" channel when the last version is reached
-	stableChannel := newStableChannel(channel.Entries)
-	allChannels = append(allChannels, stableChannel)
+	return channelEntries
+}
 
-	return allChannels
+func addChannelEntries(channels []Channel, channelEntries []ChannelEntry) ([]Channel, error) {
+	updateChannels := make([]Channel, 0, len(channels))
+
+	entriesFrom := 0
+	entriesUntil := 0
+	for _, channel := range channels {
+		if channel.FirstVersion == nil {
+			// skip "stable" and "latest" channels without version
+			continue
+		}
+		// iterate through all channel entries and find the entries that fits for the current channel
+		for entriesUntil < len(channelEntries) &&
+			channelEntries[entriesUntil].Version.Major() <= channel.FirstVersion.Major() &&
+			channelEntries[entriesUntil].Version.Minor() <= channel.FirstVersion.Minor() {
+			// Update the entriesFrom index when the first 4.x.x version is reached to ignore all 3.x.x versions.
+			// There was a decision to not provide an upgrade path from 3.x.x to 4.x.x.
+			// Thus 4.x channels should not contain any entries from 3.x.x versions.
+			// Also add all 3.x.x channel entries to the "latest" channel.
+			if channelEntries[entriesUntil].Version.Equal(semver.MustParse(first4MajorVersion)) {
+				latestChannel, err := addChannelEntriesByName(channels, latestChannelName, channelEntries[entriesFrom:entriesUntil])
+				if err != nil {
+					return nil, fmt.Errorf("failed to add entries to latest channel: %v", err)
+				}
+				updateChannels = append(updateChannels, latestChannel)
+
+				entriesFrom = entriesUntil
+			}
+
+			entriesUntil++
+		}
+
+		channel.Entries = channelEntries[entriesFrom:entriesUntil]
+		updateChannels = append(updateChannels, channel)
+	}
+	stableChannel, err := addChannelEntriesByName(channels, stableChannelName, channelEntries[entriesFrom:entriesUntil])
+	if err != nil {
+		return nil, fmt.Errorf("failed to add entries to stable channel: %v", err)
+	}
+	updateChannels = append(updateChannels, stableChannel)
+
+	return updateChannels, nil
+}
+
+func addChannelEntriesByName(channels []Channel, channelName string, channelEntries []ChannelEntry) (Channel, error) {
+	for _, channel := range channels {
+		if channel.Name == channelName {
+			channel.Entries = append(channel.Entries, channelEntries...)
+			return channel, nil
+		}
+	}
+	return Channel{}, fmt.Errorf("channel with name %s not found", channelName)
 }
 
 // generateDeprecations creates an object with a list of deprecations based on the provided versions.
-func generateDeprecations(versions []*semver.Version, oldestSupportedVersion *semver.Version, brokenVersions map[*semver.Version]bool) Deprecations {
+func generateDeprecations(versions []*semver.Version, channels []Channel, oldestSupportedVersion *semver.Version, brokenVersions map[*semver.Version]bool) Deprecations {
 	var deprecations []DeprecationEntry
-	var channelVersions []*semver.Version
-	for _, v := range versions {
-		// each 0 Patch version indicates a new channel.
-		if v.Patch() == 0 {
-			channelVersions = append(channelVersions, v)
+
+	for _, channel := range channels {
+		if channel.FirstVersion != nil && channel.FirstVersion.LessThan(oldestSupportedVersion) {
+			channelDeprecation := newChannelDeprecationEntry(channel.Name, channelDeprecationMessage)
+			deprecations = append(deprecations, channelDeprecation)
 		}
 	}
 
-	// deprecate all channels that are older than the oldest supported version
-	for _, channelVersion := range channelVersions {
-		if channelVersion.LessThan(oldestSupportedVersion) {
-			channelname := generateChannelName(channelVersion)
-			deprecations = append(deprecations, newChannelDeprecationEntry(channelname, channelDeprecationMessage))
-		}
-	}
-	latestDeprecationEntry := newChannelDeprecationEntry("latest", latestChannelDeprecationMessage)
+	latestDeprecationEntry := newChannelDeprecationEntry(latestChannelName, latestChannelDeprecationMessage)
 	deprecations = append(deprecations, latestDeprecationEntry)
 
 	// deprecate all bundles that are older than the oldest supported version
