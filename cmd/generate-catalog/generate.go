@@ -101,7 +101,7 @@ func readInputFile(filename string) (Configuration, error) {
 	for _, s := range input.BrokenVersions {
 		v, err := semver.NewVersion(s)
 		if err != nil {
-			return Configuration{}, fmt.Errorf("invalid broken_versions %q: %v", s, err)
+			return Configuration{}, fmt.Errorf("invalid item in broken_versions %q: %v", s, err)
 		}
 		brokens[v] = true
 	}
