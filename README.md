@@ -35,7 +35,7 @@ See more in [our docs](https://spaces.redhat.com/display/StackRox/How+to+everyth
    * Check `Life Cycle Dates` table in [Red Hat Advanced Cluster Security for Kubernetes Support Policy](https://access.redhat.com/support/policy/updates/rhacs).
    * Set `oldest_supported_version` to be the oldest Y-Stream version still in support according to that table, including Maintenance Support. Patch number should always be `.0`. For example, if 4.6 is the oldest in support (maintenance phase), set `oldest_supported_version: 4.6.0`.
 4. Run `make catalog-template.yaml`. This step should update `catalog-template.yaml` with the new version.
-5. Update catalogs (follow [updating catalogs steps](#updating-catalogs)).
+5. Update catalogs (follow [updating catalogs steps](#updating-catalogs))
 6. Open a PR with `Add 4.Y.Z version` title.
 
 
