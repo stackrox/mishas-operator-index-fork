@@ -6,3 +6,4 @@ images:
     version: 3.62.0
   - image: example.com/image:v2
     version: 4.0.0
+  
