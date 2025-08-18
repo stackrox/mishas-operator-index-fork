@@ -31,10 +31,12 @@ See more in [our docs](https://spaces.redhat.com/display/StackRox/How+to+everyth
       link in `Brew Build Info` and find the digest of the
       `registry-proxy.engineering.redhat.com/rh-osbs/rhacs-operator-bundle` image. Take that image and replace
       `registry-proxy.engineering.redhat.com` with `brew.registry.redhat.io`.
-3. Update `oldest_supported_version` value if necessary. Older supported version should be equal to the lowest version from the [Red Hat Advanced Cluster Security for Kubernetes Support Policy](https://access.redhat.com/support/policy/updates/rhacs) (scroll to `Maintenance Support` version).
+3. Update `oldest_supported_version` value:
+   * Check `Life Cycle Dates` table in [Red Hat Advanced Cluster Security for Kubernetes Support Policy](https://access.redhat.com/support/policy/updates/rhacs).
+   * Set `oldest_supported_version` to be the oldest Y-Stream version still in support according to that table, including Maintenance Support. Patch number should always be `.0`. For example, if 4.6 is the oldest in support (maintenance phase), set `oldest_supported_version: 4.6.0`.
 4. Run `make catalog-template.yaml`. This step should update `catalog-template.yaml` with the new version.
-5. Update catalogs (follow [updating catalogs steps](#updating-catalogs))
-6. open a PR with `Add 4.Y.Z version` title
+5. Update catalogs (follow [updating catalogs steps](#updating-catalogs)).
+6. Open a PR with `Add 4.Y.Z version` title.
 
 
 
