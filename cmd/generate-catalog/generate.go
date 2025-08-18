@@ -59,7 +59,7 @@ func generateCatalogTemplateFile() error {
 	}
 	channels := generateChannels(versions)
 	entries := generateChannelEntries(versions, skippedVersions)
-	channels, err = addChannelEntries(channels, entries)
+	channels, err = populateChannelEntries(channels, entries)
 	if err != nil {
 		return fmt.Errorf("failed to add channel entries: %v", err)
 	}
@@ -100,7 +100,7 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, fmt.Errorf("invalid oldest_supported_version %q: %v", input.OldestSupportedVersion, err)
 	}
 
-	brokens := make(map[*semver.Version]bool)
+	brokens := make(map[*semver.Version]bool, len(input.BrokenVersions))
 	for _, s := range input.BrokenVersions {
 		v, err := semver.NewVersion(s)
 		if err != nil {
@@ -120,17 +120,18 @@ func readInputFile(filename string) (Configuration, error) {
 			Version: v,
 		})
 	}
+
+	if err := validateImageReferences(images); err != nil {
+		return Configuration{}, err
+	}
+	if err := validateVersionsAreSorted(images); err != nil {
+		return Configuration{}, err
+	}
+
 	config = Configuration{
 		OldestSupportedVersion: oldest,
 		BrokenVersions:         brokens,
 		Images:                 images,
-	}
-
-	if err := validateImages(config.Images); err != nil {
-		return Configuration{}, err
-	}
-	if err := validateVersions(config.Images); err != nil {
-		return Configuration{}, err
 	}
 
 	return config, nil
@@ -171,18 +172,20 @@ func generateChannels(versions []*semver.Version) []Channel {
 
 	for _, v := range versions {
 		if v.Original() == first4MajorVersion {
-			latestChannel := newLatestChannel(nil)
+			latestChannel := newLatestChannel()
 			channels = append(channels, latestChannel)
 		}
 		if v.Patch() == 0 {
-			// Create a new channel for each new minor version (patch = 0)
-			channel := newChannel(v, nil)
-			channels = append(channels, *channel)
+			yStream := makeYStreamVersion(v)
+			if len(channels) == 0 || channels[len(channels)-1].YStreamVersion != yStream {
+				// Create a new channel for each new Y-Stream
+				channel := newChannel(yStream)
+				channels = append(channels, *channel)
+			}
 		}
-
 	}
 	// Create a stable channel at the end
-	stableChannel := newStableChannel(nil)
+	stableChannel := newStableChannel()
 	channels = append(channels, stableChannel)
 
 	return channels
@@ -192,14 +195,14 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions []*semve
 	channelEntries := make([]ChannelEntry, 0)
 	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
-	previousChannelVersion := semver.MustParse("3.61.0")
+	previousYStreamVersion := semver.MustParse("3.61.0")
 
 	for _, v := range versions {
 		if v.Minor() != previousEntryVersion.Minor() {
-			previousChannelVersion = previousEntryVersion
+			previousYStreamVersion = makeYStreamVersion(previousEntryVersion)
 		}
 
-		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousChannelVersion, skippedVersions)
+		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousYStreamVersion, skippedVersions)
 		channelEntries = append(channelEntries, catalogChannelEntry)
 
 		previousEntryVersion = v
@@ -208,57 +211,28 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions []*semve
 	return channelEntries
 }
 
-func addChannelEntries(channels []Channel, channelEntries []ChannelEntry) ([]Channel, error) {
-	updateChannels := make([]Channel, 0, len(channels))
-
-	entriesFrom := 0
-	entriesUntil := 0
-	for _, channel := range channels {
-		if channel.FirstVersion == nil {
-			// skip "stable" and "latest" channels without version
-			continue
-		}
-		// iterate through all channel entries and find the entries that fits for the current channel
-		for entriesUntil < len(channelEntries) &&
-			channelEntries[entriesUntil].Version.Major() <= channel.FirstVersion.Major() &&
-			channelEntries[entriesUntil].Version.Minor() <= channel.FirstVersion.Minor() {
-			// Update the entriesFrom index when the first 4.x.x version is reached to ignore all 3.x.x versions.
-			// There was a decision to not provide an upgrade path from 3.x.x to 4.x.x.
-			// Thus 4.x channels should not contain any entries from 3.x.x versions.
-			// Also add all 3.x.x channel entries to the "latest" channel.
-			if channelEntries[entriesUntil].Version.Equal(semver.MustParse(first4MajorVersion)) {
-				latestChannel, err := addChannelEntriesByName(channels, latestChannelName, channelEntries[entriesFrom:entriesUntil])
-				if err != nil {
-					return nil, fmt.Errorf("failed to add entries to latest channel: %v", err)
-				}
-				updateChannels = append(updateChannels, latestChannel)
-
-				entriesFrom = entriesUntil
-			}
-
-			entriesUntil++
-		}
-
-		channel.Entries = channelEntries[entriesFrom:entriesUntil]
-		updateChannels = append(updateChannels, channel)
-	}
-	stableChannel, err := addChannelEntriesByName(channels, stableChannelName, channelEntries[entriesFrom:entriesUntil])
-	if err != nil {
-		return nil, fmt.Errorf("failed to add entries to stable channel: %v", err)
-	}
-	updateChannels = append(updateChannels, stableChannel)
-
-	return updateChannels, nil
+func makeYStreamVersion(v *semver.Version) *semver.Version {
+	return semver.MustParse(fmt.Sprintf("%d.%d.0", v.Major(), v.Minor()))
 }
 
-func addChannelEntriesByName(channels []Channel, channelName string, channelEntries []ChannelEntry) (Channel, error) {
-	for _, channel := range channels {
-		if channel.Name == channelName {
-			channel.Entries = append(channel.Entries, channelEntries...)
-			return channel, nil
+func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) ([]Channel, error) {
+	for i, channel := range channels {
+		for _, entry := range channelEntries {
+			if channelShouldHaveEntry(channel, entry) {
+				channels[i].Entries = append(channels[i].Entries, entry)
+			}
 		}
 	}
-	return Channel{}, fmt.Errorf("channel with name %s not found", channelName)
+	return channels, nil
+}
+
+func channelShouldHaveEntry(channel Channel, entry ChannelEntry) bool {
+	validForLatest := channel.Name == latestChannelName && entry.Version.Major() < 4
+	validForStable := channel.Name == stableChannelName && entry.Version.Major() >= 4
+	validForChannel := channel.YStreamVersion != nil &&
+		entry.Version.Major() == channel.YStreamVersion.Major() &&
+		entry.Version.Minor() <= channel.YStreamVersion.Minor()
+	return validForLatest || validForStable || validForChannel
 }
 
 // generateDeprecations creates an object with a list of deprecations based on the provided versions.
@@ -266,17 +240,21 @@ func generateDeprecations(versions []*semver.Version, channels []Channel, oldest
 	var deprecations []DeprecationEntry
 
 	for _, channel := range channels {
-		if channel.FirstVersion != nil && channel.FirstVersion.LessThan(oldestSupportedVersion) {
+		if channel.YStreamVersion != nil && channel.YStreamVersion.LessThan(oldestSupportedVersion) {
 			channelDeprecation := newChannelDeprecationEntry(channel.Name, channelDeprecationMessage)
 			deprecations = append(deprecations, channelDeprecation)
 		}
 	}
 
-	latestDeprecationEntry := newChannelDeprecationEntry(latestChannelName, latestChannelDeprecationMessage)
-	deprecations = append(deprecations, latestDeprecationEntry)
+	latestChannelDeprecationEntry := newChannelDeprecationEntry(latestChannelName, latestChannelDeprecationMessage)
+	deprecations = append(deprecations, latestChannelDeprecationEntry)
 
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
+		if brokenVersions[v] {
+			deprecations = append(deprecations, newBundleDeprecationEntry(v, versionBrokenMessage))
+			continue
+		}
 		if v.LessThan(oldestSupportedVersion) {
 			deprecationMessage := bundleDeprecationMessage
 			if brokenVersions[v] {
@@ -316,17 +294,11 @@ func writeToFile(filename string, ct CatalogTemplate) error {
 	return nil
 }
 
-// validateVersions checks that the operator versions are sorted in ascending order and that there are no duplicates.
-func validateVersions(images []BundleImage) error {
+// validateVersionsAreSorted checks that the operator versions are sorted in ascending order and that there are no duplicates.
+func validateVersionsAreSorted(images []BundleImage) error {
 	for i := 0; i < len(images)-1; i++ {
 		version := images[i].Version
 		nextVersion := images[i+1].Version
-		if version == nil {
-			return fmt.Errorf("version is not set for image %s", images[i].Image)
-		}
-		if nextVersion == nil {
-			return fmt.Errorf("version is not set for image %s", images[i+1].Image)
-		}
 		if version.GreaterThanEqual(nextVersion) {
 			return fmt.Errorf("operator versions are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
 		}
@@ -334,8 +306,8 @@ func validateVersions(images []BundleImage) error {
 	return nil
 }
 
-// validateImages checks that all images in the input bundle have valid container image references with a digest.
-func validateImages(images []BundleImage) error {
+// validateImageReferences checks that all images in the input bundle have valid container image references with a digest.
+func validateImageReferences(images []BundleImage) error {
 	for _, img := range images {
 		if err := validateImageReference(img.Image); err != nil {
 			return fmt.Errorf("invalid image reference %q: %w", img.Image, err)

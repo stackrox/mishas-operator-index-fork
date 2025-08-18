@@ -67,11 +67,11 @@ type Icon struct {
 }
 
 type Channel struct {
-	Schema       string          `yaml:"schema"`
-	Name         string          `yaml:"name"`
-	Package      string          `yaml:"package"`
-	Entries      []ChannelEntry  `yaml:"entries"`
-	FirstVersion *semver.Version `yaml:"-"`
+	Schema         string          `yaml:"schema"`
+	Name           string          `yaml:"name"`
+	Package        string          `yaml:"package"`
+	Entries        []ChannelEntry  `yaml:"entries"`
+	YStreamVersion *semver.Version `yaml:"-"`
 }
 
 type ChannelEntry struct {
@@ -142,35 +142,32 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 // |    package: rhacs-operator
 // |    entries:
 // |      - <ChannelEntry>
-func newChannel(version *semver.Version, entries []ChannelEntry) *Channel {
+func newChannel(version *semver.Version) *Channel {
 	return &Channel{
-		Schema:       "olm.channel",
-		Name:         generateChannelName(version),
-		Package:      "rhacs-operator",
-		Entries:      entries,
-		FirstVersion: version,
+		Schema:         "olm.channel",
+		Name:           fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
+		Package:        "rhacs-operator",
+		YStreamVersion: makeYStreamVersion(version),
 	}
 }
 
 // Create a special "olm.channel" object with name "latest".
 // It is a deprecated channel which was used before 4.x.x version.
-func newLatestChannel(entries []ChannelEntry) Channel {
+func newLatestChannel() Channel {
 	return Channel{
 		Schema:  "olm.channel",
 		Name:    latestChannelName,
 		Package: "rhacs-operator",
-		Entries: entries,
 	}
 }
 
 // Create a special "olm.channel" object with name "stable".
 // It is a default channel for all versions after 4.x.x.
-func newStableChannel(entries []ChannelEntry) Channel {
+func newStableChannel() Channel {
 	return Channel{
 		Schema:  "olm.channel",
 		Name:    stableChannelName,
 		Package: "rhacs-operator",
-		Entries: entries,
 	}
 }
 
@@ -271,10 +268,6 @@ func newBundleEntry(image string) BundleEntry {
 		Schema: "olm.bundle",
 		Image:  image,
 	}
-}
-
-func generateChannelName(version *semver.Version) string {
-	return fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor())
 }
 
 func generateBundleName(version *semver.Version) string {

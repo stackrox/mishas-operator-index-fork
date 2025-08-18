@@ -29,15 +29,22 @@ var (
 	entry4101 = newChannelEntry(v4101, v4100, v4000, []*semver.Version{v4001})
 	entry4200 = newChannelEntry(v4200, v4101, v4100, []*semver.Version{v4001})
 
-	channel36     = newChannel(v3620, []ChannelEntry{entry3620, entry3621})
-	latestChannel = newLatestChannel([]ChannelEntry{entry3620, entry3621})
-	channel40     = newChannel(v4000, []ChannelEntry{entry4000, entry4001, entry4002})
-	channel41     = newChannel(v4100, []ChannelEntry{entry4000, entry4001, entry4002, entry4100, entry4101})
-	channel42     = newChannel(v4200, []ChannelEntry{entry4000, entry4001, entry4002, entry4100, entry4101, entry4200})
-	stableChannel = newStableChannel([]ChannelEntry{entry4000, entry4001, entry4002, entry4100, entry4101, entry4200})
+	channel36     = newChannel(v3620)
+	latestChannel = newLatestChannel()
+	channel40     = newChannel(v4000)
+	channel41     = newChannel(v4100)
+	channel42     = newChannel(v4200)
+	stableChannel = newStableChannel()
 )
 
 func TestGenerateChannels(t *testing.T) {
+	channel36.Entries = append(channel36.Entries, entry3620, entry3621)
+	latestChannel.Entries = append(latestChannel.Entries, entry3620, entry3621)
+	channel40.Entries = append(channel40.Entries, entry4000, entry4001, entry4002)
+	channel41.Entries = append(channel41.Entries, entry4000, entry4001, entry4002, entry4100, entry4101)
+	channel42.Entries = append(channel42.Entries, entry4000, entry4001, entry4002, entry4100, entry4101, entry4200)
+	stableChannel.Entries = append(stableChannel.Entries, entry4000, entry4001, entry4002, entry4100, entry4101, entry4200)
+
 	tests := []struct {
 		name             string
 		versions         []*semver.Version
@@ -50,8 +57,8 @@ func TestGenerateChannels(t *testing.T) {
 				v3621,
 			},
 			expectedChannels: []Channel{
-				*newChannel(v3620, nil),
-				newStableChannel(nil),
+				*newChannel(v3620),
+				newStableChannel(),
 			},
 		},
 		{
@@ -63,17 +70,17 @@ func TestGenerateChannels(t *testing.T) {
 				v4001,
 			},
 			expectedChannels: []Channel{
-				*newChannel(v3620, nil),
-				newLatestChannel(nil),
-				*newChannel(v4000, nil),
-				newStableChannel(nil),
+				*newChannel(v3620),
+				newLatestChannel(),
+				*newChannel(v4000),
+				newStableChannel(),
 			},
 		},
 		{
 			name:     "Only stable channel with no versions",
 			versions: []*semver.Version{},
 			expectedChannels: []Channel{
-				newStableChannel(nil),
+				newStableChannel(),
 			},
 		},
 		{
@@ -82,9 +89,9 @@ func TestGenerateChannels(t *testing.T) {
 				v4000,
 			},
 			expectedChannels: []Channel{
-				newLatestChannel(nil),
-				*newChannel(v4000, nil),
-				newStableChannel(nil),
+				newLatestChannel(),
+				*newChannel(v4000),
+				newStableChannel(),
 			},
 		},
 	}
@@ -137,7 +144,7 @@ func TestReadInputFile(t *testing.T) {
 		{
 			name:          "Invalid broken_versions",
 			filePath:      "testdata/invalid_broken_versions.yaml",
-			expectedError: "invalid broken_versions",
+			expectedError: "invalid item in broken_versions",
 		},
 		{
 			name:          "Invalid image version",
