@@ -94,14 +94,14 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, fmt.Errorf("failed to unmarshal YAML: %v", err)
 	}
 
-	oldest, err := semver.NewVersion(input.OldestSupportedVersion)
+	oldest, err := semver.StrictNewVersion(input.OldestSupportedVersion)
 	if err != nil {
 		return Configuration{}, fmt.Errorf("invalid oldest_supported_version %q: %v", input.OldestSupportedVersion, err)
 	}
 
 	brokens := make(map[*semver.Version]bool, len(input.BrokenVersions))
 	for _, s := range input.BrokenVersions {
-		v, err := semver.NewVersion(s)
+		v, err := semver.StrictNewVersion(s)
 		if err != nil {
 			return Configuration{}, fmt.Errorf("invalid item in broken_versions %q: %v", s, err)
 		}
@@ -110,7 +110,7 @@ func readInputFile(filename string) (Configuration, error) {
 
 	var images []BundleImage
 	for _, img := range input.Images {
-		v, err := semver.NewVersion(img.Version)
+		v, err := semver.StrictNewVersion(img.Version)
 		if err != nil {
 			return Configuration{}, fmt.Errorf("invalid version %q for image %q: %v", img.Version, img.Image, err)
 		}
@@ -233,15 +233,15 @@ func channelShouldHaveEntry(channel Channel, entry ChannelEntry) bool {
 func generateDeprecations(versions []*semver.Version, channels []Channel, oldestSupportedVersion *semver.Version, brokenVersions map[*semver.Version]bool) Deprecations {
 	var deprecations []DeprecationEntry
 
+	latestChannelDeprecationEntry := newChannelDeprecationEntry(latestChannelName, latestChannelDeprecationMessage)
+	deprecations = append(deprecations, latestChannelDeprecationEntry)
+
 	for _, channel := range channels {
 		if channel.YStreamVersion != nil && channel.YStreamVersion.LessThan(oldestSupportedVersion) {
 			channelDeprecation := newChannelDeprecationEntry(channel.Name, channelDeprecationMessage)
 			deprecations = append(deprecations, channelDeprecation)
 		}
 	}
-
-	latestChannelDeprecationEntry := newChannelDeprecationEntry(latestChannelName, latestChannelDeprecationMessage)
-	deprecations = append(deprecations, latestChannelDeprecationEntry)
 
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {

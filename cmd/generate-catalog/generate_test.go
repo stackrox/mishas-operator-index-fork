@@ -156,6 +156,21 @@ func TestReadInputFile(t *testing.T) {
 			filePath:      "testdata/image_without_digest.yaml",
 			expectedError: "image reference does not include a digest",
 		},
+		{
+			name:          "Image reference is not a strict semantic version",
+			filePath:      "testdata/not_strict_image_version.yaml",
+			expectedError: "invalid semantic version",
+		},
+		{
+			name:          "oldest_supported_version is not a strict semantic version",
+			filePath:      "testdata/not_strict_oldest_supported_version.yaml",
+			expectedError: "invalid semantic version",
+		},
+		{
+			name:          "broken_versions is not a strict semantic version",
+			filePath:      "testdata/not_strict_broken_versions.yaml",
+			expectedError: "invalid semantic version",
+		},
 	}
 
 	for _, tt := range tests {

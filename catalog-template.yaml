@@ -2328,6 +2328,10 @@ entries:
   entries:
   - reference:
       schema: olm.channel
+      name: latest
+    message: The `latest` channel is no longer supported. Use the `stable` channel.
+  - reference:
+      schema: olm.channel
       name: rhacs-3.62
     message: "This version is no longer supported. Switch to the `stable` channel or a channel for a more recent version that is still supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
   - reference:
@@ -2402,10 +2406,6 @@ entries:
       schema: olm.channel
       name: rhacs-4.5
     message: "This version is no longer supported. Switch to the `stable` channel or a channel for a more recent version that is still supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
-  - reference:
-      schema: olm.channel
-      name: latest
-    message: The `latest` channel is no longer supported. Use the `stable` channel.
   - reference:
       schema: olm.bundle
       name: rhacs-operator.v3.62.0

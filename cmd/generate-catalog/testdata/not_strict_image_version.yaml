@@ -1,0 +1,5 @@
+oldest_supported_version: 3.62.0
+broken_versions: []
+images:
+  - image: "example.com/image:v3.62.0"
+    version: 4.1
