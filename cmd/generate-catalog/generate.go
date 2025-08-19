@@ -171,6 +171,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 	channels := make([]Channel, 0)
 
 	for _, v := range versions {
+		// latest channel is historically placed between rhacs-3.y and rhacs-4.y channels.
 		if v.Original() == first4MajorVersion {
 			latestChannel := newLatestChannel()
 			channels = append(channels, latestChannel)
@@ -195,7 +196,7 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions []*semve
 	channelEntries := make([]ChannelEntry, 0)
 	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
 	previousEntryVersion := semver.MustParse("3.61.0")
-	previousYStreamVersion := semver.MustParse("3.61.0")
+	var previousYStreamVersion *semver.Version
 
 	for _, v := range versions {
 		if v.Minor() != previousEntryVersion.Minor() {
@@ -251,16 +252,15 @@ func generateDeprecations(versions []*semver.Version, channels []Channel, oldest
 
 	// deprecate all bundles that are older than the oldest supported version
 	for _, v := range versions {
-		if brokenVersions[v] {
-			deprecations = append(deprecations, newBundleDeprecationEntry(v, versionBrokenMessage))
-			continue
-		}
+		msg := ""
 		if v.LessThan(oldestSupportedVersion) {
-			deprecationMessage := bundleDeprecationMessage
-			if brokenVersions[v] {
-				deprecationMessage = versionBrokenMessage
-			}
-			deprecations = append(deprecations, newBundleDeprecationEntry(v, deprecationMessage))
+			msg = bundleDeprecationMessage
+		}
+		if brokenVersions[v] {
+			msg = versionBrokenMessage
+		}
+		if msg != "" {
+			deprecations = append(deprecations, newBundleDeprecationEntry(v, msg))
 		}
 	}
 
@@ -300,7 +300,7 @@ func validateVersionsAreSorted(images []BundleImage) error {
 		version := images[i].Version
 		nextVersion := images[i+1].Version
 		if version.GreaterThanEqual(nextVersion) {
-			return fmt.Errorf("operator versions are not sorted in ascending order: %s > %s", version.Original(), nextVersion.Original())
+			return fmt.Errorf("operator versions are not sorted in ascending order: %s is not less than %s", version.Original(), nextVersion.Original())
 		}
 	}
 	return nil
