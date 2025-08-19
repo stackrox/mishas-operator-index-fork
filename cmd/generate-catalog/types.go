@@ -142,8 +142,8 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 // |    package: rhacs-operator
 // |    entries:
 // |      - <ChannelEntry>
-func newChannel(version *semver.Version) *Channel {
-	return &Channel{
+func newChannel(version *semver.Version) Channel {
+	return Channel{
 		Schema:         "olm.channel",
 		Name:           fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
 		Package:        "rhacs-operator",
@@ -175,16 +175,16 @@ func newStableChannel() Channel {
 // it will be represented in YAML like this:
 // |  - name: rhacs-operator.v<version>
 // |    replaces: rhacs-operator.v<previousEntryVersion>
-// |    skipRange: '>= <previousChannelVersion> < <version>'
+// |    skipRange: '>= <previousYStreamVersion> < <version>'
 // |    skips:
-// |      - rhacs-operator.v<skipped_versions>
-func newChannelEntry(version, previousEntryVersion, previousChannelVersion *semver.Version, skippedVersions []*semver.Version) ChannelEntry {
+// |      - rhacs-operator.v<skippedVersions>
+func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semver.Version, skippedVersions []*semver.Version) ChannelEntry {
 	entry := ChannelEntry{
 		Name:    generateBundleName(version),
 		Version: version,
 	}
 	entry.addReplaces(version, previousEntryVersion)
-	entry.addSkipRange(version, previousChannelVersion)
+	entry.addSkipRange(version, previousYStreamVersion)
 	entry.addSkips(version, skippedVersions)
 	return entry
 }
@@ -195,8 +195,8 @@ func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version
 	}
 }
 
-func (e *ChannelEntry) addSkipRange(version, previousChannelVersion *semver.Version) {
-	skipRangeFrom := fmt.Sprintf("%d.%d.0", previousChannelVersion.Major(), previousChannelVersion.Minor())
+func (e *ChannelEntry) addSkipRange(version, previousYStreamVersion *semver.Version) {
+	skipRangeFrom := previousYStreamVersion.String()
 	skipRangeTo := version.Original()
 	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeFrom, skipRangeTo)
 }
@@ -272,4 +272,8 @@ func newBundleEntry(image string) BundleEntry {
 
 func generateBundleName(version *semver.Version) string {
 	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
+}
+
+func makeYStreamVersion(v *semver.Version) *semver.Version {
+	return semver.New(v.Major(), v.Minor(), 0, "", "")
 }

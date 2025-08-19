@@ -94,7 +94,6 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, fmt.Errorf("failed to unmarshal YAML: %v", err)
 	}
 
-	var config Configuration
 	oldest, err := semver.NewVersion(input.OldestSupportedVersion)
 	if err != nil {
 		return Configuration{}, fmt.Errorf("invalid oldest_supported_version %q: %v", input.OldestSupportedVersion, err)
@@ -128,13 +127,11 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, err
 	}
 
-	config = Configuration{
+	return Configuration{
 		OldestSupportedVersion: oldest,
 		BrokenVersions:         brokens,
 		Images:                 images,
-	}
-
-	return config, nil
+	}, nil
 }
 
 // getAllVersions extracts all operator versions from the input images.
@@ -181,7 +178,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 			if len(channels) == 0 || channels[len(channels)-1].YStreamVersion != yStream {
 				// Create a new channel for each new Y-Stream
 				channel := newChannel(yStream)
-				channels = append(channels, *channel)
+				channels = append(channels, channel)
 			}
 		}
 	}
@@ -210,10 +207,6 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions []*semve
 	}
 
 	return channelEntries
-}
-
-func makeYStreamVersion(v *semver.Version) *semver.Version {
-	return semver.MustParse(fmt.Sprintf("%d.%d.0", v.Major(), v.Minor()))
 }
 
 func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) ([]Channel, error) {

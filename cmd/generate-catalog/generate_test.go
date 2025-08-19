@@ -57,7 +57,7 @@ func TestGenerateChannels(t *testing.T) {
 				v3621,
 			},
 			expectedChannels: []Channel{
-				*newChannel(v3620),
+				newChannel(v3620),
 				newStableChannel(),
 			},
 		},
@@ -70,9 +70,9 @@ func TestGenerateChannels(t *testing.T) {
 				v4001,
 			},
 			expectedChannels: []Channel{
-				*newChannel(v3620),
+				newChannel(v3620),
 				newLatestChannel(),
-				*newChannel(v4000),
+				newChannel(v4000),
 				newStableChannel(),
 			},
 		},
@@ -90,7 +90,7 @@ func TestGenerateChannels(t *testing.T) {
 			},
 			expectedChannels: []Channel{
 				newLatestChannel(),
-				*newChannel(v4000),
+				newChannel(v4000),
 				newStableChannel(),
 			},
 		},
