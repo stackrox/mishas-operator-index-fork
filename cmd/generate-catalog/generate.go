@@ -173,13 +173,11 @@ func generateChannels(versions []*semver.Version) []Channel {
 			latestChannel := newLatestChannel()
 			channels = append(channels, latestChannel)
 		}
-		if v.Patch() == 0 {
-			yStream := makeYStreamVersion(v)
-			if len(channels) == 0 || channels[len(channels)-1].YStreamVersion != yStream {
-				// Create a new channel for each new Y-Stream
-				channel := newChannel(yStream)
-				channels = append(channels, channel)
-			}
+		yStream := makeYStreamVersion(v)
+		if len(channels) == 0 || !channels[len(channels)-1].YStreamVersion.Equal(yStream) {
+			// Create a new channel for each new Y-Stream
+			channel := newChannel(yStream)
+			channels = append(channels, channel)
 		}
 	}
 	// Create a stable channel at the end
