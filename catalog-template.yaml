@@ -613,10 +613,14 @@ entries:
     name: rhacs-operator.v4.7.5
     replaces: rhacs-operator.v4.7.4
     skipRange: '>= 4.6.0 < 4.7.5'
+  - &bundle-4-7-6
+    name: rhacs-operator.v4.7.6
+    replaces: rhacs-operator.v4.7.5
+    skipRange: '>= 4.6.0 < 4.7.6'
 
   - &bundle-4-8-0
     name: rhacs-operator.v4.8.0
-    replaces: rhacs-operator.v4.7.5
+    replaces: rhacs-operator.v4.7.6
     skipRange: '>= 4.7.0 < 4.8.0'
   - &bundle-4-8-1
     name: rhacs-operator.v4.8.1
@@ -962,6 +966,7 @@ entries:
   - *bundle-4-7-3
   - *bundle-4-7-4
   - *bundle-4-7-5
+  - *bundle-4-7-6
 
 - schema: olm.channel
   name: rhacs-4.8
@@ -1036,6 +1041,7 @@ entries:
   - *bundle-4-7-3
   - *bundle-4-7-4
   - *bundle-4-7-5
+  - *bundle-4-7-6
 
   - *bundle-4-8-0
   - *bundle-4-8-1
@@ -1343,6 +1349,9 @@ entries:
 - schema: olm.bundle
   # 4.7.5
   image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:208b2b32acdcd58ff3702421c2a303fb2f237f320ec53d5428d280a677211484
+- schema: olm.bundle
+  # 4.7.6
+  image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:3b99056ad9f5f53c75eff0e70c07cf3892c3867fe36c59138468b645f24547f2
 - schema: olm.bundle
   # 4.8.0
   image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:59c16145f8691120ba7af1448ca7a3bd8c4e5a0cb912bcf7a6a10779dc2919be
