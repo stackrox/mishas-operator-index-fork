@@ -24,7 +24,7 @@ spec:
     - use
     - $(params.SOURCE_ARTIFACT)=/var/workdir/source
   - name: check-bundle-images-in-catalog-template
-    image: quay.io/konflux-ci/release-service-utils:latest@sha256:ef382d9ef1757f6822ac4940d1cb1a1399c13d668b4bcfac578dfb78cd10f252
+    image: quay.io/konflux-ci/release-service-utils:latest@sha256:7d377ae3f9da3c7d5323d817546a88e8531994166b6987bff2d2f7d85bd5e1c9
     workingDir: /var/workdir/source
     script: |
       #!/usr/bin/env bash
