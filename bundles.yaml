@@ -208,6 +208,8 @@ images:
     version : 4.6.7
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:adb6c303305804dc46759f6561971c5bf484c76c773997237dae9b902d08d982
     version : 4.6.8
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:eee21ee829be000db4a804aa7d0dded1a42767c37f56ac6ef4b4df6d9ab026f2
+    version : 4.6.9
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:6937beffd348474d4d9b06f14fabfeb74efb69cf7bc60e6e12eb5b45b03014d5
     version : 4.7.0
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:e23398e5f761b4a2fb94ec91b7f009e4e6abf09ec511dbf30468142e742d311d
@@ -220,6 +222,8 @@ images:
     version : 4.7.4
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:208b2b32acdcd58ff3702421c2a303fb2f237f320ec53d5428d280a677211484
     version : 4.7.5
+  - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:3b99056ad9f5f53c75eff0e70c07cf3892c3867fe36c59138468b645f24547f2
+    version : 4.7.6
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:59c16145f8691120ba7af1448ca7a3bd8c4e5a0cb912bcf7a6a10779dc2919be
     version : 4.8.0
   - image: registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle@sha256:272e3d6e2f7f207b3d3866d8be00715e6a6086d50b110c45662d99d217d48dbc
