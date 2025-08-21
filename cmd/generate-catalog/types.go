@@ -203,9 +203,9 @@ func (e *ChannelEntry) addSkipRange(version, previousYStreamVersion *semver.Vers
 }
 
 func (e *ChannelEntry) addSkips(version *semver.Version, skippedVersions map[*semver.Version]bool) {
-	for skippedVersion, _ := range skippedVersions {
-		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
-		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", skippedVersion.Major(), skippedVersion.Minor()+2))
+	for skippedVersion := range skippedVersions {
+		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+brokenVersionSkippingOffset.0
+		skipsUntilVersion := semver.New(skippedVersion.Major(), skippedVersion.Minor()+brokenVersionSkippingOffset, 0, "", "")
 		if version.GreaterThan(skippedVersion) && version.LessThan(skipsUntilVersion) {
 			e.Skips = append(e.Skips, generateBundleName(skippedVersion))
 		}

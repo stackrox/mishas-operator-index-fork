@@ -27,6 +27,7 @@ const (
 	stableChannelName               = "stable"
 	first3MajorVersion              = "3.62.0"
 	first4MajorVersion              = "4.0.0"
+	brokenVersionSkippingOffset     = 2 // The number of versions to skip in the `skips` field of the channel entry for broken versions.
 )
 
 var headComment = []string{
