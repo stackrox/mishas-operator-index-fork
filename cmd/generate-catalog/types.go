@@ -72,7 +72,7 @@ type Channel struct {
 	Name           string          `yaml:"name"`
 	Package        string          `yaml:"package"`
 	Entries        []ChannelEntry  `yaml:"entries"`
-	YStreamVersion *semver.Version `yaml:"-"`
+	yStreamVersion *semver.Version `yaml:"-"`
 }
 
 type ChannelEntry struct {
@@ -80,7 +80,7 @@ type ChannelEntry struct {
 	Replaces  string          `yaml:"replaces,omitempty"`
 	SkipRange string          `yaml:"skipRange"`
 	Skips     []string        `yaml:"skips,omitempty"`
-	Version   *semver.Version `yaml:"-"`
+	version   *semver.Version `yaml:"-"`
 }
 
 type Deprecations struct {
@@ -112,7 +112,7 @@ func newCatalogTemplate() CatalogTemplate {
 	}
 }
 
-// addPackage adds a "olm.package" object to the base catalog.
+// addPackage adds an "olm.package" object to the base catalog.
 func (c *CatalogTemplate) addPackage(pkg Package) {
 	c.Entries = append(c.Entries, CatalogEntry(pkg))
 }
@@ -124,7 +124,7 @@ func (c *CatalogTemplate) addChannels(channels []Channel) {
 	}
 }
 
-// addDeprecations adds a "olm.deprecations" object to the base catalog.
+// addDeprecations adds an "olm.deprecations" object to the base catalog.
 func (c *CatalogTemplate) addDeprecations(deprecations Deprecations) {
 	c.Entries = append(c.Entries, CatalogEntry(deprecations))
 }
@@ -136,7 +136,7 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 	}
 }
 
-// Create a new "olm.channel" object which should be added to the catalog base.
+// Create a new "olm.channel" object.
 // it will be represented in YAML like this:
 // |  - schema: olm.channel
 // |    name: rhacs-3.64
@@ -152,8 +152,8 @@ func newChannel(version *semver.Version) Channel {
 	}
 }
 
-// Create a special "olm.channel" object with name "latest".
-// It is a deprecated channel which was used before 4.x.x version.
+// Create a special "olm.channel" object with the name "latest".
+// It is a now-deprecated channel which was used before "stable" was introduced.
 func newLatestChannel() Channel {
 	return Channel{
 		Schema:  "olm.channel",
@@ -162,8 +162,8 @@ func newLatestChannel() Channel {
 	}
 }
 
-// Create a special "olm.channel" object with name "stable".
-// It is a default channel for all versions after 4.x.x.
+// Create a special "olm.channel" object with the name "stable".
+// It is a default channel for all versions after 4.0.0.
 func newStableChannel() Channel {
 	return Channel{
 		Schema:  "olm.channel",
@@ -172,7 +172,8 @@ func newStableChannel() Channel {
 	}
 }
 
-// Create a new Chanel entry object which should be added to Channel entries list.
+// newChannelEntry creates an object to be added to Channel entries list.
+// Channel entries effectively form the upgrade graph within the channel telling OLM from which versions it's allowed to upgrade to a particular one.
 // it will be represented in YAML like this:
 // |  - name: rhacs-operator.v<version>
 // |    replaces: rhacs-operator.v<previousEntryVersion>

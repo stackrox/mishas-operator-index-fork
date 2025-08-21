@@ -81,7 +81,7 @@ func generateCatalogTemplateFile() error {
 	return nil
 }
 
-// readInputFile unmarshals YAML file onto Configuration structure.
+// readInputFile reads YAML file into Configuration structure.
 func readInputFile(filename string) (Configuration, error) {
 	inputBytes, err := os.ReadFile(filename)
 	if err != nil {
@@ -153,7 +153,7 @@ func generatePackageWithIcon() (Package, error) {
 	}
 	iconBase64 := base64.StdEncoding.EncodeToString(data)
 
-	packageWithIcon := Package{
+	return Package{
 		Schema:         "olm.package",
 		Name:           "rhacs-operator",
 		DefaultChannel: stableChannelName,
@@ -161,9 +161,7 @@ func generatePackageWithIcon() (Package, error) {
 			Base64data: iconBase64,
 			MediaType:  "image/png",
 		},
-	}
-
-	return packageWithIcon, nil
+	}, nil
 }
 
 func generateChannels(versions []*semver.Version) []Channel {
@@ -176,7 +174,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 			channels = append(channels, latestChannel)
 		}
 		yStream := makeYStreamVersion(v)
-		if len(channels) == 0 || !channels[len(channels)-1].YStreamVersion.Equal(yStream) {
+		if len(channels) == 0 || !yStream.Equal(channels[len(channels)-1].YStreamVersion) {
 			// Create a new channel for each new Y-Stream
 			channel := newChannel(yStream)
 			channels = append(channels, channel)
@@ -200,8 +198,8 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions map[*sem
 			previousYStreamVersion = makeYStreamVersion(previousEntryVersion)
 		}
 
-		catalogChannelEntry := newChannelEntry(v, previousEntryVersion, previousYStreamVersion, skippedVersions)
-		channelEntries = append(channelEntries, catalogChannelEntry)
+		e := newChannelEntry(v, previousEntryVersion, previousYStreamVersion, skippedVersions)
+		channelEntries = append(channelEntries, e)
 
 		previousEntryVersion = v
 	}
@@ -209,7 +207,7 @@ func generateChannelEntries(versions []*semver.Version, skippedVersions map[*sem
 	return channelEntries
 }
 
-func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) ([]Channel, error) {
+func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) {
 	for i, channel := range channels {
 		for _, entry := range channelEntries {
 			if channelShouldHaveEntry(channel, entry) {
@@ -271,14 +269,14 @@ func generateBundles(images []BundleImage) []BundleEntry {
 
 // writeToFile writes the resulting catalog template to the output YAML file.
 func writeToFile(filename string, ct CatalogTemplate) error {
-	headComment := yaml.HeadComment(headComment...)
+	comment := yaml.HeadComment(headComment...)
 	comments := yaml.CommentMap{
-		"$": []*yaml.Comment{headComment}, // "$" means top-level comment
+		"$": []*yaml.Comment{comment}, // "$" means top-level comment
 	}
 
 	out, err := yaml.MarshalWithOptions(ct, yaml.WithComment(comments))
 	if err != nil {
-		return fmt.Errorf("failed to marshal catalog: %v", err)
+		return fmt.Errorf("failed to marshal catalog template: %v", err)
 	}
 	if err := os.WriteFile(filename, out, 0644); err != nil {
 		return fmt.Errorf("failed to write output: %v", err)
@@ -339,7 +337,7 @@ func validateBrokenVersions(brokenVersions map[*semver.Version]bool, versions []
 func validateImageReferences(images []BundleImage) error {
 	for _, img := range images {
 		if err := validateImageReference(img.Image); err != nil {
-			return fmt.Errorf("invalid image reference %q: %w", img.Image, err)
+			return err
 		}
 	}
 	return nil
@@ -350,10 +348,10 @@ func validateImageReference(image string) error {
 	// validate the image reference using the distribution/reference package
 	ref, err := reference.Parse(image)
 	if err != nil {
-		return fmt.Errorf("cannot parse string as docker image %s: %w", image, err)
+		return fmt.Errorf("cannot parse string as container image reference %s: %w", image, err)
 	}
 	if _, ok := ref.(reference.Canonical); !ok {
-		return fmt.Errorf("image reference does not include a digest")
+		return fmt.Errorf("image reference %s does not include a digest", image)
 	}
 	return nil
 }
