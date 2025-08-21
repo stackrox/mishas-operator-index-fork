@@ -57,10 +57,7 @@ func generateCatalogTemplateFile() error {
 	}
 	channels := generateChannels(config.Versions)
 	entries := generateChannelEntries(config.Versions, config.BrokenVersions)
-	channels, err = populateChannelEntries(channels, entries)
-	if err != nil {
-		return fmt.Errorf("failed to add channel entries: %v", err)
-	}
+	populateChannelEntries(channels, entries)
 
 	deprecations := generateDeprecations(config.Versions, channels, config.OldestSupportedVersion, config.BrokenVersions)
 	bundles := generateBundles(config.Images)
@@ -174,7 +171,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 			channels = append(channels, latestChannel)
 		}
 		yStream := makeYStreamVersion(v)
-		if len(channels) == 0 || !yStream.Equal(channels[len(channels)-1].YStreamVersion) {
+		if len(channels) == 0 || !yStream.Equal(channels[len(channels)-1].yStreamVersion) {
 			// Create a new channel for each new Y-Stream
 			channel := newChannel(yStream)
 			channels = append(channels, channel)
@@ -215,15 +212,14 @@ func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) {
 			}
 		}
 	}
-	return channels, nil
 }
 
 func channelShouldHaveEntry(channel Channel, entry ChannelEntry) bool {
-	validForLatest := channel.Name == latestChannelName && entry.Version.Major() < 4
-	validForStable := channel.Name == stableChannelName && entry.Version.Major() >= 4
-	validForChannel := channel.YStreamVersion != nil &&
-		entry.Version.Major() == channel.YStreamVersion.Major() &&
-		entry.Version.Minor() <= channel.YStreamVersion.Minor()
+	validForLatest := channel.Name == latestChannelName && entry.version.Major() < 4
+	validForStable := channel.Name == stableChannelName && entry.version.Major() >= 4
+	validForChannel := channel.yStreamVersion != nil &&
+		entry.version.Major() == channel.yStreamVersion.Major() &&
+		entry.version.Minor() <= channel.yStreamVersion.Minor()
 	return validForLatest || validForStable || validForChannel
 }
 
@@ -235,7 +231,7 @@ func generateDeprecations(versions []*semver.Version, channels []Channel, oldest
 	deprecations = append(deprecations, latestChannelDeprecationEntry)
 
 	for _, channel := range channels {
-		if channel.YStreamVersion != nil && channel.YStreamVersion.LessThan(oldestSupportedVersion) {
+		if channel.yStreamVersion != nil && channel.yStreamVersion.LessThan(oldestSupportedVersion) {
 			channelDeprecation := newChannelDeprecationEntry(channel.Name, channelDeprecationMessage)
 			deprecations = append(deprecations, channelDeprecation)
 		}

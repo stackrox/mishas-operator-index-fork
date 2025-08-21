@@ -148,7 +148,7 @@ func newChannel(version *semver.Version) Channel {
 		Schema:         "olm.channel",
 		Name:           fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
 		Package:        "rhacs-operator",
-		YStreamVersion: makeYStreamVersion(version),
+		yStreamVersion: makeYStreamVersion(version),
 	}
 }
 
@@ -183,7 +183,7 @@ func newStableChannel() Channel {
 func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semver.Version, skippedVersions map[*semver.Version]bool) ChannelEntry {
 	entry := ChannelEntry{
 		Name:    generateBundleName(version),
-		Version: version,
+		version: version,
 	}
 	entry.addReplaces(version, previousEntryVersion)
 	entry.addSkipRange(version, previousYStreamVersion)
