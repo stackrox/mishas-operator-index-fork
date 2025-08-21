@@ -4,7 +4,6 @@ import (
 	// needed for digest algorithm validation
 	_ "crypto/sha256"
 
-	"encoding/base64"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +22,12 @@ const (
 	bundleDeprecationMessage        = "This Operator version is no longer supported. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	versionBrokenMessage            = "This product version has known significant defects and should not be used. Use a more recent version that is supported. Find supported versions in the RHACS support policy document: https://access.redhat.com/support/policy/updates/rhacs"
 	latestChannelDeprecationMessage = "The `latest` channel is no longer supported. Use the `stable` channel."
+	rhacsOperator                   = "rhacs-operator"
+	olmTemplateSchema               = "olm.template.basic"
+	olmPackageSchema                = "olm.package"
+	olmChannelSchema                = "olm.channel"
+	olmDeprecationsSchema           = "olm.deprecations"
+	olmBundleSchema                 = "olm.bundle"
 	latestChannelName               = "latest"
 	stableChannelName               = "stable"
 	first3MajorVersion              = "3.62.0"
@@ -85,7 +90,7 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, fmt.Errorf("failed to read %s: %v", filename, err)
 	}
 	var input Input
-	if err := yaml.Unmarshal(inputBytes, &input); err != nil {
+	if err = yaml.Unmarshal(inputBytes, &input); err != nil {
 		return Configuration{}, fmt.Errorf("failed to unmarshal YAML: %v", err)
 	}
 
@@ -116,22 +121,22 @@ func readInputFile(filename string) (Configuration, error) {
 	}
 
 	// TODO: ROX-30604 check that image reference is associated with the provided version.
-	if err := validateImageReferences(images); err != nil {
+	if err = validateImageReferences(images); err != nil {
 		return Configuration{}, err
 	}
 
 	versions := getAllVersions(images)
-	if err := validateVersionsAreSorted(versions); err != nil {
+	if err = validateVersionsAreSorted(versions); err != nil {
 		return Configuration{}, err
 	}
-	if err := hasGapInVersions(versions); err != nil {
+	if err = hasGapInVersions(versions); err != nil {
 		return Configuration{}, fmt.Errorf("version gap detected: %v", err)
 	}
-	if err := validateBrokenVersions(brokens, versions); err != nil {
+	if err = validateBrokenVersions(brokens, versions); err != nil {
 		return Configuration{}, fmt.Errorf("invalid broken versions: %v", err)
 	}
 	if !slices.ContainsFunc(versions, oldest.Equal) {
-		return Configuration{}, fmt.Errorf("oldest supported version %s is not present in the list of versions", oldest.Original())
+		return Configuration{}, fmt.Errorf("oldest supported version %s is not present in the list of versions", oldest)
 	}
 
 	return Configuration{
@@ -142,31 +147,12 @@ func readInputFile(filename string) (Configuration, error) {
 	}, nil
 }
 
-// generatePackageWithIcon creates a new "olm.package" object with an operator icon.
-func generatePackageWithIcon() (Package, error) {
-	data, err := os.ReadFile(iconFile)
-	if err != nil {
-		return Package{}, fmt.Errorf("failed to read %s: %v", iconFile, err)
-	}
-	iconBase64 := base64.StdEncoding.EncodeToString(data)
-
-	return Package{
-		Schema:         "olm.package",
-		Name:           "rhacs-operator",
-		DefaultChannel: stableChannelName,
-		Icon: Icon{
-			Base64data: iconBase64,
-			MediaType:  "image/png",
-		},
-	}, nil
-}
-
 func generateChannels(versions []*semver.Version) []Channel {
 	channels := make([]Channel, 0)
 
 	for _, v := range versions {
 		// latest channel is historically placed between rhacs-3.y and rhacs-4.y channels.
-		if v.Original() == first4MajorVersion {
+		if v.String() == first4MajorVersion {
 			latestChannel := newLatestChannel()
 			channels = append(channels, latestChannel)
 		}
@@ -217,10 +203,10 @@ func populateChannelEntries(channels []Channel, channelEntries []ChannelEntry) {
 func channelShouldHaveEntry(channel Channel, entry ChannelEntry) bool {
 	validForLatest := channel.Name == latestChannelName && entry.version.Major() < 4
 	validForStable := channel.Name == stableChannelName && entry.version.Major() >= 4
-	validForChannel := channel.yStreamVersion != nil &&
+	validForVersioned := channel.yStreamVersion != nil &&
 		entry.version.Major() == channel.yStreamVersion.Major() &&
 		entry.version.Minor() <= channel.yStreamVersion.Minor()
-	return validForLatest || validForStable || validForChannel
+	return validForLatest || validForStable || validForVersioned
 }
 
 // generateDeprecations creates an object with a list of deprecations based on the provided versions.
@@ -282,12 +268,13 @@ func writeToFile(filename string, ct CatalogTemplate) error {
 }
 
 // validateVersionsAreSorted checks that the operator versions are sorted in ascending order and that there are no duplicates.
+// The sorted order is important for the correct functioning of the rest of the program.
 func validateVersionsAreSorted(versions []*semver.Version) error {
 	for i := 0; i < len(versions)-1; i++ {
 		currentVersion := versions[i]
 		nextVersion := versions[i+1]
 		if currentVersion.GreaterThanEqual(nextVersion) {
-			return fmt.Errorf("versions are not sorted in ascending order: %s is not less than %s", currentVersion.Original(), nextVersion.Original())
+			return fmt.Errorf("versions are not sorted in ascending order: %s is not less than %s", currentVersion, nextVersion)
 		}
 	}
 	return nil
@@ -300,19 +287,19 @@ func hasGapInVersions(versions []*semver.Version) error {
 
 		if currentVersion.Major() != nextVersion.Major() {
 			if currentVersion.Major()+1 != nextVersion.Major() || nextVersion.Minor() != 0 || nextVersion.Patch() != 0 {
-				return fmt.Errorf("invalid version %s: a new major version should start from %d.0.0", nextVersion.Original(), currentVersion.Major()+1)
+				return fmt.Errorf("invalid version %s: a new major version should start from %d.0.0", nextVersion, currentVersion.Major()+1)
 			}
 		}
 
 		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() != nextVersion.Minor() {
 			if currentVersion.Minor()+1 != nextVersion.Minor() || nextVersion.Patch() != 0 {
-				return fmt.Errorf("invalid version %s: a new minor version should be %s", currentVersion.Original(), nextVersion.Original())
+				return fmt.Errorf("invalid version %s: a new minor version should be %s", currentVersion, nextVersion)
 			}
 		}
 
 		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() == nextVersion.Minor() {
 			if nextVersion.Patch() != currentVersion.Patch()+1 {
-				return fmt.Errorf("invalid version %s: is not followed by %s", currentVersion.Original(), nextVersion.Original())
+				return fmt.Errorf("invalid version %s: is not followed by %s", currentVersion, nextVersion)
 			}
 		}
 	}
@@ -321,9 +308,9 @@ func hasGapInVersions(versions []*semver.Version) error {
 }
 
 func validateBrokenVersions(brokenVersions map[*semver.Version]bool, versions []*semver.Version) error {
-	for brokenVersion, _ := range brokenVersions {
+	for brokenVersion := range brokenVersions {
 		if !slices.ContainsFunc(versions, brokenVersion.Equal) {
-			return fmt.Errorf("broken version %s is not present in the list of versions", brokenVersion.Original())
+			return fmt.Errorf("broken version %s is not present in the list of versions", brokenVersion)
 		}
 	}
 	return nil
@@ -341,7 +328,6 @@ func validateImageReferences(images []BundleImage) error {
 
 // validateImageReference validates that the provided image string is a valid container image reference with a digest
 func validateImageReference(image string) error {
-	// validate the image reference using the distribution/reference package
 	ref, err := reference.Parse(image)
 	if err != nil {
 		return fmt.Errorf("cannot parse string as container image reference %s: %w", image, err)

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"os"
 	"slices"
 
 	semver "github.com/Masterminds/semver/v3"
@@ -104,11 +106,30 @@ type BundleEntry struct {
 	Image  string `yaml:"image"`
 }
 
+// generatePackageWithIcon creates a new "olm.package" object with an operator icon.
+func generatePackageWithIcon() (Package, error) {
+	data, err := os.ReadFile(iconFile)
+	if err != nil {
+		return Package{}, fmt.Errorf("failed to read %s: %v", iconFile, err)
+	}
+	iconBase64 := base64.StdEncoding.EncodeToString(data)
+
+	return Package{
+		Schema:         olmPackageSchema,
+		Name:           rhacsOperator,
+		DefaultChannel: stableChannelName,
+		Icon: Icon{
+			Base64data: iconBase64,
+			MediaType:  "image/png",
+		},
+	}, nil
+}
+
 // Create base catalog template block.
 // It has to contain objects with schema equal to: "olm.package", "olm.channel", "olm.deprecations" or "olm.bundle".
 func newCatalogTemplate() CatalogTemplate {
 	return CatalogTemplate{
-		Schema: "olm.template.basic",
+		Schema: olmTemplateSchema,
 	}
 }
 
@@ -145,9 +166,9 @@ func (c *CatalogTemplate) addBundles(bundles []BundleEntry) {
 // |      - <ChannelEntry>
 func newChannel(version *semver.Version) Channel {
 	return Channel{
-		Schema:         "olm.channel",
+		Schema:         olmChannelSchema,
 		Name:           fmt.Sprintf("rhacs-%d.%d", version.Major(), version.Minor()),
-		Package:        "rhacs-operator",
+		Package:        rhacsOperator,
 		yStreamVersion: makeYStreamVersion(version),
 	}
 }
@@ -156,9 +177,9 @@ func newChannel(version *semver.Version) Channel {
 // It is a now-deprecated channel which was used before "stable" was introduced.
 func newLatestChannel() Channel {
 	return Channel{
-		Schema:  "olm.channel",
+		Schema:  olmChannelSchema,
 		Name:    latestChannelName,
-		Package: "rhacs-operator",
+		Package: rhacsOperator,
 	}
 }
 
@@ -166,9 +187,9 @@ func newLatestChannel() Channel {
 // It is a default channel for all versions after 4.0.0.
 func newStableChannel() Channel {
 	return Channel{
-		Schema:  "olm.channel",
+		Schema:  olmChannelSchema,
 		Name:    stableChannelName,
-		Package: "rhacs-operator",
+		Package: rhacsOperator,
 	}
 }
 
@@ -192,14 +213,14 @@ func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semv
 }
 
 func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version) {
-	if !slices.Contains(versionsWithoutReplaces, version.Original()) {
+	if !slices.Contains(versionsWithoutReplaces, version.String()) {
 		e.Replaces = generateBundleName(previousEntryVersion)
 	}
 }
 
 func (e *ChannelEntry) addSkipRange(version, previousYStreamVersion *semver.Version) {
-	skipRangeFrom := previousYStreamVersion.String()
-	skipRangeTo := version.Original()
+	skipRangeFrom := previousYStreamVersion
+	skipRangeTo := version
 	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeFrom, skipRangeTo)
 }
 
@@ -221,8 +242,8 @@ func (e *ChannelEntry) addSkips(version *semver.Version, skippedVersions map[*se
 // |      - <DeprecationEntry>
 func newDeprecations(entries []DeprecationEntry) Deprecations {
 	return Deprecations{
-		Schema:  "olm.deprecations",
-		Package: "rhacs-operator",
+		Schema:  olmDeprecationsSchema,
+		Package: rhacsOperator,
 		Entries: entries,
 	}
 }
@@ -231,30 +252,30 @@ func newDeprecations(entries []DeprecationEntry) Deprecations {
 // it will be represented in YAML like this:
 // |  - reference:
 // |    schema: olm.channel
-// |    name: rhacs-<version>
+// |    name: <name>
 // |    message: |
 // |      <message>
 func newChannelDeprecationEntry(name string, message string) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
-			Schema: "olm.channel",
+			Schema: olmChannelSchema,
 			Name:   name,
 		},
 		Message: message,
 	}
 }
 
-// Create a new channel DeprecationEntry reference object which should be added to Deprecation reference list.
+// Create a new bundle DeprecationEntry reference object which should be added to Deprecation reference list.
 // it will be represented in YAML like this:
 // |  - reference:
 // |    schema: olm.bundle
-// |    name: rhacs-<version>
+// |    name: rhacs-operator.v<version>
 // |    message: |
 // |      <message>
 func newBundleDeprecationEntry(version *semver.Version, message string) DeprecationEntry {
 	return DeprecationEntry{
 		Reference: DeprecationReference{
-			Schema: "olm.bundle",
+			Schema: olmBundleSchema,
 			Name:   generateBundleName(version),
 		},
 		Message: message,
@@ -267,7 +288,7 @@ func newBundleDeprecationEntry(version *semver.Version, message string) Deprecat
 // |    schema: olm.bundle
 func newBundleEntry(image string) BundleEntry {
 	return BundleEntry{
-		Schema: "olm.bundle",
+		Schema: olmBundleSchema,
 		Image:  image,
 	}
 }
@@ -282,7 +303,7 @@ func getAllVersions(images []BundleImage) []*semver.Version {
 }
 
 func generateBundleName(version *semver.Version) string {
-	return fmt.Sprintf("rhacs-operator.v%s", version.Original())
+	return fmt.Sprintf("%s.v%s", rhacsOperator, version)
 }
 
 func makeYStreamVersion(v *semver.Version) *semver.Version {

@@ -165,7 +165,7 @@ func TestReadInputFile(t *testing.T) {
 		{
 			name:          "Image reference without digest",
 			filePath:      "testdata/image_without_digest.yaml",
-			expectedError: "image reference does not include a digest",
+			expectedError: "image reference example.com/image:v1 does not include a digest",
 		},
 		{
 			name:          "Image reference is not a strict semantic version",
@@ -200,6 +200,62 @@ func TestReadInputFile(t *testing.T) {
 				expectedBrokenVersions := slices.Collect(maps.Keys(tt.expectedConfig.BrokenVersions))
 				actualBrokenVersions := slices.Collect(maps.Keys(config.BrokenVersions))
 				assert.ElementsMatch(t, expectedBrokenVersions, actualBrokenVersions)
+			}
+		})
+	}
+}
+func TestValidateImageReferences(t *testing.T) {
+	tests := []struct {
+		name          string
+		images        []BundleImage
+		expectedError string
+	}{
+		{
+			name: "Valid image references",
+			images: []BundleImage{
+				{Image: "example.com/image@sha256:6cdcf20771f9c46640b466f804190d00eaf2e59caee6d420436e78b283d177bf"},
+				{Image: "example.com/another-image@sha256:7fd7595e6a61352088f9a3a345be03a6c0b9caa0bbc5ddd8c61ba1d38b2c3b8e"},
+			},
+			expectedError: "",
+		},
+		{
+			name: "Image reference without digest",
+			images: []BundleImage{
+				{Image: "example.com/image:v1"},
+			},
+			expectedError: "image reference example.com/image:v1 does not include a digest",
+		},
+		{
+			name: "Invalid image reference format",
+			images: []BundleImage{
+				{Image: "INVALID_IMAGE_REFERENCE"},
+			},
+			expectedError: "cannot parse string as container image reference INVALID_IMAGE_REFERENCE",
+		},
+		{
+			name: "Mixed valid and invalid image references",
+			images: []BundleImage{
+				{Image: "example.com/image@sha256:6cdcf20771f9c46640b466f804190d00eaf2e59caee6d420436e78b283d177bf"},
+				{Image: "example.com/image:v1"},
+			},
+			expectedError: "image reference example.com/image:v1 does not include a digest",
+		},
+		{
+			name:          "Empty image list",
+			images:        []BundleImage{},
+			expectedError: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateImageReferences(tt.images)
+
+			if tt.expectedError != "" {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedError)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
