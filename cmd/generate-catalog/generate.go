@@ -117,6 +117,7 @@ func readInputFile(filename string) (Configuration, error) {
 		})
 	}
 
+	// TODO: ROX-30604 check that image reference is associated with the provided version.
 	if err := validateImageReferences(images); err != nil {
 		return Configuration{}, err
 	}
