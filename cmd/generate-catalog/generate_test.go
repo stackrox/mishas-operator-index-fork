@@ -10,24 +10,27 @@ import (
 )
 
 var (
-	v3610 = semver.MustParse("3.61.0")
-	v3620 = semver.MustParse("3.62.0")
-	v3621 = semver.MustParse("3.62.1")
-	v4000 = semver.MustParse("4.0.0")
-	v4001 = semver.MustParse("4.0.1")
-	v4002 = semver.MustParse("4.0.2")
-	v4100 = semver.MustParse("4.1.0")
-	v4101 = semver.MustParse("4.1.1")
-	v4200 = semver.MustParse("4.2.0")
+	v3610           = semver.MustParse("3.61.0")
+	v3620           = semver.MustParse("3.62.0")
+	v3621           = semver.MustParse("3.62.1")
+	v4000           = semver.MustParse("4.0.0")
+	v4001           = semver.MustParse("4.0.1")
+	v4002           = semver.MustParse("4.0.2")
+	v4100           = semver.MustParse("4.1.0")
+	v4101           = semver.MustParse("4.1.1")
+	v4200           = semver.MustParse("4.2.0")
+	skippedVersions = map[*semver.Version]bool{
+		v4001: true,
+	}
 
 	entry3620 = newChannelEntry(v3620, v3610, v3610, nil)
 	entry3621 = newChannelEntry(v3621, v3620, v3610, nil)
 	entry4000 = newChannelEntry(v4000, v3621, v3620, nil)
-	entry4001 = newChannelEntry(v4001, v4000, v3620, []*semver.Version{v4001})
-	entry4002 = newChannelEntry(v4002, v4001, v3620, []*semver.Version{v4001})
-	entry4100 = newChannelEntry(v4100, v4002, v4000, []*semver.Version{v4001})
-	entry4101 = newChannelEntry(v4101, v4100, v4000, []*semver.Version{v4001})
-	entry4200 = newChannelEntry(v4200, v4101, v4100, []*semver.Version{v4001})
+	entry4001 = newChannelEntry(v4001, v4000, v3620, skippedVersions)
+	entry4002 = newChannelEntry(v4002, v4001, v3620, skippedVersions)
+	entry4100 = newChannelEntry(v4100, v4002, v4000, skippedVersions)
+	entry4101 = newChannelEntry(v4101, v4100, v4000, skippedVersions)
+	entry4200 = newChannelEntry(v4200, v4101, v4100, skippedVersions)
 
 	channel36     = newChannel(v3620)
 	latestChannel = newLatestChannel()
@@ -115,7 +118,7 @@ func TestReadInputFile(t *testing.T) {
 			filePath:      "testdata/valid_input.yaml",
 			expectedError: "",
 			expectedConfig: Configuration{
-				OldestSupportedVersion: semver.MustParse("4.6.0"),
+				OldestSupportedVersion: semver.MustParse("4.0.0"),
 				BrokenVersions: map[*semver.Version]bool{
 					semver.MustParse("4.1.0"): true,
 				},
@@ -127,6 +130,14 @@ func TestReadInputFile(t *testing.T) {
 					{
 						Image:   "example.com/image@sha256:7fd7595e6a61352088f9a3a345be03a6c0b9caa0bbc5ddd8c61ba1d38b2c3b8e",
 						Version: semver.MustParse("4.0.0"),
+					},
+					{
+						Image:   "example.com/image@sha256:272e3d6e2f7f207b3d3866d8be00715e6a6086d50b110c45662d99d217d48dbc",
+						Version: semver.MustParse("4.1.0"),
+					},
+					{
+						Image:   "example.com/image@sha256:68633e6b12768689f352e1318dc0acc388522d8b6295bf6ca662834cf1367b85",
+						Version: semver.MustParse("4.2.0"),
 					},
 				},
 			},

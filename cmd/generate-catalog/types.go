@@ -31,6 +31,7 @@ type Configuration struct {
 	OldestSupportedVersion *semver.Version
 	BrokenVersions         map[*semver.Version]bool
 	Images                 []BundleImage
+	Versions               []*semver.Version
 }
 
 type BundleImage struct {
@@ -178,7 +179,7 @@ func newStableChannel() Channel {
 // |    skipRange: '>= <previousYStreamVersion> < <version>'
 // |    skips:
 // |      - rhacs-operator.v<skippedVersions>
-func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semver.Version, skippedVersions []*semver.Version) ChannelEntry {
+func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semver.Version, skippedVersions map[*semver.Version]bool) ChannelEntry {
 	entry := ChannelEntry{
 		Name:    generateBundleName(version),
 		Version: version,
@@ -201,8 +202,8 @@ func (e *ChannelEntry) addSkipRange(version, previousYStreamVersion *semver.Vers
 	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeFrom, skipRangeTo)
 }
 
-func (e *ChannelEntry) addSkips(version *semver.Version, skippedVersions []*semver.Version) {
-	for _, skippedVersion := range skippedVersions {
+func (e *ChannelEntry) addSkips(version *semver.Version, skippedVersions map[*semver.Version]bool) {
+	for skippedVersion, _ := range skippedVersions {
 		// for any broken X.Y.Z version add "skips" for all versions > X.Y.Z and < X.Y+2.0
 		skipsUntilVersion := semver.MustParse(fmt.Sprintf("%d.%d.0", skippedVersion.Major(), skippedVersion.Minor()+2))
 		if version.GreaterThan(skippedVersion) && version.LessThan(skipsUntilVersion) {
@@ -268,6 +269,15 @@ func newBundleEntry(image string) BundleEntry {
 		Schema: "olm.bundle",
 		Image:  image,
 	}
+}
+
+// getAllVersions extracts all operator versions from the input images.
+func getAllVersions(images []BundleImage) []*semver.Version {
+	versions := make([]*semver.Version, 0, len(images))
+	for _, img := range images {
+		versions = append(versions, img.Version)
+	}
+	return versions
 }
 
 func generateBundleName(version *semver.Version) string {

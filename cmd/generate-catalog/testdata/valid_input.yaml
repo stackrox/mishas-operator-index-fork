@@ -1,4 +1,4 @@
-oldest_supported_version: 4.6.0
+oldest_supported_version: 4.0.0
 broken_versions:
 - 4.1.0
 images:
@@ -6,3 +6,7 @@ images:
     version: 3.62.0
   - image: example.com/image@sha256:7fd7595e6a61352088f9a3a345be03a6c0b9caa0bbc5ddd8c61ba1d38b2c3b8e
     version: 4.0.0
+  - image: example.com/image@sha256:272e3d6e2f7f207b3d3866d8be00715e6a6086d50b110c45662d99d217d48dbc
+    version: 4.1.0
+  - image: example.com/image@sha256:68633e6b12768689f352e1318dc0acc388522d8b6295bf6ca662834cf1367b85
+    version: 4.2.0

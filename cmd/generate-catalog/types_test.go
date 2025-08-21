@@ -85,9 +85,13 @@ func TestNewChannelEntry(t *testing.T) {
 			}
 			previousChannelVersion := semver.MustParse(tt.previousChannelVersion)
 
-			var brokenVersions []*semver.Version
+			var brokenVersions map[*semver.Version]bool
 			for _, bv := range tt.brokenVersions {
-				brokenVersions = append(brokenVersions, semver.MustParse(bv))
+				brokenVersion := semver.MustParse(bv)
+				if brokenVersions == nil {
+					brokenVersions = make(map[*semver.Version]bool)
+				}
+				brokenVersions[brokenVersion] = true
 			}
 
 			entry := newChannelEntry(version, previousEntryVersion, previousChannelVersion, brokenVersions)

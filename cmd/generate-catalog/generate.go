@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
-	"maps"
 	"os"
 	"slices"
 
@@ -50,21 +49,19 @@ func generateCatalogTemplateFile() error {
 	if err != nil {
 		return fmt.Errorf("failed to read bundle list file: %v", err)
 	}
-	versions := getAllVersions(config.Images)
-	skippedVersions := slices.Collect(maps.Keys(config.BrokenVersions))
 
 	pkg, err := generatePackageWithIcon()
 	if err != nil {
 		return fmt.Errorf("failed to generate package object with icon: %v", err)
 	}
-	channels := generateChannels(versions)
-	entries := generateChannelEntries(versions, skippedVersions)
+	channels := generateChannels(config.Versions)
+	entries := generateChannelEntries(config.Versions, config.BrokenVersions)
 	channels, err = populateChannelEntries(channels, entries)
 	if err != nil {
 		return fmt.Errorf("failed to add channel entries: %v", err)
 	}
 
-	deprecations := generateDeprecations(versions, channels, config.OldestSupportedVersion, config.BrokenVersions)
+	deprecations := generateDeprecations(config.Versions, channels, config.OldestSupportedVersion, config.BrokenVersions)
 	bundles := generateBundles(config.Images)
 
 	ct := newCatalogTemplate()
@@ -123,24 +120,27 @@ func readInputFile(filename string) (Configuration, error) {
 	if err := validateImageReferences(images); err != nil {
 		return Configuration{}, err
 	}
-	if err := validateVersionsAreSorted(images); err != nil {
+
+	versions := getAllVersions(images)
+	if err := validateVersionsAreSorted(versions); err != nil {
 		return Configuration{}, err
+	}
+	if err := hasGapInVersions(versions); err != nil {
+		return Configuration{}, fmt.Errorf("version gap detected: %v", err)
+	}
+	if err := validateBrokenVersions(brokens, versions); err != nil {
+		return Configuration{}, fmt.Errorf("invalid broken versions: %v", err)
+	}
+	if !slices.ContainsFunc(versions, oldest.Equal) {
+		return Configuration{}, fmt.Errorf("oldest supported version %s is not present in the list of versions", oldest.Original())
 	}
 
 	return Configuration{
 		OldestSupportedVersion: oldest,
 		BrokenVersions:         brokens,
 		Images:                 images,
+		Versions:               versions,
 	}, nil
-}
-
-// getAllVersions extracts all operator versions from the input images.
-func getAllVersions(images []BundleImage) []*semver.Version {
-	versions := make([]*semver.Version, 0, len(images))
-	for _, img := range images {
-		versions = append(versions, img.Version)
-	}
-	return versions
 }
 
 // generatePackageWithIcon creates a new "olm.package" object with an operator icon.
@@ -187,10 +187,10 @@ func generateChannels(versions []*semver.Version) []Channel {
 	return channels
 }
 
-func generateChannelEntries(versions []*semver.Version, skippedVersions []*semver.Version) []ChannelEntry {
+func generateChannelEntries(versions []*semver.Version, skippedVersions map[*semver.Version]bool) []ChannelEntry {
 	channelEntries := make([]ChannelEntry, 0)
 	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
-	previousEntryVersion := semver.MustParse("3.61.0")
+	previousEntryVersion := semver.New(3, 61, 0, "", "")
 	var previousYStreamVersion *semver.Version
 
 	for _, v := range versions {
@@ -286,12 +286,48 @@ func writeToFile(filename string, ct CatalogTemplate) error {
 }
 
 // validateVersionsAreSorted checks that the operator versions are sorted in ascending order and that there are no duplicates.
-func validateVersionsAreSorted(images []BundleImage) error {
-	for i := 0; i < len(images)-1; i++ {
-		version := images[i].Version
-		nextVersion := images[i+1].Version
-		if version.GreaterThanEqual(nextVersion) {
-			return fmt.Errorf("operator versions are not sorted in ascending order: %s is not less than %s", version.Original(), nextVersion.Original())
+func validateVersionsAreSorted(versions []*semver.Version) error {
+	for i := 0; i < len(versions)-1; i++ {
+		currentVersion := versions[i]
+		nextVersion := versions[i+1]
+		if currentVersion.GreaterThanEqual(nextVersion) {
+			return fmt.Errorf("versions are not sorted in ascending order: %s is not less than %s", currentVersion.Original(), nextVersion.Original())
+		}
+	}
+	return nil
+}
+
+func hasGapInVersions(versions []*semver.Version) error {
+	for i := 0; i < len(versions)-1; i++ {
+		currentVersion := versions[i]
+		nextVersion := versions[i+1]
+
+		if currentVersion.Major() != nextVersion.Major() {
+			if currentVersion.Major()+1 != nextVersion.Major() || nextVersion.Minor() != 0 || nextVersion.Patch() != 0 {
+				return fmt.Errorf("invalid version %s: a new major version should start from %d.0.0", nextVersion.Original(), currentVersion.Major()+1)
+			}
+		}
+
+		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() != nextVersion.Minor() {
+			if currentVersion.Minor()+1 != nextVersion.Minor() || nextVersion.Patch() != 0 {
+				return fmt.Errorf("invalid version %s: a new minor version should be %s", currentVersion.Original(), nextVersion.Original())
+			}
+		}
+
+		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() == nextVersion.Minor() {
+			if nextVersion.Patch() != currentVersion.Patch()+1 {
+				return fmt.Errorf("invalid version %s: is not followed by %s", currentVersion.Original(), nextVersion.Original())
+			}
+		}
+	}
+
+	return nil
+}
+
+func validateBrokenVersions(brokenVersions map[*semver.Version]bool, versions []*semver.Version) error {
+	for brokenVersion, _ := range brokenVersions {
+		if !slices.ContainsFunc(versions, brokenVersion.Equal) {
+			return fmt.Errorf("broken version %s is not present in the list of versions", brokenVersion.Original())
 		}
 	}
 	return nil
