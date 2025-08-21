@@ -172,7 +172,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 
 func generateChannelEntries(versions []*semver.Version, skippedVersions map[*semver.Version]bool) []ChannelEntry {
 	channelEntries := make([]ChannelEntry, 0)
-	// very first version in the catalog replaces 3.61.0 and skipRanges starts from 3.61.0
+	// very first version in the catalog has "skipRanges" starts from "3.61.0" version
 	previousEntryVersion := semver.New(3, 61, 0, "", "")
 	var previousYStreamVersion *semver.Version
 
@@ -240,7 +240,7 @@ func generateDeprecations(versions []*semver.Version, channels []Channel, oldest
 	return newDeprecations(deprecations)
 }
 
-// generateBundles creates a list of bundle entries based on the provided versions and their corresponding images.
+// generateBundles creates a list of bundle entries based on their corresponding images.
 func generateBundles(images []BundleImage) []BundleEntry {
 	var bundleEntries []BundleEntry
 	for _, img := range images {
