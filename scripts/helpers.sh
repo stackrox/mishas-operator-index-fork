@@ -1,6 +1,6 @@
 # Expand commit to a full 40-character SHA. Returns the full commit SHA if successful, or an error message if not.
 expand_commit() {
-    git fetch --all
+    git fetch --all --quiet
     
     if ! git rev-parse --verify --end-of-options "$1^{commit}"; then
         echo "Cannot expand commit $1 to a full 40-character long SHA." >&2
