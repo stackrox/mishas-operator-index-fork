@@ -27,7 +27,9 @@ ensure_yq() {
     mkdir -p "$(dirname "${YQ}")"
     echo "Fetching ${url}..." >&2
     curl --silent --fail --location --retry 3 --output "${YQ}" "${url}"
-    [[ "${kernel_name}" != "Darwin" ]] || xattr -c "${YQ}"
+    if [[ "${kernel_name}" == "Darwin" ]]; then
+        xattr -c "${YQ}"
+    fi
     chmod +x "${YQ}"
     echo "Done." >&2
 }
