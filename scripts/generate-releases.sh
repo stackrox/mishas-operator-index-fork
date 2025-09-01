@@ -50,8 +50,8 @@ validate_snapshots() {
 
     local pipelines_count
     local snapshots_count
-    pipelines_count="$(find ".tekton" -maxdepth 1 -type f -name "operator-index-ocp-*-build.yaml" | wc -l )"
-    snapshots_count="$(echo "$snapshots_data" | wc -l )"
+    pipelines_count="$(find ".tekton" -maxdepth 1 -type f -name "operator-index-ocp-*-build.yaml" | wc -l)"
+    snapshots_count="$(echo "$snapshots_data" | sed '/^$/d' | wc -l)"
 
     echo -e "Found the following snapshots for \033[0;32m$commit\033[0m commit:" >&2
     echo "$snapshots_data" >&2
