@@ -15,7 +15,7 @@ metadata:
   labels:
     # The version should correspond to the serviceAccountName below. See the comment there.
     appstudio.openshift.io/application: acs-operator-index-ocp-v4-19
-  name: checks
+  name: ready-for-master-merge
   namespace: rh-acs-tenant
 
 spec:
@@ -38,7 +38,8 @@ spec:
 
   pipelineSpec:
     description: |
-      This pipeline performs checks not specific to any OCP version.
+      This pipeline verifies whether a branch (or PR) can be merged to the `master` branch.
+      `master` should always be releasable.
 
     params:
     - description: Source Repository URL
@@ -69,7 +70,7 @@ spec:
       - name: revision
         value: $(params.revision)
       - name: ociStorage
-        value: $(params.oci-repo):konflux-checks-$(params.revision).git
+        value: $(params.oci-repo):konflux-ready-for-master-merge-$(params.revision).git
       - name: ociArtifactExpiresAfter
         value: $(params.oci-artifact-expires-after)
       taskRef:
@@ -85,11 +86,32 @@ spec:
       - name: basic-auth
         workspace: git-auth
 
-    - name: check-generated-files-up-to-date
-      params:
-      - name: SOURCE_ARTIFACT
-        value: $(tasks.clone-repository.results.SOURCE_ARTIFACT)
-      # Retries are for the cases when opm alpha render-template occasionally fails to pull images.
-      retries: 3
-      taskRef:
-        name: check-generated-files-up-to-date
+    - name: check-catalog-template-has-only-released-images
+      taskSpec:
+        description: This task is to prevent operator bundle images from quay.io or any repositories other than release ones to be added to the `master` branch. This is to make sure `master` is in good state to be released and would not require first cleaning unreleased bundles from it.
+        volumes:
+        - name: workdir
+          emptyDir: { }
+        stepTemplate:
+          volumeMounts:
+          - mountPath: /var/workdir
+            name: workdir
+        steps:
+        - name: use-trusted-artifact
+          image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
+          args:
+          - use
+          - $(tasks.clone-repository.results.SOURCE_ARTIFACT)=/var/workdir/source
+        - name: check-bundle-images-in-catalog-template
+          image: quay.io/konflux-ci/release-service-utils:latest@sha256:55e72b1c46493d5663a15d1e03a3eeff84fa0cf1e3682f375a7dd7e7fda79fb6
+          workingDir: /var/workdir/source
+          script: |
+            #!/usr/bin/env bash
+            set -euo pipefail
+            repo="registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle"
+
+            if yq eval '.. | select(has("image")) | .image' catalog-template.yaml | grep -vE '^registry\.redhat\.io/advanced-cluster-security/rhacs-operator-bundle(:|@)'; then
+              echo >&2 "catalog-template.yaml has image(s) not from ${repo}. It is not allowed to merge such bundle images to master branch because it will no longer be releasable."
+              exit 1
+            fi
+            echo "All good, no bundle images outside of ${repo} detected."
