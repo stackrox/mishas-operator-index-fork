@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
-	"os"
 	"slices"
 
 	semver "github.com/Masterminds/semver/v3"
@@ -106,30 +104,24 @@ type BundleEntry struct {
 	Image  string `yaml:"image"`
 }
 
-// generatePackageWithIcon creates a new "olm.package" object with an operator icon.
-func generatePackageWithIcon() (Package, error) {
-	data, err := os.ReadFile(iconFile)
-	if err != nil {
-		return Package{}, fmt.Errorf("failed to read %s: %v", iconFile, err)
-	}
-	iconBase64 := base64.StdEncoding.EncodeToString(data)
-
-	return Package{
-		Schema:         olmPackageSchema,
-		Name:           rhacsOperator,
-		DefaultChannel: stableChannelName,
-		Icon: Icon{
-			Base64data: iconBase64,
-			MediaType:  "image/png",
-		},
-	}, nil
-}
-
 // Create base catalog template block.
 // It has to contain objects with schema equal to: "olm.package", "olm.channel", "olm.deprecations" or "olm.bundle".
 func newCatalogTemplate() CatalogTemplate {
 	return CatalogTemplate{
 		Schema: olmTemplateSchema,
+	}
+}
+
+// newPackage creates a new "olm.package" object.
+func newPackage(defaultChannel, iconBase64 string) Package {
+	return Package{
+		Schema:         olmPackageSchema,
+		Name:           rhacsOperator,
+		DefaultChannel: defaultChannel,
+		Icon: Icon{
+			Base64data: iconBase64,
+			MediaType:  "image/png",
+		},
 	}
 }
 
@@ -207,7 +199,7 @@ func newChannelEntry(version, previousEntryVersion, previousYStreamVersion *semv
 		version: version,
 	}
 	entry.addReplaces(version, previousEntryVersion)
-	entry.addSkipRange(version, previousYStreamVersion)
+	entry.addSkipRange(previousYStreamVersion, version)
 	entry.addSkips(version, skippedVersions)
 	return entry
 }
@@ -218,9 +210,7 @@ func (e *ChannelEntry) addReplaces(version, previousEntryVersion *semver.Version
 	}
 }
 
-func (e *ChannelEntry) addSkipRange(version, previousYStreamVersion *semver.Version) {
-	skipRangeFrom := previousYStreamVersion
-	skipRangeTo := version
+func (e *ChannelEntry) addSkipRange(skipRangeFrom, skipRangeTo *semver.Version) {
 	e.SkipRange = fmt.Sprintf(">= %s < %s", skipRangeFrom, skipRangeTo)
 }
 

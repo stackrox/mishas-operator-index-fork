@@ -4,6 +4,7 @@ import (
 	// needed for digest algorithm validation
 	_ "crypto/sha256"
 
+	"encoding/base64"
 	"fmt"
 	"log"
 	"os"
@@ -147,6 +148,18 @@ func readInputFile(filename string) (Configuration, error) {
 	}, nil
 }
 
+// generatePackageWithIcon creates a new "olm.package" object with an operator icon.
+func generatePackageWithIcon() (Package, error) {
+	data, err := os.ReadFile(iconFile)
+	if err != nil {
+		return Package{}, fmt.Errorf("failed to read %s: %v", iconFile, err)
+	}
+	iconBase64 := base64.StdEncoding.EncodeToString(data)
+	pkg := newPackage(stableChannelName, iconBase64)
+
+	return pkg, nil
+}
+
 func generateChannels(versions []*semver.Version) []Channel {
 	channels := make([]Channel, 0)
 
@@ -172,7 +185,7 @@ func generateChannels(versions []*semver.Version) []Channel {
 
 func generateChannelEntries(versions []*semver.Version, skippedVersions map[*semver.Version]bool) []ChannelEntry {
 	channelEntries := make([]ChannelEntry, 0)
-	// very first version in the catalog has "skipRanges" starts from "3.61.0" version
+	// We know that our catalog begins with 3.62.0. We set previousEntryVersion to 3.61.0 in order to have 3.62.0's `skipRange` consistent with others.
 	previousEntryVersion := semver.New(3, 61, 0, "", "")
 	var previousYStreamVersion *semver.Version
 
