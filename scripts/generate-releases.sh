@@ -6,6 +6,34 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 ROOT_DIR="$(realpath "$SCRIPT_DIR/..")"
 source "$SCRIPT_DIR/helpers.sh"
 
+YQ_VERSION="v4.44.3"
+YQ="${ROOT_DIR}/.bin/yq-${YQ_VERSION}"
+
+# Make sure appropriate YQ is available. There are incompatibilities between versions so we use a version which is
+# known to produce good results.
+ensure_yq() {
+    if [[ -x "${YQ}" ]]; then
+        return 0
+    fi
+    local kernel_name
+    local os_name
+    local arch
+    kernel_name="$(uname -s)"
+    os_name="$(uname | tr '[:upper:]' '[:lower:]')"
+    arch="$(go env GOARCH)"
+    local -r url="https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_${os_name}_${arch}"
+
+    rm -f "${YQ}" # In case it's a stale partial download.
+    mkdir -p "$(dirname "${YQ}")"
+    echo "Fetching ${url}..." >&2
+    curl --silent --fail --location --retry 3 --output "${YQ}" "${url}"
+    if [[ "${kernel_name}" == "Darwin" ]]; then
+        xattr -c "${YQ}"
+    fi
+    chmod +x "${YQ}"
+    echo "Done." >&2
+}
+
 # Check command-line arguments and display usage help, if needed.
 usage() {
     if [[ "$#" -lt 1 || "$#" -gt 3 || "${1:-}" == "--help" ]]; then
@@ -50,8 +78,8 @@ validate_snapshots() {
 
     local pipelines_count
     local snapshots_count
-    pipelines_count="$(find ".tekton" -maxdepth 1 -type f -name "operator-index-ocp-*-build.yaml" | wc -l )"
-    snapshots_count="$(echo "$snapshots_data" | wc -l )"
+    pipelines_count="$(find ".tekton" -maxdepth 1 -type f -name "operator-index-ocp-*-build.yaml" | wc -l)"
+    snapshots_count="$(echo "$snapshots_data" | sed '/^$/d' | wc -l)"
 
     echo -e "Found the following snapshots for \033[0;32m$commit\033[0m commit:" >&2
     echo "$snapshots_data" >&2
@@ -97,7 +125,7 @@ generate_release_resources() {
         snapshot_copy="${snapshot%-*}-${release_name}" # replace random suffix with release name
         echo "---"
         kubectl -n rh-acs-tenant get snapshot.appstudio.redhat.com "${snapshot}" -o yaml | \
-        yq -P 'load("'"${whitelist_file}"'") as $whitelisted
+        "${YQ}" -P 'load("'"${whitelist_file}"'") as $whitelisted
          | del(.metadata.annotations |keys[]|select(. as $needle | $whitelisted.annotations | has($needle) | not))
          | del(.metadata.labels |keys[]|select(. as $needle | $whitelisted.labels | has($needle) | not))
          | {"apiVersion": .apiVersion,
@@ -145,4 +173,5 @@ validate_environment "$environment" "$branch"
 snapshots_data=$(get_snapshots_data "$commit" "$branch")
 validate_snapshots "$commit" "$snapshots_data"
 
+ensure_yq
 generate_release_resources "$environment" "$commit" "$snapshots_data"
