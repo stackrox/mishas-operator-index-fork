@@ -1,9 +1,6 @@
 package main
 
 import (
-	// needed for digest algorithm validation
-	_ "crypto/sha256"
-
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -11,8 +8,8 @@ import (
 	"slices"
 
 	semver "github.com/Masterminds/semver/v3"
-	"github.com/distribution/reference"
 	"github.com/goccy/go-yaml"
+	container "github.com/google/go-containerregistry/pkg/name"
 )
 
 const (
@@ -131,10 +128,10 @@ func readInputFile(filename string) (Configuration, error) {
 		return Configuration{}, err
 	}
 	if err = hasGapInVersions(versions); err != nil {
-		return Configuration{}, fmt.Errorf("version gap detected: %v", err)
+		return Configuration{}, err
 	}
 	if err = validateBrokenVersions(brokens, versions); err != nil {
-		return Configuration{}, fmt.Errorf("invalid broken versions: %v", err)
+		return Configuration{}, err
 	}
 	if !slices.ContainsFunc(versions, oldest.Equal) {
 		return Configuration{}, fmt.Errorf("oldest supported version %s is not present in the list of versions", oldest)
@@ -295,25 +292,22 @@ func validateVersionsAreSorted(versions []*semver.Version) error {
 
 func hasGapInVersions(versions []*semver.Version) error {
 	for i := 0; i < len(versions)-1; i++ {
+		var expectedNextVersion *semver.Version
 		currentVersion := versions[i]
 		nextVersion := versions[i+1]
 
 		if currentVersion.Major() != nextVersion.Major() {
-			if currentVersion.Major()+1 != nextVersion.Major() || nextVersion.Minor() != 0 || nextVersion.Patch() != 0 {
-				return fmt.Errorf("invalid version %s: a new major version should start from %d.0.0", nextVersion, currentVersion.Major()+1)
-			}
+			expectedNextVersion = semver.New(currentVersion.Major()+1, 0, 0, "", "")
 		}
-
 		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() != nextVersion.Minor() {
-			if currentVersion.Minor()+1 != nextVersion.Minor() || nextVersion.Patch() != 0 {
-				return fmt.Errorf("invalid version %s: a new minor version should be %s", currentVersion, nextVersion)
-			}
+			expectedNextVersion = semver.New(currentVersion.Major(), currentVersion.Minor()+1, 0, "", "")
+		}
+		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() == nextVersion.Minor() {
+			expectedNextVersion = semver.New(currentVersion.Major(), currentVersion.Minor(), currentVersion.Patch()+1, "", "")
 		}
 
-		if currentVersion.Major() == nextVersion.Major() && currentVersion.Minor() == nextVersion.Minor() {
-			if nextVersion.Patch() != currentVersion.Patch()+1 {
-				return fmt.Errorf("invalid version %s: is not followed by %s", currentVersion, nextVersion)
-			}
+		if expectedNextVersion.Major() != nextVersion.Major() || expectedNextVersion.Minor() != nextVersion.Minor() || expectedNextVersion.Patch() != nextVersion.Patch() {
+			return fmt.Errorf("unexpected version sequence [%s, %s]: %s should be followed by %s", currentVersion, nextVersion, currentVersion, expectedNextVersion)
 		}
 	}
 
@@ -339,14 +333,11 @@ func validateImageReferences(images []BundleImage) error {
 	return nil
 }
 
-// validateImageReference validates that the provided image string is a valid container image reference with a digest
-func validateImageReference(image string) error {
-	ref, err := reference.Parse(image)
+func validateImageReference(imageRef string) error {
+	// Use NewDigest with StrictValidation to ensure the reference includes a digest, repository and registry.
+	_, err := container.NewDigest(imageRef, container.StrictValidation)
 	if err != nil {
-		return fmt.Errorf("cannot parse string as container image reference %s: %w", image, err)
-	}
-	if _, ok := ref.(reference.Canonical); !ok {
-		return fmt.Errorf("image reference %s does not include a digest", image)
+		return fmt.Errorf("cannot parse string as container image reference: %w", err)
 	}
 	return nil
 }
