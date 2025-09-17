@@ -165,7 +165,7 @@ func TestReadInputFile(t *testing.T) {
 		{
 			name:          "Image reference without digest",
 			filePath:      "testdata/image_without_digest.yaml",
-			expectedError: "image reference example.com/image:v1 does not include a digest",
+			expectedError: "cannot parse string as container image reference: a digest must contain exactly one '@' separator (e.g. registry/repository@digest) saw: example.com/image:v1",
 		},
 		{
 			name:          "Image reference is not a strict semantic version",
