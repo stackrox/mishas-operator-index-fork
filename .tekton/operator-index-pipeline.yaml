@@ -77,7 +77,7 @@ spec:
       - name: name
         value: post-bigquery-metrics
       - name: bundle
-        value: quay.io/rhacs-eng/konflux-tasks:latest@sha256:8512ac00f5cd82afc5a912d53a738d457e1302138ef0d624e72beb61958cff99
+        value: quay.io/rhacs-eng/konflux-tasks:latest@sha256:496f81ac5cdb62059611ae243fde80ee8bd33534a9d0b0171c00b1d5d2e74c55
       - name: kind
         value: task
       resolver: bundles
