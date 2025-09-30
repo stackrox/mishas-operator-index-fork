@@ -1,0 +1,76 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/stackrox/operator-index?rev={{revision}}
+    build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: '{{target_branch}}'
+    pipelinesascode.tekton.dev/max-keep-runs: "500"
+    # The on-push filter includes konflux/* branches which are created by Mintmaker so that CI runs for commits pushed
+    # onto these branches even without PRs and so that Mintmaker/Renovate can automerge its updates without PRs.
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      (event == "push" && target_branch.matches("^(master|konflux/references/master|konflux/mintmaker/.*)$")) ||
+      (event == "pull_request" && body.action != "ready_for_review")
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-19
+  name: post-fbc-builds-comment
+  namespace: rh-acs-tenant
+
+spec:
+
+  params:
+  - name: git-url
+    value: '{{source_url}}'
+  - name: revision
+    value: '{{revision}}'
+
+  taskRunTemplate:
+    # This pipeline doesn't have its own Component, but it has to have some ServiceAccount.
+    # The pipeline has no special needs for SA, therefore, we re-use SA from one of the existing Components.
+    serviceAccountName: build-pipeline-operator-index-ocp-v4-19
+
+  workspaces:
+  - name: git-auth
+    secret:
+      secretName: '{{ git_auth_secret }}'
+
+  pipelineSpec:
+    description: |
+      This pipeline posts a comment in the PR with the FBC build image URL.
+
+  spec:
+    params:
+      - name: pr_number
+        description: Pull request number
+        type: string
+      - name: github_token
+        description: GitHub token for bot
+        type: string
+      - name: image_url
+        description: Image URL to post
+        type: string
+    steps:
+      - name: show-fbc-build-images
+        image: registry.redhat.io/rhel9/python-311@sha256:47e23afaf5daf6a98e76a3b5a924b85bbcb19c72b5c6ac474a418aea54cd8aae
+        env:
+          - name: GITHUB_TOKEN
+            value: "$(params.github_token)"
+        script: |
+          #!/usr/bin/env python3
+          import os
+          import requests
+
+          pr_number = "$(params.pr_number)"
+          image_url = "$(params.image_url)"
+          token = os.environ["GITHUB_TOKEN"]
+
+          url = f"https://api.github.com/repos/stackrox/operator-index/issues/{pr_number}/comments"
+          headers = {
+              "Authorization": f"token {token}",
+              "Accept": "application/vnd.github.v3+json"
+          }
+          data = {"body": f"Build image URL: {image_url}"}
+          resp = requests.post(url, headers=headers, json=data)
+          print("Status:", resp.status_code)
+          print("Response:", resp.text)
