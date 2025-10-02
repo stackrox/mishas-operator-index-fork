@@ -292,6 +292,24 @@ spec:
     - input: $(tasks.init.results.build)
       operator: in
       values: [ "true" ]
+  
+  - name: post-pr-comment-fbc-build
+    params:
+      - name: REPO
+        value: stackrox/operator-index
+      - name: PR_NUMBER
+        value: $(context.pipelineRun.annotations['build.appstudio.redhat.com/pull_request_number'])
+      - name: IMAGE_URL
+        value: $(tasks.build-image-index.results.IMAGE_URL)
+    workspaces:
+      - name: github-auth
+        workspace: git-auth
+    taskRef:
+      name: post-pr-comment-fbc-build
+    when:
+    - input: $(params.skip-checks)
+      operator: in
+      values: [ "false" ]
 
   - name: deprecated-base-image-check
     params:

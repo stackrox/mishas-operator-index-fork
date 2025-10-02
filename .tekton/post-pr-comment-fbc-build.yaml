@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: post-pr-comment-fbc-build
+spec:
+  params:
+    - name: REPO
+      type: string
+      description: GitHub repo in 'owner/repo' format
+    - name: PR_NUMBER
+      type: string
+      description: PR number to post to
+    - name: IMAGE_URL
+      type: string
+      description: FBC build image URL to post as a comment
+  workspaces:
+    - name: github-auth
+      description: Workspace with the GitHub token secret
+  steps:
+    - name: show-fbc-build-images
+      image: registry.redhat.io/rhel9/python-311@sha256:47e23afaf5daf6a98e76a3b5a924b85bbcb19c72b5c6ac474a418aea54cd8aae
+      env:
+        - name: GITHUB_TOKEN
+          value: "$(params.github_token)"
+      script: |
+        #!/usr/bin/env python3
+        import os
+        import requests
+
+        pr_number = os.environ["PR_NUMBER"]
+        image_url = os.environ["IMAGE_URL"]
+        token = os.environ["GITHUB_TOKEN"]
+
+        url = f"https://api.github.com/repos/stackrox/operator-index/issues/{pr_number}/comments"
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+        data = {"body": f"Build image URL: {image_url}"}
+        resp = requests.post(url, headers=headers, json=data)
+        print("Status:", resp.status_code)
+        print("Response:", resp.text)
