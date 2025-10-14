@@ -164,6 +164,7 @@ spec:
     value: $(tasks.clone-repository.results.commit)
   workspaces:
   - name: git-auth
+  - name: github-auth
   tasks:
   - name: post-metric-start
     taskRef: *post-bigquery-metrics-ref
@@ -291,8 +292,10 @@ spec:
       - name: IMAGE_URL
         value: $(tasks.build-image-index.results.IMAGE_URL)
     workspaces:
-      - name: github-auth
-        workspace: git-auth
+    - name: basic-auth
+      workspace: git-auth
+    - name: github-auth
+      workspace: github-auth
     taskRef:
       name: post-pr-comment-fbc-build
     when:

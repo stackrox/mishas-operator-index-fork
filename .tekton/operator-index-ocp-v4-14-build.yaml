@@ -40,6 +40,9 @@ spec:
   - name: git-auth
     secret:
       secretName: '{{ git_auth_secret }}'
+  - name: github-auth
+    secret:
+      secretName: rhacs-github-bot-token
 
   pipelineRef:
     name: operator-index-pipeline
