@@ -22,7 +22,7 @@ Do the following changes in the `catalog-template.yaml` file.
       ```yaml
       - schema: olm.bundle
         # 4.7.9
-        image: brew.registry.redhat.io/rh-osbs/rhacs-operator-bundle@sha256:c82e8330c257e56eb43cb5fa7b0c842a7f7f0414e32e26a792ef36817cb5ca02
+        image: quay.io/rhacs-eng/release-operator-bundle@sha256:c82e8330c257e56eb43cb5fa7b0c842a7f7f0414e32e26a792ef36817cb5ca02
       ```
       * Note that the image must be referenced by digest, not by tag.
       * Keep entries sorted according to version.
@@ -33,11 +33,6 @@ Do the following changes in the `catalog-template.yaml` file.
         `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` repo because this is where customers expect
         to find them. There's a CI check which prevents pushing to `master` if there's any bundle from
         a different repo.
-      * If you're adding a bundle as part of downstream release, you will find bundle image's digest in the email with
-        a subject `[CVP] (SUCCESS) cvp-redhatadvancedclustersecurity: rhacs-operator-bundle-container-4.Y.Z-x`. Open the
-        link in `Brew Build Info` and find the digest of the
-        `registry-proxy.engineering.redhat.com/rh-osbs/rhacs-operator-bundle` image. Take that image and replace
-        `registry-proxy.engineering.redhat.com` with `brew.registry.redhat.io`.
 2. Add entry to the `stable` channel.
    1. Find the `stable` channel block. It starts with:
       ```yaml
