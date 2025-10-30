@@ -210,7 +210,7 @@ spec:
     workspaces:
     - name: basic-auth
       workspace: git-auth
-  - name: build-container
+  - name: build-images
     matrix:
       params:
       - name: PLATFORM
@@ -265,7 +265,7 @@ spec:
       value: $(params.build-image-index)
     - name: IMAGES
       value:
-      - $(tasks.build-container.results.IMAGE_REF[*])
+      - $(tasks.build-images.results.IMAGE_REF[*])
     - name: BUILDAH_FORMAT
       value: $(params.buildah-format)
     taskRef:
@@ -281,6 +281,7 @@ spec:
     - input: $(tasks.init.results.build)
       operator: in
       values: ["true"]
+    runAfter: [ build-images ]
   - name: deprecated-base-image-check
     params:
     - name: IMAGE_URL
