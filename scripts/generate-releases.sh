@@ -39,7 +39,7 @@ usage() {
     if [[ "$#" -lt 1 || "$#" -gt 3 || "${1:-}" == "--help" ]]; then
         echo "USAGE: ./$(basename "${BASH_SOURCE[0]}") <ENVIRONMENT> [COMMIT] [BRANCH]" >&2
         echo "" >&2
-        echo "ENVIRONMENT - allowed values: staging|prod" >&2
+        echo "ENVIRONMENT - allowed values: stage|prod" >&2
         echo "COMMIT - a SHA of the commit to pull Snapshots only with this commit label for the Release." >&2
         echo "If provided commit SHA is less than 40 characters then it will be expanded to a full 40-characters long SHA. Default: currently checked out commit" >&2
         echo "BRANCH - an optional parameter to specify git branch name for filtering snapshots by having branch name in annotations. Default: currently checked out branch" >&2
@@ -49,12 +49,12 @@ usage() {
     fi
 }
 
-# Validate environment input and ensure it is either 'staging' or 'prod' (for master branch only).
+# Validate environment input and ensure it is either 'stage' or 'prod' (for master branch only).
 validate_environment() {
     local -r environment="$1"
     local -r branch="$2"
-    if [[ "${environment}" != "staging" && "${environment}" != "prod" ]]; then
-        echo "ERROR: ENVIRONMENT input must either be 'staging' or 'prod'." >&2
+    if [[ "${environment}" != "stage" && "${environment}" != "prod" ]]; then
+        echo "ERROR: ENVIRONMENT input must either be 'stage' or 'prod'." >&2
         return 1
     fi
     if [[ "${environment}" == "prod" && "${branch}" != "master" ]]; then
@@ -94,6 +94,19 @@ validate_snapshots() {
     fi
 }
 
+validate_release_name_length() {
+    # Validate release name length.
+    # To allow for Konflux' re-run suffix (12 chars), it must be at most 51 characters long.
+    # Otherwise, the re-run release will fail to be created as the name would exceed the Kubernetes limit of 63 characters.
+    local -r release_name_with_application="$1"
+
+    if [[ ${#release_name_with_application} -gt 51 ]]; then
+        echo "ERROR: Generated release name '${release_name_with_application}' is ${#release_name_with_application} characters long, which exceeds the 51 character limit." >&2
+        echo "You must update the script to generate a shorter release name." >&2
+        exit 1
+    fi
+}
+
 # Generate the Release resources for each snapshot found.
 generate_release_resources() {
     local -r environment="$1"
@@ -105,19 +118,19 @@ generate_release_resources() {
     local application
     local release_plan
 
-    case ${environment} in
-    staging)
-        env_short=stg
-        ;;
-    prod)
-        env_short=prd
-        ;;
-    esac
-    
-    release_name="$(date +"%Y-%m-%d")-$(git rev-parse --short "$commit")-${environment}"
-    release_name_short="$(date +"%Y%m%d")-$(git rev-parse --short "$commit")-${env_short}" # save space for retry suffix
+    release_name="$(date +"%Y%m%d")-$(git rev-parse --short=7 "$commit")-${environment}"
     whitelist_file="$ROOT_DIR/release-history/.whitelist.yaml"
     out_file="$ROOT_DIR/release-history/${release_name}.yaml"
+
+    # Pre-validate all release names before writing anything to the output file
+    echo "Validating release names..." >&2
+    while IFS= read -r line
+    do
+        application="$(echo "$line" | cut -d "|" -f 2)"
+        release_name_with_application="${application}-${release_name}"
+        validate_release_name_length "$release_name_with_application"
+    done <<< "$snapshots_data"
+
     echo "Writing resources to ${out_file} ..." >&2
     while IFS= read -r line
     do
@@ -140,13 +153,24 @@ generate_release_resources() {
            }'
 
         application="$(echo "$line" | cut -d "|" -f 2)"
-        release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
+        release_name_with_application="${application}-${release_name}"
+
+        if [[ "${environment}" == "stage" ]]; then
+            # The release plan for stage is suffixed with "-staging"
+            # TODO: rename release plans?
+            # All references in https://konflux.pages.redhat.com/docs/users/releasing/preparing-for-release.html point to pre-prod environments as "stage".
+            release_plan="${application/acs-operator-index/acs-operator-index-staging}"
+        else
+            # The release plan for prod is suffixed with "-prod"
+            release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
+        fi
+
         sed -E 's/^[[:blank:]]{8}//' <<<"
         ---
         apiVersion: appstudio.redhat.com/v1alpha1
         kind: Release
         metadata:
-          name: ${application}-${release_name_short}
+          name: ${release_name_with_application}
           namespace: rh-acs-tenant
         spec:
           releasePlan: ${release_plan}

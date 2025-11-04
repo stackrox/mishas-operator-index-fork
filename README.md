@@ -1,6 +1,6 @@
 # ACS Operator Index
 
-This repository is for building and releasing the ACS operator indexes on Konflux.  
+This repository is for building and releasing the ACS operator indexes on Konflux.
 It's for updating Operator Catalogs, i.e., so OpenShift clusters can see new versions of ACS operator in their
 OperatorHub.
 
@@ -17,7 +17,7 @@ Do the following changes in the `catalog-template.yaml` file.
 
 1. Add bundle image.
    1. Find entries with `schema: olm.bundle` towards the end of the file.
-   2. Add a new entry for your bundle image.  
+   2. Add a new entry for your bundle image.
       It should look something like this:
       ```yaml
       - schema: olm.bundle
@@ -28,7 +28,7 @@ Do the following changes in the `catalog-template.yaml` file.
       * Keep entries sorted according to version.
       * Add a comment stating the version, see how it's done for other items there.
       * You may add bundle images from `quay.io`, `brew.registry.redhat.io` and so on (provided they exist and are
-        pullable) during development and/or when preparing to release.  
+        pullable) during development and/or when preparing to release.
         Ultimately, all released bundle images must come from
         `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` repo because this is where customers expect
         to find them. There's a CI check which prevents pushing to `master` if there's any bundle from
@@ -56,8 +56,8 @@ Do the following changes in the `catalog-template.yaml` file.
           after `4.8.1`, that'd be `8` and `1`; when you add `4.9.0` after `4.8.3`, that'd be `8` and `3`),
         * `(Y-1)` with the value of `Y` minus 1 (e.g., when you add `4.8.2`, that'd be `7`).
    3. If the item you added is not the last one in the `entries` list, i.e., not the highest version, adjust the next
-      item in the `entries` list.  
-      Set its `replaces:` to be `rhacs-operator.v4.Y.Z`.  
+      item in the `entries` list.
+      Set its `replaces:` to be `rhacs-operator.v4.Y.Z`.
       For example:
       ```yaml
       - &bundle-4-7-4  # <-------- this was already there
@@ -132,16 +132,16 @@ See [konflux docs](https://github.com/konflux-ci/build-definitions/blob/c93ea73d
 
 1. Make sure you [logged in](https://spaces.redhat.com/pages/viewpage.action?pageId=407312060#HowtoeverythingKonfluxforRHACS-GettingocCLItoworkwithKonflux) to the Konflux cluster.
 2. Make sure you checked out the latest master branch: `git checkout master && git pull`
-3. Generate Release and Snapshot CRs by running `./scripts/generate-releases.sh <staging|prod>`. Use `staging` for test release and `prod` for production one.
-4. (Skip for `staging` release.) Create a PR which adds the file created by the script, get the PR reviewed and merged.
-5. (Skip for `staging` release.) Go to the [#acs-operator-index-release](https://redhat.enterprise.slack.com/archives/C096WU0GZUG) channel, and:
+3. Generate Release and Snapshot CRs by running `./scripts/generate-releases.sh <stage|prod>`. Use `stage` for test release and `prod` for production one.
+4. (Skip for `stage` release.) Create a PR which adds the file created by the script, get the PR reviewed and merged.
+5. (Skip for `stage` release.) Go to the [#acs-operator-index-release](https://redhat.enterprise.slack.com/archives/C096WU0GZUG) channel, and:
    1. make sure the previous operator index release is complete (has a green check mark emoticon)
    2. if not, coordinate with the person conducting that release
    3. once that release is complete, start a new thread for your release
-6. Apply generated CRs to the cluster: `oc create -f release-history/<YYYY-MM-DD>-<SHA>-<staging|prod>.yaml`
+6. Apply generated CRs to the cluster: `oc create -f release-history/<YYYYMMDD>-<SHA>-<stage|prod>.yaml`
 7. Monitor release [using monitor release script](#monitoring-release). Each supported OCP version has its own `Release`. Successfully finished `Release` has `Succeeded` status.
 8. Follow [the restarting release step below](#restarting-konflux-release) if any of the `Release`s fails for any OCP version.
-9. (Skip for `staging` release.) Once done, go back to the Slack thread you started earlier, add a message that your release is done and add a green check mark emoticon on the initial message of the thread.
+9. (Skip for `stage` release.) Once done, go back to the Slack thread you started earlier, add a message that your release is done and add a green check mark emoticon on the initial message of the thread.
 10. Once releases for all OCP versions successfully finish, then the operator catalog release is done. If you perform it as part of a bigger release procedure, you should go back to that procedure and continue with further steps.
 
 
