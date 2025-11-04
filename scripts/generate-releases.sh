@@ -94,9 +94,10 @@ validate_snapshots() {
     fi
 }
 
+# Validate the length of the release name.
+# To allow for Konflux' re-run suffix (12 chars), the full release name must be at most 51 characters long.
+# Otherwise, the re-run Release CR will fail to be created as its name would exceed the Kubernetes limit of 63 characters.
 validate_release_name_length() {
-    # To allow for Konflux' re-run suffix (12 chars), it must be at most 51 characters long.
-    # Otherwise, the re-run Release CR will fail to be created as the name would exceed the Kubernetes limit of 63 characters.
     local -r release_name_with_application="$1"
 
     if [[ ${#release_name_with_application} -gt 51 ]]; then
@@ -112,21 +113,21 @@ generate_release_resources() {
     local -r commit="$2"
     local -r snapshots_data="$3"
 
-    local release_name
+    local release_name_suffix
     local snapshot
     local application
     local release_plan
 
-    release_name="$(date +"%Y%m%d")-$(git rev-parse --short=7 "$commit")-${environment}"
+    release_name_suffix="$(date +"%Y%m%d")-$(git rev-parse --short=7 "$commit")-${environment}"
     whitelist_file="$ROOT_DIR/release-history/.whitelist.yaml"
-    out_file="$ROOT_DIR/release-history/${release_name}.yaml"
+    out_file="$ROOT_DIR/release-history/${release_name_suffix}.yaml"
 
     # Pre-validate all release names before writing anything to the output file
     echo "Validating release names..." >&2
     while IFS= read -r line
     do
         application="$(echo "$line" | cut -d "|" -f 2)"
-        release_name_with_application="${application}-${release_name}"
+        release_name_with_application="${application}-${release_name_suffix}"
         validate_release_name_length "${release_name_with_application}"
     done <<< "$snapshots_data"
 
@@ -134,7 +135,7 @@ generate_release_resources() {
     while IFS= read -r line
     do
         snapshot="$(echo "$line" | cut -d "|" -f 1)"
-        snapshot_copy="${snapshot%-*}-${release_name}" # replace random suffix with release name
+        snapshot_copy="${snapshot%-*}-${release_name_suffix}" # replace random suffix with release name
         echo "---"
         kubectl -n rh-acs-tenant get snapshot.appstudio.redhat.com "${snapshot}" -o yaml | \
         "${YQ}" -P 'load("'"${whitelist_file}"'") as $whitelisted
@@ -152,7 +153,7 @@ generate_release_resources() {
            }'
 
         application="$(echo "$line" | cut -d "|" -f 2)"
-        release_name_with_application="${application}-${release_name}"
+        release_name_with_application="${application}-${release_name_suffix}"
         release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
 
         sed -E 's/^[[:blank:]]{8}//' <<<"
