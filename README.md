@@ -1,6 +1,6 @@
 # ACS Operator Index
 
-This repository is for building and releasing the ACS operator indexes on Konflux.
+This repository is for building and releasing the ACS operator indexes on Konflux.\
 It's for updating Operator Catalogs, i.e., so OpenShift clusters can see new versions of ACS operator in their
 OperatorHub.
 
@@ -17,7 +17,7 @@ Do the following changes in the `catalog-template.yaml` file.
 
 1. Add bundle image.
    1. Find entries with `schema: olm.bundle` towards the end of the file.
-   2. Add a new entry for your bundle image.
+   2. Add a new entry for your bundle image.\
       It should look something like this:
       ```yaml
       - schema: olm.bundle
@@ -28,7 +28,7 @@ Do the following changes in the `catalog-template.yaml` file.
       * Keep entries sorted according to version.
       * Add a comment stating the version, see how it's done for other items there.
       * You may add bundle images from `quay.io`, `brew.registry.redhat.io` and so on (provided they exist and are
-        pullable) during development and/or when preparing to release.
+        pullable) during development and/or when preparing to release.\
         Ultimately, all released bundle images must come from
         `registry.redhat.io/advanced-cluster-security/rhacs-operator-bundle` repo because this is where customers expect
         to find them. There's a CI check which prevents pushing to `master` if there's any bundle from
@@ -56,8 +56,8 @@ Do the following changes in the `catalog-template.yaml` file.
           after `4.8.1`, that'd be `8` and `1`; when you add `4.9.0` after `4.8.3`, that'd be `8` and `3`),
         * `(Y-1)` with the value of `Y` minus 1 (e.g., when you add `4.8.2`, that'd be `7`).
    3. If the item you added is not the last one in the `entries` list, i.e., not the highest version, adjust the next
-      item in the `entries` list.
-      Set its `replaces:` to be `rhacs-operator.v4.Y.Z`.
+      item in the `entries` list.\
+      Set its `replaces:` to be `rhacs-operator.v4.Y.Z`.\
       For example:
       ```yaml
       - &bundle-4-7-4  # <-------- this was already there
