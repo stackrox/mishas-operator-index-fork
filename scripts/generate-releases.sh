@@ -95,9 +95,8 @@ validate_snapshots() {
 }
 
 validate_release_name_length() {
-    # Validate release name length.
     # To allow for Konflux' re-run suffix (12 chars), it must be at most 51 characters long.
-    # Otherwise, the re-run release will fail to be created as the name would exceed the Kubernetes limit of 63 characters.
+    # Otherwise, the re-run Release CR will fail to be created as the name would exceed the Kubernetes limit of 63 characters.
     local -r release_name_with_application="$1"
 
     if [[ ${#release_name_with_application} -gt 51 ]]; then
@@ -128,7 +127,7 @@ generate_release_resources() {
     do
         application="$(echo "$line" | cut -d "|" -f 2)"
         release_name_with_application="${application}-${release_name}"
-        validate_release_name_length "$release_name_with_application"
+        validate_release_name_length "${release_name_with_application}"
     done <<< "$snapshots_data"
 
     echo "Writing resources to ${out_file} ..." >&2
