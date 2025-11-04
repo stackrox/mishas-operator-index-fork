@@ -153,16 +153,7 @@ generate_release_resources() {
 
         application="$(echo "$line" | cut -d "|" -f 2)"
         release_name_with_application="${application}-${release_name}"
-
-        if [[ "${environment}" == "stage" ]]; then
-            # The release plan for stage is suffixed with "-staging"
-            # TODO: rename release plans?
-            # All references in https://konflux.pages.redhat.com/docs/users/releasing/preparing-for-release.html point to pre-prod environments as "stage".
-            release_plan="${application/acs-operator-index/acs-operator-index-staging}"
-        else
-            # The release plan for prod is suffixed with "-prod"
-            release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
-        fi
+        release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
 
         sed -E 's/^[[:blank:]]{8}//' <<<"
         ---
