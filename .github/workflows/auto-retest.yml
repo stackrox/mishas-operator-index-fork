@@ -1,15 +1,18 @@
-name: Auto Retest Failed Operator Index Checks
+name: Auto Retest Failed Konflux Build Checks
 
 on:
   check_run:
     types: [completed]
 
+env:
+  MAX_RETRIES: 3
+
 jobs:
   auto-retest:
-    # Only run on pull requests and when check failed
     if: |
       github.event.check_run.pull_requests[0] != null &&
       github.event.check_run.conclusion == 'failure' &&
+      contains(github.event.check_run.name, 'operator-index-ocp-v') &&
       endsWith(github.event.check_run.name, '-on-push')
 
     runs-on: ubuntu-latest
@@ -19,13 +22,12 @@ jobs:
       issues: write
 
     steps:
-      - name: Extract version from check name
-        id: extract-version
+      - name: Get check name
+        id: get-check-name
         run: |
           CHECK_NAME="${{ github.event.check_run.name }}"
-          # Extract version like "v4-12" from "operator-index-ocp-v4-12-on-push"
-          VERSION=$(echo "$CHECK_NAME" | sed -E 's/operator-index-ocp-(v[0-9]+-[0-9]+)-on-push/\1/')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Strip "Red Hat Konflux / " prefix if present
+          CHECK_NAME="${CHECK_NAME#Red Hat Konflux / }"
           echo "check_name=$CHECK_NAME" >> $GITHUB_OUTPUT
 
       - name: Get PR number
@@ -38,10 +40,10 @@ jobs:
         id: check-retries
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_NAME: ${{ steps.get-check-name.outputs.check_name }}
           PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
-          CHECK_NAME: ${{ steps.extract-version.outputs.check_name }}
+          MAX_RETRIES: ${{ env.MAX_RETRIES }}
         run: |
-          # Get all comments on the PR
           COMMENTS=$(gh pr view "$PR_NUMBER" --repo ${{ github.repository }} --json comments -q '.comments[].body')
 
           # Count how many times we've already retested this specific check
@@ -49,27 +51,23 @@ jobs:
           RETRY_COUNT=$(echo "$COMMENTS" | grep -c "$RETEST_COMMAND" || true)
 
           echo "Current retry count: $RETRY_COUNT"
-          echo "retry_count=$RETRY_COUNT" >> $GITHUB_OUTPUT
 
-          if [ "$RETRY_COUNT" -ge 5 ]; then
+          if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
             echo "should_retry=false" >> $GITHUB_OUTPUT
-            echo "Max retries (5) reached for $CHECK_NAME"
+            echo "Max retries ($MAX_RETRIES) reached for $CHECK_NAME"
           else
             echo "should_retry=true" >> $GITHUB_OUTPUT
-            echo "Will retry (attempt $((RETRY_COUNT + 1))/5)"
+            echo "Will retry (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
           fi
 
       - name: Add retest comment
         if: steps.check-retries.outputs.should_retry == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHECK_NAME: ${{ steps.get-check-name.outputs.check_name }}
           PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
-          CHECK_NAME: ${{ steps.extract-version.outputs.check_name }}
         run: |
-          RETRY_COUNT=${{ steps.check-retries.outputs.retry_count }}
-          ATTEMPT=$((RETRY_COUNT + 1))
-
-          COMMENT_BODY="/retest $CHECK_NAME
+          COMMENT_BODY="/retest $CHECK_NAME"
 
           gh pr comment "$PR_NUMBER" \
             --repo ${{ github.repository }} \
@@ -78,4 +76,4 @@ jobs:
       - name: Log max retries reached
         if: steps.check-retries.outputs.should_retry == 'false'
         run: |
-          echo "::warning::Maximum retry limit (5) reached for ${{ steps.extract-version.outputs.check_name }} on PR #${{ steps.get-pr.outputs.pr_number }}"
+          echo "::warning::Maximum retry limit (${{ env.MAX_RETRIES }}) reached for ${{ steps.get-check-name.outputs.check_name }} on PR #${{ steps.get-pr.outputs.pr_number }}"
