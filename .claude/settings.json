@@ -11,6 +11,7 @@
       "Bash(oc project:*)",
       "Bash(./scripts/generate-releases.sh:*)",
       "Bash(./scripts/monitor-release.sh:*)",
+      "Bash(kubectl -n rh-acs-tenant get releases.appstudio.redhat.com:*)",
       "Edit(catalog-template.yaml)"
     ],
     "deny": [
