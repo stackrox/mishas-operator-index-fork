@@ -1,0 +1,81 @@
+name: Auto Retest Failed Operator Index Checks
+
+on:
+  check_run:
+    types: [completed]
+
+jobs:
+  auto-retest:
+    # Only run on pull requests and when check failed
+    if: |
+      github.event.check_run.pull_requests[0] != null &&
+      github.event.check_run.conclusion == 'failure' &&
+      endsWith(github.event.check_run.name, '-on-push')
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Extract version from check name
+        id: extract-version
+        run: |
+          CHECK_NAME="${{ github.event.check_run.name }}"
+          # Extract version like "v4-12" from "operator-index-ocp-v4-12-on-push"
+          VERSION=$(echo "$CHECK_NAME" | sed -E 's/operator-index-ocp-(v[0-9]+-[0-9]+)-on-push/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "check_name=$CHECK_NAME" >> $GITHUB_OUTPUT
+
+      - name: Get PR number
+        id: get-pr
+        run: |
+          PR_NUMBER="${{ github.event.check_run.pull_requests[0].number }}"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Check retry count
+        id: check-retries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
+          CHECK_NAME: ${{ steps.extract-version.outputs.check_name }}
+        run: |
+          # Get all comments on the PR
+          COMMENTS=$(gh pr view "$PR_NUMBER" --repo ${{ github.repository }} --json comments -q '.comments[].body')
+
+          # Count how many times we've already retested this specific check
+          RETEST_COMMAND="/retest $CHECK_NAME"
+          RETRY_COUNT=$(echo "$COMMENTS" | grep -c "$RETEST_COMMAND" || true)
+
+          echo "Current retry count: $RETRY_COUNT"
+          echo "retry_count=$RETRY_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$RETRY_COUNT" -ge 5 ]; then
+            echo "should_retry=false" >> $GITHUB_OUTPUT
+            echo "Max retries (5) reached for $CHECK_NAME"
+          else
+            echo "should_retry=true" >> $GITHUB_OUTPUT
+            echo "Will retry (attempt $((RETRY_COUNT + 1))/5)"
+          fi
+
+      - name: Add retest comment
+        if: steps.check-retries.outputs.should_retry == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
+          CHECK_NAME: ${{ steps.extract-version.outputs.check_name }}
+        run: |
+          RETRY_COUNT=${{ steps.check-retries.outputs.retry_count }}
+          ATTEMPT=$((RETRY_COUNT + 1))
+
+          COMMENT_BODY="/retest $CHECK_NAME
+
+          gh pr comment "$PR_NUMBER" \
+            --repo ${{ github.repository }} \
+            --body "$COMMENT_BODY"
+
+      - name: Log max retries reached
+        if: steps.check-retries.outputs.should_retry == 'false'
+        run: |
+          echo "::warning::Maximum retry limit (5) reached for ${{ steps.extract-version.outputs.check_name }} on PR #${{ steps.get-pr.outputs.pr_number }}"
