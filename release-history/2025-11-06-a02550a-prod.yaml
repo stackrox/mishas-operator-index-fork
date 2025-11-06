@@ -1,0 +1,360 @@
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-12-z6mlh
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-12
+    appstudio.openshift.io/component: operator-index-ocp-v4-12
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-12-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-12
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:d0a4a4b55a92823eab1e43a1ba117025398905e86ffccbc06a3b768997f55ca5
+      name: operator-index-ocp-v4-12
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-12-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-12
+  snapshot: acs-operator-index-ocp-v4-12-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-13-vp9mv
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-13
+    appstudio.openshift.io/component: operator-index-ocp-v4-13
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-13-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-13
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:1b304a6192db3674017033363e3eb912844d443b23782e1f4946d2af36c061f9
+      name: operator-index-ocp-v4-13
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-13-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-13
+  snapshot: acs-operator-index-ocp-v4-13-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-14-9hxs7
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-14
+    appstudio.openshift.io/component: operator-index-ocp-v4-14
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-14-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-14
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:9b84a2e5df5d3d6c7945f6d259c5a3898861bda85f859d0abe49489b16a0b941
+      name: operator-index-ocp-v4-14
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-14-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-14
+  snapshot: acs-operator-index-ocp-v4-14-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-15-kqndt
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-15
+    appstudio.openshift.io/component: operator-index-ocp-v4-15
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-15-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-15
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:189ec4bc7b119d7891d9578eaf974ec8974f80633c85da92470dbb8ff2157a3c
+      name: operator-index-ocp-v4-15
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-15-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-15
+  snapshot: acs-operator-index-ocp-v4-15-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: kurlov
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-16-cp9t9
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-16
+    appstudio.openshift.io/component: operator-index-ocp-v4-16
+    pac.test.appstudio.openshift.io/event-type: retest-comment
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-16-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-16
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:9990efc54804a1193ffc0f320bdbd38f9c25a4ec4a8c060b667b442ba4bbc574
+      name: operator-index-ocp-v4-16
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-16-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-16
+  snapshot: acs-operator-index-ocp-v4-16-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: kurlov
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-17-ss6z8
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-17
+    appstudio.openshift.io/component: operator-index-ocp-v4-17
+    pac.test.appstudio.openshift.io/event-type: retest-comment
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-17-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-17
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:37a45f64c6da1ca7a6fe6b549d04e2017fa4a44da92ac18cad9a1b49c5374ae5
+      name: operator-index-ocp-v4-17
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-17-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-17
+  snapshot: acs-operator-index-ocp-v4-17-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-18-5x5sg
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-18
+    appstudio.openshift.io/component: operator-index-ocp-v4-18
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-18-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-18
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:217a7fd51baa275043809a05bc6a27ba5ea415e2e9f30700a0159bd3041af271
+      name: operator-index-ocp-v4-18
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-18-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-18
+  snapshot: acs-operator-index-ocp-v4-18-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: red-hat-konflux[bot]
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: refs/heads/master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-19-txtmb
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-19
+    appstudio.openshift.io/component: operator-index-ocp-v4-19
+    pac.test.appstudio.openshift.io/event-type: push
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-19-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-19
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:1d7b4471752742b60ebd4dfba8900ee65749f2552076242e93799078cbe7444c
+      name: operator-index-ocp-v4-19
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-19-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-19
+  snapshot: acs-operator-index-ocp-v4-19-2025-11-06-a02550a-prod
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Snapshot
+metadata:
+  annotations:
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
+    build.appstudio.redhat.com/target_branch: master
+    pac.test.appstudio.openshift.io/branch: master
+    pac.test.appstudio.openshift.io/sender: kurlov
+    pac.test.appstudio.openshift.io/sha-title: 'chore(deps): update konflux references (#242)'
+    pac.test.appstudio.openshift.io/sha-url: https://github.com/stackrox/operator-index/commit/a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+    pac.test.appstudio.openshift.io/source-branch: master
+    acs.redhat.com/original-snapshot-name: acs-operator-index-ocp-v4-20-l7fk7
+  labels:
+    appstudio.openshift.io/application: acs-operator-index-ocp-v4-20
+    appstudio.openshift.io/component: operator-index-ocp-v4-20
+    pac.test.appstudio.openshift.io/event-type: retest-comment
+    pac.test.appstudio.openshift.io/sha: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+  name: acs-operator-index-ocp-v4-20-2025-11-06-a02550a-prod
+  namespace: rh-acs-tenant
+spec:
+  application: acs-operator-index-ocp-v4-20
+  artifacts: {}
+  components:
+    - containerImage: quay.io/rhacs-eng/stackrox-operator-index@sha256:6087ca67c847a37f95bf4d346e63c1913807b5e1934e4cb0eaa785b3baf0383a
+      name: operator-index-ocp-v4-20
+      source:
+        git:
+          revision: a02550a3e9a1a28c8b858e670c2e5049ab46c3ba
+          url: https://github.com/stackrox/operator-index
+
+---
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: Release
+metadata:
+  name: acs-operator-index-ocp-v4-20-20251106-a02550a-prd
+  namespace: rh-acs-tenant
+spec:
+  releasePlan: acs-operator-index-prod-ocp-v4-20
+  snapshot: acs-operator-index-ocp-v4-20-2025-11-06-a02550a-prod
