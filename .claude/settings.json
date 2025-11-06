@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(gh pr create:*)",
+      "Bash(oc project:*)",
+      "Bash(./scripts/generate-releases.sh:*)",
+      "Bash(./scripts/monitor-release.sh:*)",
+      "Edit(catalog-template.yaml)"
+    ],
+    "deny": [
+      "Edit(catalog-bundle-object/rhacs-operator/catalog.json)",
+      "Edit(catalog-csv-metadata/rhacs-operator/catalog.json)",
+      "Bash(rm:*)",
+      "Bash(sudo:*)"
+    ],
+    "ask": []
+  }
+}
