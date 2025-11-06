@@ -153,9 +153,6 @@ generate_release_resources() {
           snapshot: ${snapshot_copy}"
 
     done <<< "$snapshots_data" > "${out_file}"
-
-    echo "Staging the file for commit..."
-    git add --verbose "${out_file}"
 }
 
 usage "$@"

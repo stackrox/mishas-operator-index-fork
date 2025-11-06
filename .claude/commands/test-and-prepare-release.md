@@ -9,9 +9,9 @@ Read version from $ARGUMENTS and do the following:
 5. Create a branch with pattern "add-<version>-release".
 6. Add newly generated production release and open a draft PR with title "Add <version> release". Remember the PR number.
 7. Switch back to master branch by `git checkout master`.
-8. Run `./scripts/generate-releases.sh staging` and remember a current commit. It will be used later.
+8. Run `./scripts/generate-releases.sh staging` and remember the current commit. It will be used later.
 9. Deploy the newly generated stage release to the cluster `oc create -f release-history/<name-of-the-new-stage-release-file>`
-10. Monitor the release progress with `./scripts/monitor-release.sh <short_commit_from_stage_release>` command on background. Explicitly tell user that this command is running on background and tell how to check it. Stop when all releases has "Succeeded" status or if any is in "Failed" status. If any release "Failed" stop monitoring and tell the user to follow the `Restarting Konflux Release` steps from README.md.
-11. If All releases "Succeeded" from the previous step then add a comment to the "Add <version> release" PR from the previous step that staging release successed
+10. Run the `kubectl -n rh-acs-tenant get releases.appstudio.redhat.com -l pac.test.appstudio.openshift.io/sha="<stage_release_commit>"` command on background every 30 seconds until all releases have "Succeeded" in "RELEASE STATUS". If any release has "Failed" status stop the background task and tell user to follow the `Restarting Konflux Release` steps from README.md.
+11. If All releases "Succeeded" from the previous step then add a comment to the "Add <version> release" PR from the previous step that staging release succeeded.
 
 Also remember to use the GitHub CLI (`gh`) for all GitHub-related tasks.
