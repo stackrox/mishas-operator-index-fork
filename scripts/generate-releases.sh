@@ -135,7 +135,7 @@ generate_release_resources() {
     while IFS= read -r line
     do
         snapshot="$(echo "$line" | cut -d "|" -f 1)"
-        snapshot_copy="${snapshot%-*}-${release_name_suffix}" # replace random suffix with release name
+        snapshot_copy_name="${snapshot%-*}-${release_name_suffix}" # replace random suffix with release name
         echo "---"
         kubectl -n rh-acs-tenant get snapshot.appstudio.redhat.com "${snapshot}" -o yaml | \
         "${YQ}" -P 'load("'"${whitelist_file}"'") as $whitelisted
@@ -146,7 +146,7 @@ generate_release_resources() {
             "metadata": {
               "annotations": .metadata.annotations + {"acs.redhat.com/original-snapshot-name": "'"${snapshot}"'"},
               "labels": .metadata.labels,
-              "name": "'"${snapshot_copy}"'",
+              "name": "'"${snapshot_copy_name}"'",
               "namespace": .metadata.namespace
             },
             "spec": .spec
@@ -165,7 +165,7 @@ generate_release_resources() {
           namespace: rh-acs-tenant
         spec:
           releasePlan: ${release_plan}
-          snapshot: ${snapshot_copy}"
+          snapshot: ${snapshot_copy_name}"
 
     done <<< "$snapshots_data" > "${out_file}"
 
