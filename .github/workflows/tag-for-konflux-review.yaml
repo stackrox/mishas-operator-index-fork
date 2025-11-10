@@ -13,6 +13,8 @@ jobs:
   invite-konflux-maintainers:
     runs-on: ubuntu-latest
     if: ${{ github.event.requested_team.name == 'rhtap-maintainers'}}
+    env:
+      GH_TOKEN: ${{ github.token }}
 
     steps:
     - name: Invite Konflux Maintainers
