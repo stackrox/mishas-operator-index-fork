@@ -1,0 +1,27 @@
+name: Tag for Konflux Review
+
+on:
+  pull_request:
+    types:
+    - review_requested
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  invite-konflux-maintainers:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.requested_team.name == 'rhtap-maintainers'}}
+
+    steps:
+    - name: Invite Konflux Maintainers
+      run: |
+        set -euo pipefail
+
+        gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers \
+          --input - <<< '{ "team_reviewers": [ "konflux-maintainers" ] }'
