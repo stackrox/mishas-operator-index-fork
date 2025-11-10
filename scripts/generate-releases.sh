@@ -118,18 +118,9 @@ generate_release_resources() {
     local application
     local release_plan
 
-    release_name_suffix="$(date +"%Y%m%d")-$(git rev-parse --short=7 "$commit")-${environment}"
+    release_name_suffix="$(date +"%Y%m%d")-${environment}-$(git rev-parse "$commit")"
     whitelist_file="$ROOT_DIR/release-history/.whitelist.yaml"
     out_file="$ROOT_DIR/release-history/${release_name_suffix}.yaml"
-
-    # Pre-validate all release names before writing anything to the output file
-    echo "Validating release names..." >&2
-    while IFS= read -r line
-    do
-        application="$(echo "$line" | cut -d "|" -f 2)"
-        release_name_with_application="${application}-${release_name_suffix}"
-        validate_release_name_length "${release_name_with_application}"
-    done <<< "$snapshots_data"
 
     echo "Writing resources to ${out_file} ..." >&2
     while IFS= read -r line
@@ -153,7 +144,9 @@ generate_release_resources() {
            }'
 
         application="$(echo "$line" | cut -d "|" -f 2)"
-        release_name_with_application="${application}-${release_name_suffix}"
+
+        # Crop the release name to 51 characters to avoid the Kubernetes limit of 63 characters for re-runs.
+        release_name_with_application="$(echo "${application}-${release_name_suffix}" | cut -c -51)"
         release_plan="${application/acs-operator-index/acs-operator-index-${environment}}"
 
         sed -E 's/^[[:blank:]]{8}//' <<<"
