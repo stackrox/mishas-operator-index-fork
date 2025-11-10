@@ -118,7 +118,7 @@ generate_release_resources() {
     local application
     local release_plan
 
-    release_name_suffix="$(date +"%Y%m%d")-${environment}-$(git rev-parse "$commit")"
+    release_name_suffix="$(date +"%Y%m%d")-${environment}-$(git rev-parse --short "$commit")"
     whitelist_file="$ROOT_DIR/release-history/.whitelist.yaml"
     out_file="$ROOT_DIR/release-history/${release_name_suffix}.yaml"
 
@@ -126,7 +126,7 @@ generate_release_resources() {
     while IFS= read -r line
     do
         snapshot="$(echo "$line" | cut -d "|" -f 1)"
-        snapshot_copy_name="${snapshot%-*}-${release_name_suffix}" # replace random suffix with release name
+        snapshot_copy_name="$(echo "${snapshot%-*}-${release_name_suffix}" | cut -c -51)" # replace random suffix with release name and crop to 63 characters to avoid the Kubernetes limit.
         echo "---"
         kubectl -n rh-acs-tenant get snapshot.appstudio.redhat.com "${snapshot}" -o yaml | \
         "${YQ}" -P 'load("'"${whitelist_file}"'") as $whitelisted
