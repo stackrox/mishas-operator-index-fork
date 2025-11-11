@@ -20,6 +20,12 @@ metadata:
 
 spec:
 
+
+
+
+
+
+
   params:
   - name: git-url
     value: '{{source_url}}'
