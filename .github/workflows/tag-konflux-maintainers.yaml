@@ -1,4 +1,4 @@
-name: Tag for Konflux Review
+name: Tag Konflux maintainers for review
 
 on:
   pull_request:
@@ -10,14 +10,16 @@ permissions:
   pull-requests: write
 
 jobs:
-  invite-konflux-maintainers:
+  tag-konflux-maintainers:
     runs-on: ubuntu-latest
-    if: ${{ github.event.requested_team.name == 'rhtap-maintainers'}}
+    if: |
+      github.event.requested_team.name == 'rhtap-maintainers' &&
+      github.event.pull_request.user.login == 'msugakov'
     env:
       GH_TOKEN: ${{ github.token }}
 
     steps:
-    - name: Invite Konflux Maintainers
+    - name: Tag Konflux Maintainers for review
       run: |
         set -euo pipefail
 
